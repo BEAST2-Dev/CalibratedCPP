@@ -54,9 +54,9 @@ public class ScalingBenchmark {
 
     private Tree tree;
     private CalibratedBirthDeathModel              bd;
-    private CalibratedAgeDependentBirthDeathModel  erlang;
-    private CalibratedAgeDependentBirthDeathModel erlang10;
-    private CalibratedAgeDependentBirthDeathModel  gammaModel;
+    private CalibratedAgeDependentExtinctionModel erlang;
+    private CalibratedAgeDependentExtinctionModel erlang10;
+    private CalibratedAgeDependentExtinctionModel gammaModel;
 
     // Mutable handle on birthRate for the cold VIDE benchmark
     private RealScalarParam<PositiveReal> gammaLambda;
@@ -84,7 +84,7 @@ public class ScalingBenchmark {
                 "shape", new IntScalarParam<>(ERLANG_K,    PositiveInt.INSTANCE),
                 "scale", new RealScalarParam<>(erlangScale, PositiveReal.INSTANCE));
 
-        erlang = new CalibratedAgeDependentBirthDeathModel();
+        erlang = new CalibratedAgeDependentExtinctionModel();
         erlang.initByName(
                 "tree",                 tree,
                 "origin",               new RealScalarParam<>(ORIGIN,      PositiveReal.INSTANCE),
@@ -97,7 +97,7 @@ public class ScalingBenchmark {
                 "shape", new IntScalarParam<>(10, PositiveInt.INSTANCE),
                 "scale", new RealScalarParam<>(erlangScale, PositiveReal.INSTANCE)
         );
-        erlang10 = new CalibratedAgeDependentBirthDeathModel();
+        erlang10 = new CalibratedAgeDependentExtinctionModel();
         erlang10.initByName(
                 "tree", tree,
                 "origin",               new RealScalarParam<>(ORIGIN,      PositiveReal.INSTANCE),
@@ -115,7 +115,7 @@ public class ScalingBenchmark {
                 "theta", new RealScalarParam<>(gammaScale,  PositiveReal.INSTANCE));
 
         gammaLambda = new RealScalarParam<>(BIRTH_RATE, PositiveReal.INSTANCE);
-        gammaModel = new CalibratedAgeDependentBirthDeathModel();
+        gammaModel = new CalibratedAgeDependentExtinctionModel();
         gammaModel.initByName(
                 "tree",                 tree,
                 "origin",               new RealScalarParam<>(ORIGIN, PositiveReal.INSTANCE),

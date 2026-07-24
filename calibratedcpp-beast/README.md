@@ -29,11 +29,11 @@ The birth-death skyline model takes as inputs any TWO of the time dependent piec
 - `timesAreAges`: A `Boolean` which is `true` if the change times are given as ages before the present. The default is `false`.  
 - `timesAreRelative`: A `Boolean` which is `true` if the change times are given as relative to the age of the tree (origin/root height). The default is `false`.
 
-## `CalibratedAgeDependentBirthDeathModel`
+## `CalibratedAgeDependentExtinctionModel`
 
-The age dependent birth-death model describes a population where the lifetime of individuals are drawn from an arbitrary distribution and give birth to new individuals at a constant rate $\lambda$.
+The age dependent extinction model describes a population where the lifetime of individuals are drawn from an arbitrary distribution and give birth to new individuals at a constant rate $\lambda$.
 
-`CalibratedAgeDependentBirthDeathModel` takes as inputs:
+`CalibratedAgeDependentExtinctionModel` takes as inputs:
 - `lifetimeDistribution`: A `ParametricDistribution` object describing the lifetimes of the individuals. The special case of an Erlang distribution (Gamma with integer shape parameter) is handeled separately from the general case which requires solving a Volterra integro-differential equation (VIDE). 
 - `birthRate`: The rate at which individuals give birth to new individuals.
 - `rho`: The probability with which each extant individual is sampled.

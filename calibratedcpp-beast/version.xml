@@ -8,11 +8,14 @@
         <provider classname="calibratedcpp.CalibratedCoalescentPointProcess"/>
         <provider classname="calibratedcpp.CalibratedBirthDeathModel"/>
         <provider classname="calibratedcpp.CalibratedBirthDeathSkylineModel"/>
-        <provider classname="calibratedcpp.CalibratedAgeDependentBirthDeathModel"/>
+        <provider classname="calibratedcpp.CalibratedAgeDependentExtinctionModel"/>
         <provider classname="calibratedcpp.CalibratedCPPTreeInitialiser"/>
         <provider classname="calibratedcpp.SkylineParameter"/>
         <provider classname="calibratedcpp.operators.ChangeTimeOperator"/>
         <provider classname="calibratedcpp.distribution.Erlang"/>
+        <provider classname="calibratedcpp.distribution.Weibull"/>
+        <provider classname="calibratedcpp.distribution.ScalarMixtureDistribution"/>
+        <provider classname="calibratedcpp.distribution.WeibullMixture"/>
         <provider classname="calibrationprior.CalibrationPrior"/>
         <provider classname="calibrationprior.CalibrationDistribution"/>
         <provider classname="calibrationprior.CalibrationCladePrior"/>
@@ -23,7 +26,7 @@
 
     <service type="beastfx.app.inputeditor.InputEditor">
         <provider classname="calibratedcpp.beauti.CalibratedBirthDeathSkylineInputEditor"/>
-        <provider classname="calibratedcpp.beauti.CalibratedAgeDependentBirthDeathInputEditor"/>
+        <provider classname="calibratedcpp.beauti.CalibratedAgeDependentExtinctionInputEditor"/>
         <provider classname="calibratedcpp.beauti.CalibrationDistributionInputEditor"/>
         <provider classname="calibratedcpp.beauti.SkylineParameterInputEditor"/>
     </service>

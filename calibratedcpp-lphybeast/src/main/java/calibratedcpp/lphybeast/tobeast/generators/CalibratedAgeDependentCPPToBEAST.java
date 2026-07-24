@@ -11,7 +11,7 @@ import beast.base.spec.inference.distribution.LogNormal;
 import beast.base.spec.inference.distribution.ScalarDistribution;
 import beast.base.spec.inference.distribution.Uniform;
 import beast.base.spec.inference.parameter.RealScalarParam;
-import calibratedcpp.CalibratedAgeDependentBirthDeathModel;
+import calibratedcpp.CalibratedAgeDependentExtinctionModel;
 import calibratedcpp.lphy.prior.Calibration;
 import calibratedcpp.lphy.prior.CalibrationArray;
 import calibratedcpp.lphy.prior.ConditionedMRCAPrior;
@@ -27,14 +27,14 @@ import java.util.List;
 import static lphybeast.tobeast.TaxaUtils.getTaxonSet;
 
 public class CalibratedAgeDependentCPPToBEAST
-        implements GeneratorToBEAST<CalibratedAgeDependentCPPTree, CalibratedAgeDependentBirthDeathModel> {
+        implements GeneratorToBEAST<CalibratedAgeDependentCPPTree, CalibratedAgeDependentExtinctionModel> {
 
     @Override
-    public CalibratedAgeDependentBirthDeathModel generatorToBEAST(
+    public CalibratedAgeDependentExtinctionModel generatorToBEAST(
             CalibratedAgeDependentCPPTree generator, BEASTInterface value, BEASTContext context) {
 
         List<TaxonSet> taxonSets = new ArrayList<>();
-        CalibratedAgeDependentBirthDeathModel model = new CalibratedAgeDependentBirthDeathModel();
+        CalibratedAgeDependentExtinctionModel model = new CalibratedAgeDependentExtinctionModel();
         model.setInputValue("tree", value);
 
         // When no calibrations are provided rootAge drives conditioning, so conditionOnRoot=true.
@@ -189,7 +189,7 @@ public class CalibratedAgeDependentCPPToBEAST
     }
 
     @Override
-    public Class<CalibratedAgeDependentBirthDeathModel> getBEASTClass() {
-        return CalibratedAgeDependentBirthDeathModel.class;
+    public Class<CalibratedAgeDependentExtinctionModel> getBEASTClass() {
+        return CalibratedAgeDependentExtinctionModel.class;
     }
 }

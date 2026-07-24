@@ -458,7 +458,7 @@ public class CalibratedCPPTreeInitialiserTest {
         Exponential lifetime = new Exponential();
         lifetime.initByName("mean", new RealScalarParam<>(1.0, PositiveReal.INSTANCE));
 
-        CalibratedAgeDependentBirthDeathModel model = new CalibratedAgeDependentBirthDeathModel();
+        CalibratedAgeDependentExtinctionModel model = new CalibratedAgeDependentExtinctionModel();
         model.initByName("tree", tree,
                 "conditionOnRoot", true,
                 "birthRate", new RealScalarParam<>(1.5, PositiveReal.INSTANCE),

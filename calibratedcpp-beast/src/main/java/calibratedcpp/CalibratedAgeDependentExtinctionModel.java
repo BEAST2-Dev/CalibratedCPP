@@ -24,7 +24,7 @@ import org.hipparchus.exception.MathIllegalStateException;
 @Description("Implementation of the Calibrated Coalescent Point Process where individual lifetimes follow a " +
         "user-specified distribution and births happen at a constant rate. Erlang (integer-shape Gamma) lifetimes " +
         "are handled via closed-form partial fractions; all other distributions use a numerical Volterra IDE solver.")
-public class CalibratedAgeDependentBirthDeathModel extends CalibratedCoalescentPointProcess {
+public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentPointProcess {
 
     public Input<ScalarDistribution<RealScalar<PositiveReal>, Double>> lifetimeDistributionInput = new Input<>("lifetimeDistribution",
             "Distribution of the lifetime of an individual.");

@@ -200,20 +200,20 @@ CalibratedCPPTreeRootScaler/index/=Operators/BactrianTreeScaler/
 
         </subtemplate>
 
-        <subtemplate id='CalibratedAgeDependentBirthDeath'
-                     class='calibratedcpp.CalibratedAgeDependentBirthDeathModel'
-                     mainid='CalibratedAgeDependentBirthDeath.t:$(n)'
-                     suppressInputs='calibratedcpp.CalibratedAgeDependentBirthDeathModel.calibrations,calibratedcpp.CalibratedAgeDependentBirthDeathModel.calibrationForest,calibratedcpp.CalibratedAgeDependentBirthDeathModel.conditionOnCalibrations,calibratedcpp.CalibratedAgeDependentBirthDeathModel.conditionOnRoot,calibratedcpp.CalibratedAgeDependentBirthDeathModel.origin,calibratedcpp.CalibratedAgeDependentBirthDeathModel.lifetimeDistribution,calibratedcpp.CalibratedAgeDependentBirthDeathModel.rho,calibratedcpp.CalibratedAgeDependentBirthDeathModel.birthRate,calibrationprior.CalibrationPrior.calibration,calibrationprior.CalibrationPrior.calibrationForest'
+        <subtemplate id='CalibratedAgeDependentExtinction'
+                     class='calibratedcpp.CalibratedAgeDependentExtinctionModel'
+                     mainid='CalibratedAgeDependentExtinction.t:$(n)'
+                     suppressInputs='calibratedcpp.CalibratedAgeDependentExtinctionModel.calibrations,calibratedcpp.CalibratedAgeDependentExtinctionModel.calibrationForest,calibratedcpp.CalibratedAgeDependentExtinctionModel.conditionOnCalibrations,calibratedcpp.CalibratedAgeDependentExtinctionModel.conditionOnRoot,calibratedcpp.CalibratedAgeDependentExtinctionModel.origin,calibratedcpp.CalibratedAgeDependentExtinctionModel.lifetimeDistribution,calibratedcpp.CalibratedAgeDependentExtinctionModel.rho,calibratedcpp.CalibratedAgeDependentExtinctionModel.birthRate,calibrationprior.CalibrationPrior.calibration,calibrationprior.CalibrationPrior.calibrationForest'
                      hmc='
-CalibratedAgeDependentBirthDeathOperator/index/=Operators/BactrianNodeOperator/,
-CalibratedAgeDependentBirthDeathSubtreeSlide/index/=Operators/SubtreeSlide/,
-CalibratedAgeDependentBirthDeathNarrow/index/=Operators/Exchange/,
-CalibratedAgeDependentBirthDeathWide/index/=Operators/Exchange/,
-CalibratedAgeDependentBirthDeathWilsonBalding/index/=Operators/WilsonBalding/,
-CalibratedAgeDependentBirthDeathBICEPSEpochTop/index/=Operators/EpochFlexer/,
-CalibratedAgeDependentBirthDeathBICEPSEpochAll/index/=Operators/EpochFlexer/,
-CalibratedAgeDependentBirthDeathBICEPSTreeFlex/index/=Operators/TreeStretcher/,
-CalibratedAgeDependentBirthDeathTreeRootScaler/index/=Operators/BactrianTreeScaler/
+CalibratedAgeDependentExtinctionOperator/index/=Operators/BactrianNodeOperator/,
+CalibratedAgeDependentExtinctionSubtreeSlide/index/=Operators/SubtreeSlide/,
+CalibratedAgeDependentExtinctionNarrow/index/=Operators/Exchange/,
+CalibratedAgeDependentExtinctionWide/index/=Operators/Exchange/,
+CalibratedAgeDependentExtinctionWilsonBalding/index/=Operators/WilsonBalding/,
+CalibratedAgeDependentExtinctionBICEPSEpochTop/index/=Operators/EpochFlexer/,
+CalibratedAgeDependentExtinctionBICEPSEpochAll/index/=Operators/EpochFlexer/,
+CalibratedAgeDependentExtinctionBICEPSTreeFlex/index/=Operators/TreeStretcher/,
+CalibratedAgeDependentExtinctionTreeRootScaler/index/=Operators/BactrianTreeScaler/
 '>
             <![CDATA[
             <!-- Primary birth rate. Estimated by default. -->
@@ -225,7 +225,7 @@ CalibratedAgeDependentBirthDeathTreeRootScaler/index/=Operators/BactrianTreeScal
                        id="adRho.t:$(n)" domain="UnitInterval" value="1.0" estimate="false"/>
 
             <!-- Origin parameter: declared so BEAUti tracks it, but NOT connected to the model
-                 here. CalibratedAgeDependentBirthDeathInputEditor connects it dynamically when the
+                 here. CalibratedAgeDependentExtinctionInputEditor connects it dynamically when the
                  user selects "Set origin time", and disconnects it when "Condition on root" is
                  selected. -->
             <stateNode spec="beast.base.spec.inference.parameter.RealScalarParam"
@@ -242,8 +242,8 @@ CalibratedAgeDependentBirthDeathTreeRootScaler/index/=Operators/BactrianTreeScal
             </distribution>
 
             <!-- CPP tree prior -->
-            <distribution spec="calibratedcpp.CalibratedAgeDependentBirthDeathModel"
-                          id="CalibratedAgeDependentBirthDeath.t:$(n)" conditionOnRoot="true">
+            <distribution spec="calibratedcpp.CalibratedAgeDependentExtinctionModel"
+                          id="CalibratedAgeDependentExtinction.t:$(n)" conditionOnRoot="true">
                 <tree idref="Tree.t:$(n)"/>
                 <birthRate idref="adBirthRate.t:$(n)"/>
                 <rho idref="adRho.t:$(n)"/>
@@ -269,114 +269,132 @@ CalibratedAgeDependentBirthDeathTreeRootScaler/index/=Operators/BactrianTreeScal
                  They are created dynamically by the editor on first activation, mirroring
                  CalibratedCPPInputEditor's handling of the skyline rate parameters. -->
 ]]>
-            <plate fragment="TreeOperators" var="m" range="CalibratedAgeDependentBirthDeath"/>
+            <plate fragment="TreeOperators" var="m" range="CalibratedAgeDependentExtinction"/>
 
             <!-- Tree prior distributions -->
-            <connect srcID='CalibratedAgeDependentBirthDeath.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'>
+            <connect srcID='CalibratedAgeDependentExtinction.t:$(n)' targetID='prior' inputName='distribution'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'>
                 Calibrated age-dependent birth-death prior on tree t:$(n)
             </connect>
             <connect srcID='CalibrationDistributionADB.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'>
                 CalibrationPrior on clade ages for tree t:$(n)
             </connect>
 
             <!-- Starting tree: use the calibrated-CPP initialiser and drop the default RandomTree. -->
             <connect srcID='CalibratedCPPInitADB.t:$(n)' targetID='mcmc' inputName='init'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'/>
             <connect srcID='RandomTree.t:$(n)' targetID='mcmc' inputName='init'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=false'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=false'/>
 
             <!-- Origin parameter (state/prior/operator/tracelog) -->
             <connect srcID='adOriginParam.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
             <connect srcID='adOriginParam.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
             <connect srcID='adOriginParamScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
             <connect srcID='adOriginParam.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adOriginParam.t:$(n)/estimate=true'/>
 
             <!-- Birth rate -->
             <connect srcID='adBirthRate.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
             <connect srcID='adBirthRate.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
             <connect srcID='adBirthRateScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
             <connect srcID='adBirthRate.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adBirthRate.t:$(n)/estimate=true'/>
 
             <!-- Extant sampling probability -->
             <connect srcID='adRho.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adRho.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adRho.t:$(n)/estimate=true'/>
             <connect srcID='adRho.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adRho.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adRho.t:$(n)/estimate=true'/>
             <connect srcID='adRhoScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adRho.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adRho.t:$(n)/estimate=true'/>
             <connect srcID='adRho.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and adRho.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and adRho.t:$(n)/estimate=true'/>
 
             <!-- Lifetime distribution parameters (only the active family's params ever exist) -->
             <connect srcID='lifetimeMean.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeMean.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeMeanScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeMean.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeMean.t:$(n)/estimate=true'/>
 
             <connect srcID='lifetimeGammaShape.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeGammaShape.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeGammaShapeScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeGammaShape.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaShape.t:$(n)/estimate=true'/>
 
             <connect srcID='lifetimeGammaScale.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeGammaScale.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeGammaScaleScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeGammaScale.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeGammaScale.t:$(n)/estimate=true'/>
 
             <connect srcID='lifetimeErlangScale.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeErlangScale.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeErlangScaleScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeErlangScale.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeErlangScale.t:$(n)/estimate=true'/>
 
             <connect srcID='lifetimeLogNormalM.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeLogNormalM.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeLogNormalMRW.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeLogNormalM.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalM.t:$(n)/estimate=true'/>
 
             <connect srcID='lifetimeLogNormalS.t:$(n)' targetID='state' inputName='stateNode'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeLogNormalS.prior.t:$(n)' targetID='prior' inputName='distribution'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeLogNormalSScaler.t:$(n)' targetID='mcmc' inputName='operator'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
             <connect srcID='lifetimeLogNormalS.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeLogNormalS.t:$(n)/estimate=true'/>
+
+            <connect srcID='lifetimeWeibullShape.t:$(n)' targetID='state' inputName='stateNode'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullShape.t:$(n)/estimate=true'/>
+            <connect srcID='lifetimeWeibullShape.prior.t:$(n)' targetID='prior' inputName='distribution'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullShape.t:$(n)/estimate=true'/>
+            <connect srcID='lifetimeWeibullShapeScaler.t:$(n)' targetID='mcmc' inputName='operator'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullShape.t:$(n)/estimate=true'/>
+            <connect srcID='lifetimeWeibullShape.t:$(n)' targetID='tracelog' inputName='log'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullShape.t:$(n)/estimate=true'/>
+
+            <connect srcID='lifetimeWeibullScale.t:$(n)' targetID='state' inputName='stateNode'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullScale.t:$(n)/estimate=true'/>
+            <connect srcID='lifetimeWeibullScale.prior.t:$(n)' targetID='prior' inputName='distribution'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullScale.t:$(n)/estimate=true'/>
+            <connect srcID='lifetimeWeibullScaleScaler.t:$(n)' targetID='mcmc' inputName='operator'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullScale.t:$(n)/estimate=true'/>
+            <connect srcID='lifetimeWeibullScale.t:$(n)' targetID='tracelog' inputName='log'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and lifetimeWeibullScale.t:$(n)/estimate=true'/>
 
             <!-- Logging -->
-            <connect srcID='CalibratedAgeDependentBirthDeath.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'/>
+            <connect srcID='CalibratedAgeDependentExtinction.t:$(n)' targetID='tracelog' inputName='log'
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'/>
             <connect srcID='CalibrationDistributionADB.t:$(n)' targetID='tracelog' inputName='log'
-                     if='inposterior(CalibratedAgeDependentBirthDeath.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'/>
+                     if='inposterior(CalibratedAgeDependentExtinction.t:$(n)) and inposterior(Tree.t:$(n)) and Tree.t:$(n)/estimate=true'/>
 
         </subtemplate>
 

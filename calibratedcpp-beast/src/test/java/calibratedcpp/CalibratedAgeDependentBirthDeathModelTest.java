@@ -47,12 +47,12 @@ public class CalibratedAgeDependentBirthDeathModelTest {
      * Erlang(alpha=1, beta=1/mu) closed-form path.
      * beta is BEAST3 Gamma's scale parameter, so theta = 1/beta = mu = death rate.
      */
-    private static CalibratedAgeDependentBirthDeathModel erlangModel(
+    private static CalibratedAgeDependentExtinctionModel erlangModel(
             Tree tree, double lambda, double mu, double rho, double origin) {
         Erlang erlang = new Erlang();
         erlang.initByName("shape", new IntScalarParam<>(1, PositiveInt.INSTANCE),
                          "scale",  new RealScalarParam<>(1.0 / mu, PositiveReal.INSTANCE));
-        CalibratedAgeDependentBirthDeathModel model = new CalibratedAgeDependentBirthDeathModel();
+        CalibratedAgeDependentExtinctionModel model = new CalibratedAgeDependentExtinctionModel();
         model.initByName("tree", tree,
                 "origin",              new RealScalarParam<>(origin, PositiveReal.INSTANCE),
                 "birthRate",           new RealScalarParam<>(lambda, PositiveReal.INSTANCE),
@@ -65,11 +65,11 @@ public class CalibratedAgeDependentBirthDeathModelTest {
      * Exponential(mean=1/mu) VIDE numerical path.
      * Uses a large origin so the solver covers the full test range [0, 20].
      */
-    private static CalibratedAgeDependentBirthDeathModel videModel(
+    private static CalibratedAgeDependentExtinctionModel videModel(
             Tree tree, double lambda, double mu, double rho, double origin) {
         Exponential expDist = new Exponential();
         expDist.initByName("mean", new RealScalarParam<>(1.0 / mu, PositiveReal.INSTANCE));
-        CalibratedAgeDependentBirthDeathModel model = new CalibratedAgeDependentBirthDeathModel();
+        CalibratedAgeDependentExtinctionModel model = new CalibratedAgeDependentExtinctionModel();
         model.initByName("tree", tree,
                 "origin",              new RealScalarParam<>(origin, PositiveReal.INSTANCE),
                 "birthRate",           new RealScalarParam<>(lambda, PositiveReal.INSTANCE),
@@ -90,7 +90,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
         // Supercritical: lambda > mu
         Tree tree = smallTree();
         CalibratedBirthDeathModel bdSuper = bdModel(tree, 2.0, 1.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel erlangSuper = erlangModel(tree, 2.0, 1.0, 0.1, 20.0);
+        CalibratedAgeDependentExtinctionModel erlangSuper = erlangModel(tree, 2.0, 1.0, 0.1, 20.0);
         erlangSuper.calculateTreeLogLikelihood(tree); // initialise roots and residues
 
         for (double t : times) {
@@ -102,7 +102,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
         // Subcritical: lambda < mu
         Tree tree2 = smallTree();
         CalibratedBirthDeathModel bdSub = bdModel(tree2, 1.0, 2.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel erlangSub = erlangModel(tree2, 1.0, 2.0, 0.1,20.0);
+        CalibratedAgeDependentExtinctionModel erlangSub = erlangModel(tree2, 1.0, 2.0, 0.1,20.0);
         erlangSub.calculateTreeLogLikelihood(tree2);
 
         for (double t : times) {
@@ -118,7 +118,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Tree tree = smallTree();
         CalibratedBirthDeathModel bdSuper = bdModel(tree, 2.0, 1.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel erlangSuper = erlangModel(tree, 2.0, 1.0, 0.1,20.0);
+        CalibratedAgeDependentExtinctionModel erlangSuper = erlangModel(tree, 2.0, 1.0, 0.1,20.0);
         erlangSuper.calculateTreeLogLikelihood(tree);
 
         for (double t : times) {
@@ -129,7 +129,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Tree tree2 = smallTree();
         CalibratedBirthDeathModel bdSub = bdModel(tree2, 1.0, 2.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel erlangSub = erlangModel(tree2, 1.0, 2.0, 0.1,20.0);
+        CalibratedAgeDependentExtinctionModel erlangSub = erlangModel(tree2, 1.0, 2.0, 0.1,20.0);
         erlangSub.calculateTreeLogLikelihood(tree2);
 
         for (double t : times) {
@@ -144,7 +144,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
         // Supercritical
         Tree tree = smallTree();
         CalibratedBirthDeathModel bdSuper = bdModel(tree, 2.0, 1.0, 0.1,20.0);
-        CalibratedAgeDependentBirthDeathModel erlangSuper = erlangModel(tree, 2.0, 1.0, 0.1,20.0);
+        CalibratedAgeDependentExtinctionModel erlangSuper = erlangModel(tree, 2.0, 1.0, 0.1,20.0);
 
         assertEquals(bdSuper.calculateTreeLogLikelihood(tree),
                      erlangSuper.calculateTreeLogLikelihood(tree),
@@ -153,7 +153,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
         // Subcritical
         Tree tree2 = smallTree();
         CalibratedBirthDeathModel bdSub = bdModel(tree2, 1.0, 2.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel erlangSub = erlangModel(tree2, 1.0, 2.0, 0.1,20.0);
+        CalibratedAgeDependentExtinctionModel erlangSub = erlangModel(tree2, 1.0, 2.0, 0.1,20.0);
 
         assertEquals(bdSub.calculateTreeLogLikelihood(tree2),
                      erlangSub.calculateTreeLogLikelihood(tree2),
@@ -171,7 +171,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Tree tree = smallTree();
         CalibratedBirthDeathModel bdSuper = bdModel(tree, 2.0, 1.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel videSuper = videModel(tree, 2.0, 1.0, 0.1,20.0);
+        CalibratedAgeDependentExtinctionModel videSuper = videModel(tree, 2.0, 1.0, 0.1,20.0);
         videSuper.calculateTreeLogLikelihood(tree); // solves VIDE on [0, 20]
 
         for (double t : times) {
@@ -182,7 +182,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Tree tree2 = smallTree();
         CalibratedBirthDeathModel bdSub = bdModel(tree2, 1.0, 2.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel videSub = videModel(tree2, 1.0, 2.0, 0.1, 20.0);
+        CalibratedAgeDependentExtinctionModel videSub = videModel(tree2, 1.0, 2.0, 0.1, 20.0);
         videSub.calculateTreeLogLikelihood(tree2);
 
         for (double t : times) {
@@ -198,7 +198,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Tree tree = smallTree();
         CalibratedBirthDeathModel bdSuper = bdModel(tree, 2.0, 1.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel videSuper = videModel(tree, 2.0, 1.0, 0.1, 20.0);
+        CalibratedAgeDependentExtinctionModel videSuper = videModel(tree, 2.0, 1.0, 0.1, 20.0);
         videSuper.calculateTreeLogLikelihood(tree);
 
         for (double t : times) {
@@ -209,7 +209,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Tree tree2 = smallTree();
         CalibratedBirthDeathModel bdSub = bdModel(tree2, 1.0, 2.0, 0.1, 20.0);
-        CalibratedAgeDependentBirthDeathModel videSub = videModel(tree2, 1.0, 2.0, 0.1, 20.0);
+        CalibratedAgeDependentExtinctionModel videSub = videModel(tree2, 1.0, 2.0, 0.1, 20.0);
         videSub.calculateTreeLogLikelihood(tree2);
 
         for (double t : times) {
@@ -228,7 +228,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Exponential expDist = new Exponential();
         expDist.initByName("mean", new RealScalarParam<>(1.0, PositiveReal.INSTANCE));
-        CalibratedAgeDependentBirthDeathModel videSuper = new CalibratedAgeDependentBirthDeathModel();
+        CalibratedAgeDependentExtinctionModel videSuper = new CalibratedAgeDependentExtinctionModel();
         videSuper.initByName("tree", tree,
                 "origin",              new RealScalarParam<>(20.0, PositiveReal.INSTANCE),
                 "birthRate",           new RealScalarParam<>(2.0, PositiveReal.INSTANCE),
@@ -246,7 +246,7 @@ public class CalibratedAgeDependentBirthDeathModelTest {
 
         Exponential expDist2 = new Exponential();
         expDist2.initByName("mean", new RealScalarParam<>(0.5, PositiveReal.INSTANCE)); // mean = 1/mu = 1/2
-        CalibratedAgeDependentBirthDeathModel videSub = new CalibratedAgeDependentBirthDeathModel();
+        CalibratedAgeDependentExtinctionModel videSub = new CalibratedAgeDependentExtinctionModel();
         videSub.initByName("tree", tree2,
                 "origin",              new RealScalarParam<>(20.0, PositiveReal.INSTANCE),
                 "birthRate",           new RealScalarParam<>(1.0, PositiveReal.INSTANCE),

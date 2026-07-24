@@ -10,6 +10,7 @@ open module calibratedcpp.beast {
     requires javafx.web;
     requires jdk.jsobject;
     requires org.apache.commons.statistics.distribution;
+    requires commons.math3;
 
     exports calibratedcpp;
     exports calibration;
@@ -18,7 +19,7 @@ open module calibratedcpp.beast {
 
     provides beastfx.app.inputeditor.InputEditor with
         calibratedcpp.beauti.CalibratedBirthDeathSkylineInputEditor,
-        calibratedcpp.beauti.CalibratedAgeDependentBirthDeathInputEditor,
+        calibratedcpp.beauti.CalibratedAgeDependentExtinctionInputEditor,
         calibratedcpp.beauti.CalibrationDistributionInputEditor,
         calibratedcpp.beauti.SkylineParameterInputEditor;
 
@@ -27,7 +28,7 @@ open module calibratedcpp.beast {
     provides beast.base.core.BEASTInterface with
         calibratedcpp.CalibratedBirthDeathModel,
         calibratedcpp.CalibratedBirthDeathSkylineModel,
-        calibratedcpp.CalibratedAgeDependentBirthDeathModel,
+        calibratedcpp.CalibratedAgeDependentExtinctionModel,
         calibratedcpp.CalibratedCPPTreeInitialiser,
         calibratedcpp.SkylineParameter,
         calibratedcpp.operators.ChangeTimeOperator,

@@ -48,8 +48,9 @@
         birth-death processes with time-dependent birth and death rates (as in BDSKY) and age-dependent death rates:
       </p>
       <ul>
-        <li>Individuals die at some rate $$\mu(x,t)$$ that depends on the age of the individual $$x$$ and the time $$t$$.</li>
-        <li>Individuals give birth to new individuals at a rate $$\lambda(t)$$ depending only on time.</li>
+          <li>Individuals die at some rate $$\mu(x,t)$$ that depends on the age of the individual $$x$$ and the time $$t$$.</li>
+          <li>Individuals give birth to new individuals at a rate $$\lambda(t)$$ depending only on time.</li>
+          <li>Extant individuals are sampled independently with probability $$\rho$$.</li>
       </ul>
           <figure class="screenshot">
               <img src="assets/screenshots/cpp.png" alt="CPP Model">
@@ -103,7 +104,7 @@
         start of the process, which must predate the root).
       </p>
 
-      <h2>Age Dependent Birth-Death</h2>
+      <h2>Age Dependent Extinction</h2>
       <p>
         Individuals give birth at a constant rate $$\lambda$$, but rather than dying at a constant
         rate $$\mu$$ (which implies exponentially distributed lifetimes), their lifetimes are drawn
@@ -111,7 +112,7 @@
       </p>
       <ul>
         <li>a <strong>birth rate</strong> $$\lambda$$,</li>
-        <li>a <strong>lifetime distribution</strong> (e.g. Exponential, Gamma, Erlang, or Log-Normal),</li>
+        <li>a <strong>lifetime distribution</strong> (e.g. Exponential, Gamma, Erlang, Weibull, or Log-Normal),</li>
         <li>the <strong>sampling probability</strong> $$\rho$$.</li>
       </ul>
       <p>
@@ -262,9 +263,9 @@
         <a href="#specifying-calibrations">Specifying Calibrations</a> below.
       </p>
 
-      <h2>Age Dependent Birth-Death</h2>
+      <h2>Age Dependent Extinction</h2>
       <p>
-        <code>calibratedcpp.CalibratedAgeDependentBirthDeathModel</code> replaces the constant
+        <code>calibratedcpp.CalibratedAgeDependentExtinctionModel</code> replaces the constant
         death rate with an arbitrary lifetime distribution:
       </p>
       <table>
@@ -283,7 +284,7 @@
     &lt;stateNode id="lifetimeScale" spec="beast.base.spec.inference.parameter.RealScalarParam"
            domain="PositiveReal" value="1.5"/&gt;
 &lt;/state&gt;
-&lt;distribution id="treePrior" spec="calibratedcpp.CalibratedAgeDependentBirthDeathModel"
+&lt;distribution id="treePrior" spec="calibratedcpp.CalibratedAgeDependentExtinctionModel"
               tree="@tree" conditionOnRoot="true" birthRate="@birthRate" rho="0.1"&gt;
     &lt;!-- Gamma lifetimes (shape alpha, scale theta); an integer shape gives the fast Erlang case --&gt;
     &lt;lifetimeDistribution id="lifetime" spec="beast.base.spec.inference.distribution.Gamma"&gt;
@@ -399,7 +400,7 @@
         tree prior option in BEAUti, alongside Yule, Birth-Death, and Coalescent. Set up your
         alignment, site model, and clock model as normal, then in the <strong>Priors</strong>
         panel set the tree prior for <code>Tree.t:...</code> to either <strong>Calibrated
-        Birth-Death Skyline</strong> or <strong>Calibrated Age Dependent Birth Death</strong>.
+        Birth-Death Skyline</strong> or <strong>Calibrated Age Dependent Extinction</strong>.
       </p>
       <figure class="screenshot">
         <img src="assets/screenshots/beauti-select-tree-prior.png" alt="BEAUti Priors panel showing the tree prior dropdown with the Calibrated CPP models">
@@ -458,7 +459,7 @@
         <figcaption>Conditioning on the root height vs. an explicit origin time.</figcaption>
       </figure>
 
-      <h2>Age Dependent Birth-Death</h2>
+      <h2>Age Dependent Extinction</h2>
 
       <h3>Birth rate (λ)</h3>
       <p>
@@ -470,7 +471,7 @@
       <p>
         A <strong>Lifetime distribution</strong> dropdown selects the distribution of individual
         lifetimes: <strong>Exponential</strong>, <strong>Gamma</strong>, <strong>Erlang</strong>
-        (Gamma with an integer shape <em>k</em> — the fast closed-form case), or
+        (Gamma with an integer shape <em>k</em> — the fast closed-form case), <strong>Weibull</strong>, or
         <strong>Log-Normal</strong>. The fields below the dropdown change to the parameters of the
         chosen distribution (e.g. a mean for Exponential, a shape and rate for Gamma).
       </p>
@@ -582,7 +583,7 @@
     tree ~ CalibratedCPP(lambda=2, mu=0, rho=1, n=4, calibrations=calibrations, stemAge=1);
 }</code></pre>
 
-      <h2>Age Dependent Birth-Death</h2>
+      <h2>Age Dependent Extinction</h2>
       <p>
         <code>CalibratedAgeDependentCPP</code> replaces the constant death rate with a lifetime
         distribution:
