@@ -91,10 +91,11 @@ public class CalibratedAgeDependentCPPTree extends AbstractCalibratedCPPTree {
     }
 
     @Override
-    protected double cdf(double t) {
-        return CDF(resolvedBirthRate, resolvedEffectiveDeathRate, getSamplingProb().value().doubleValue(), t);
+    protected double logCDF(double t) {
+        return Math.log(CDF(resolvedBirthRate, resolvedEffectiveDeathRate, getSamplingProb().value().doubleValue(), t));
     }
 
+    // Point-estimate constant-rate law keeps the closed-form samplers.
     @Override
     protected double[] sampleAges(double lowerTime, double upperTime, int nSims) {
         return sampleTimes(resolvedBirthRate, resolvedEffectiveDeathRate, getSamplingProb().value().doubleValue(), lowerTime, upperTime, nSims);
@@ -103,16 +104,6 @@ public class CalibratedAgeDependentCPPTree extends AbstractCalibratedCPPTree {
     @Override
     protected double sampleStemAge(double greaterThan, int nTaxa) {
         return simRandomStem(resolvedBirthRate, resolvedEffectiveDeathRate, greaterThan, nTaxa);
-    }
-
-    @Override
-    protected Value<Number> getConstantBirthRateValue() {
-        return new Value<>("", resolvedBirthRate);
-    }
-
-    @Override
-    protected Value<Number> getConstantDeathRateValue() {
-        return new Value<>("", resolvedEffectiveDeathRate);
     }
 
     @Override

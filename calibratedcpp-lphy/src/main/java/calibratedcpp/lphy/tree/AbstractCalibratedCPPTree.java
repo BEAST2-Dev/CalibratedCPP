@@ -19,10 +19,10 @@ import static calibratedcpp.lphy.tree.CPPUtils.*;
  * Shared calibrated-CPP tree-building logic (clade decomposition, weighted slot
  * assignment, coalescing) for a coalescent point process whose node ages come
  * from some birth-death law. Concrete subclasses only need to supply that law
- * via {@link #cdf}, {@link #sampleAges} and {@link #sampleStemAge} (mirroring
- * {@code calculateLogNodeAgeCDF}/{@code calculateLogNodeAgeDensity} on the BEAST
- * side, see {@code CalibratedCoalescentPointProcess}), plus a constant-rate pair
- * for the no-calibration fallback that delegates to plain {@link CPPTree}.
+ * via {@link #logCDF} (the node-age log-CDF); the truncated age sampling, stem-age
+ * sampling and the uncalibrated fallback are all derived from it here, mirroring how
+ * the BEAST side derives everything from {@code calculateLogNodeAgeCDF}
+ * (see {@code CalibratedCoalescentPointProcess}).
  */
 public abstract class AbstractCalibratedCPPTree extends TaxaConditionedTreeGenerator implements GenerativeDistribution<TimeTree> {
 
@@ -46,10 +46,8 @@ public abstract class AbstractCalibratedCPPTree extends TaxaConditionedTreeGener
                                          Value<String[]> otherNames, Value<Number> stemAge, Value<Number> rootAge) {
         super(n, null, null);
 
-        if (calibrations == null && rootAge == null) {
-            throw new IllegalArgumentException("Either calibrations or rootAge must be provided.");
-        }
-
+        // No conditioning is required: with neither calibrations nor rootAge, the uncalibrated path
+        // samples the stem (fixed n) or the origin (random n) from the process itself.
         this.rho = rho;
         this.calibrations = calibrations;
         this.otherNames = otherNames;
@@ -62,36 +60,191 @@ public abstract class AbstractCalibratedCPPTree extends TaxaConditionedTreeGener
     /** Recompute any resolved rate values from the current parameter bindings. Called once per sample(). */
     protected abstract void resolveRates();
 
-    /** CDF of the node age law up to time t, given the currently resolved rates. */
-    protected abstract double cdf(double t);
+    protected abstract double logCDF(double t);
 
-    /** Draw nSims node ages from the law truncated to [lowerTime, upperTime]. */
-    protected abstract double[] sampleAges(double lowerTime, double upperTime, int nSims);
+    protected double cdf(double t) { return Math.exp(logCDF(t)); }
 
-    /** Sample a random stem age older than greaterThan for nTaxa taxa. */
-    protected abstract double sampleStemAge(double greaterThan, int nTaxa);
+    /**
+     * Draw nSims node ages from the law truncated to [lowerTime, upperTime] by
+     * inverse-transform sampling of {@link #cdf}. This generic version works for any
+     * model that can compute {@link #logCDF}; the constant-rate subclasses override it
+     * with a tuned closed-form sampler (see {@code CPPUtils.sampleTimes}).
+     */
+    protected double[] sampleAges(double lowerTime, double upperTime, int nSims) {
+        double qLo = cdf(lowerTime);
+        double qHi = Double.isInfinite(upperTime) ? 1.0 : cdf(upperTime);
+        double[] out = new double[nSims];
+        for (int i = 0; i < nSims; i++) {
+            out[i] = invertCDF(qLo + random.nextDouble() * (qHi - qLo));
+        }
+        return out;
+    }
 
-    /** Birth/death rate pair to hand to the plain constant-rate {@link CPPTree} fallback. */
-    protected abstract Value<Number> getConstantBirthRateValue();
+    /**
+     * Sample a stem/origin age older than greaterThan for nTaxa taxa. The origin has
+     * CDF Q(t)^nTaxa (the max of nTaxa i.i.d. node ages), left-truncated at greaterThan.
+     * Derived from {@link #cdf}; constant-rate subclasses override with a closed form.
+     */
+    protected double sampleStemAge(double greaterThan, int nTaxa) {
+        double qaN = Math.pow(cdf(greaterThan), nTaxa);
+        double p = qaN + random.nextDouble() * (1.0 - qaN);
+        return invertCDF(Math.pow(p, 1.0 / nTaxa));
+    }
 
-    protected abstract Value<Number> getConstantDeathRateValue();
+    /**
+     * Numerical inverse of the monotone {@link #cdf}: solve Q(t) = p for t &gt;= 0 via an
+     * exponential bracket followed by bisection. Override with a closed form when the model
+     * has one. (Bisection is the robust starting point; swap for Brent once it works.)
+     */
+    protected double invertCDF(double p) {
+        if (p <= 0.0) return 0.0;
+        double hi = 1.0;
+        while (cdf(hi) < p && hi < 1e12) hi *= 2.0;
+        double lo = 0.0;
+        for (int i = 0; i < 100; i++) {
+            double mid = 0.5 * (lo + hi);
+            if (cdf(mid) < p) lo = mid; else hi = mid;
+        }
+        return 0.5 * (lo + hi);
+    }
+
+    /** Build nTips leaf nodes: supplied taxa names padded with indices, shuffled with the framework RNG. */
+    private List<TimeTreeNode> buildShuffledLeaves(String[] taxaNames, int nTips) {
+        List<String> names = new ArrayList<>(nTips);
+        if (taxaNames != null) {
+            for (int i = 0; i < Math.min(taxaNames.length, nTips); i++) names.add(taxaNames[i]);
+        }
+        for (int i = names.size(); i < nTips; i++) names.add(String.valueOf(i));
+        for (int i = names.size() - 1; i > 0; i--) {          // Fisher-Yates on the seeded RNG
+            int j = random.nextInt(i + 1);
+            String tmp = names.get(i); names.set(i, names.get(j)); names.set(j, tmp);
+        }
+        List<TimeTreeNode> nodes = new ArrayList<>(nTips);
+        for (String name : names) {
+            TimeTreeNode leaf = new TimeTreeNode(0.0);
+            leaf.setId(name);
+            nodes.add(leaf);
+        }
+        return nodes;
+    }
+
+    /**
+     * Fixed n, fixed root: n-2 internal depths from q/Q(rootAge) plus the root age placed uniformly
+     * among them (so it is the maximum depth). Root-conditioned, no stem. Node ages come from this
+     * generator's own law via {@link #sampleAges}, so it works for any subclass.
+     */
+    private RandomVariable<TimeTree> sampleUncalibratedTree(String[] taxaNames, double rootAge) {
+        int n = getN().value();
+        conditionAge = rootAge;
+        List<TimeTreeNode> nodes = buildShuffledLeaves(taxaNames, n);
+
+        // index 0 is the root reference; the remaining n-1 are the between-tip depths: n-2 from
+        // q/Q(rootAge), plus rootAge placed uniformly so the maximum depth equals the root age.
+        List<Double> times = new ArrayList<>(n);
+        times.add(rootAge);
+        if (n > 2) {
+            for (double age : sampleAges(0, rootAge, n - 2)) times.add(age);
+        }
+        times.add(random.nextInt(times.size()) + 1, rootAge);
+
+        coalesce(nodes, times);
+        TimeTree tree = new TimeTree();
+        tree.setRoot(nodes.getFirst(), true);
+        return new RandomVariable<>("CPPTree", tree, this);
+    }
+
+    /**
+     * Fixed n, <em>random</em> stem: the stem is the max of n i.i.d. node ages — density
+     * n·q(t)·Q(t)^(n-1), sampled via {@link #sampleStemAge} — and the n-1 internal depths are then
+     * drawn from q/Q(stem) ({@link #sampleAges} truncated to (0, stem)). The root is the deepest of
+     * those depths; the stem sits above it.
+     */
+    private RandomVariable<TimeTree> sampleRandomStemTree(String[] taxaNames, int n) {
+        double stem = sampleStemAge(0, n);           // origin ~ n·q·Q^(n-1): max of n i.i.d. node ages
+        conditionAge = stem;
+        List<TimeTreeNode> nodes = buildShuffledLeaves(taxaNames, n);
+
+        TimeTree tree = new TimeTree();
+        if (n == 1) {
+            tree.setRoot(nodes.getFirst(), true);
+            tree.getRoot().setRootStem(stem);
+            return new RandomVariable<>("CPPTree", tree, this);
+        }
+
+        // index 0 is the stem reference (>= every depth); the n-1 depths follow
+        List<Double> times = new ArrayList<>(n);
+        times.add(stem);
+        for (double depth : sampleAges(0, stem, n - 1)) times.add(depth);
+        coalesce(nodes, times);
+
+        tree.setRoot(nodes.getFirst(), true);
+        tree.getRoot().setRootStem(stem);
+        return new RandomVariable<>("CPPTree", tree, this);
+    }
+
+    /**
+     * Random number of tips, origin-conditioned. Between-tip depths are drawn i.i.d. from the law
+     * over [0, &infin;) via {@link #sampleAges}; the first draw exceeding the origin caps the tree
+     * and is discarded, so the tip count is one more than the number of sub-origin depths (geometric
+     * with success probability Q(origin)). The root is the deepest sub-origin node; the origin sits
+     * above it as a stem. Law-generic version of the old constant-rate {@code CPPTree} n==0 branch.
+     */
+    private RandomVariable<TimeTree> sampleRandomNTree(String[] taxaNames, Double originAge) {
+        // origin: use the supplied age, else draw one unconditionally from the law
+        double origin = (originAge != null) ? originAge : sampleAges(0, Double.POSITIVE_INFINITY, 1)[0];
+        conditionAge = origin;
+
+        // grow between-tip depths until one exceeds the origin (that draw caps the tree; discard it)
+        List<Double> depths = new ArrayList<>();
+        while (true) {
+            double h = sampleAges(0, Double.POSITIVE_INFINITY, 1)[0];
+            if (h > origin) break;
+            depths.add(h);
+            if (depths.size() > 1_000_000) {
+                throw new RuntimeException("Random-N CPP did not terminate after 1e6 tips; the process " +
+                        "is (near-)critical for these parameters. Provide n, or a smaller origin.");
+            }
+        }
+        int nTips = depths.size() + 1;
+        List<TimeTreeNode> nodes = buildShuffledLeaves(taxaNames, nTips);
+
+        TimeTree tree = new TimeTree();
+        if (nTips == 1) {                       // first draw exceeded the origin: a lone tip on a stem
+            tree.setRoot(nodes.getFirst(), true);
+            tree.getRoot().setRootStem(origin);
+            return new RandomVariable<>("CPPTree", tree, this);
+        }
+
+        // coalesce: index 0 is the origin reference (>= every depth, so never the min); depths follow
+        List<Double> times = new ArrayList<>(nTips);
+        times.add(origin);
+        times.addAll(depths);                   // origin + (nTips - 1) depths == nTips entries
+        coalesce(nodes, times);
+
+        tree.setRoot(nodes.getFirst(), true);
+        tree.getRoot().setRootStem(origin);     // root age = deepest depth <= origin; stem up to origin
+        return new RandomVariable<>("CPPTree", tree, this);
+    }
 
     /** Construct a subclade generator of the same concrete type, reusing this generator's rate parameters. */
     protected abstract AbstractCalibratedCPPTree newSubClade(int nTaxa, CalibrationArray subCalibrations);
-
-    private RandomVariable<TimeTree> delegateToCPPTree(Value<String[]> taxa, Value<Number> conditionRootAge) {
-        CPPTree cpp = new CPPTree(getConstantBirthRateValue(), getConstantDeathRateValue(), null, null,
-                getSamplingProb(), taxa, getN(), conditionRootAge, null);
-        return new RandomVariable<>("", cpp.sample().value(), this);
-    }
 
     @Override
     public RandomVariable<TimeTree> sample() {
         resolveRates();
 
-        // if no calibrations, delegate to CPPTree conditioned on rootAge
+        // if no calibrations, build an uncalibrated CPP. A null n means "grow a random number
+        // of tips from the process" (origin-conditioned); a fixed n conditions on the root age.
         if (getCalibrations() == null) {
-            return delegateToCPPTree(getOtherNames(), getRootAge());
+            String[] names = getOtherNames() == null ? null : getOtherNames().value();
+            if (getN() == null) {                        // random number of tips, origin-conditioned
+                return sampleRandomNTree(names,
+                        getRootAge() == null ? null : getRootAge().value().doubleValue());
+            }
+            if (getRootAge() == null) {                  // fixed n, stem sampled from n·q·Q^(n-1)
+                return sampleRandomStemTree(names, getN().value());
+            }
+            return sampleUncalibratedTree(names, getRootAge().value().doubleValue());  // fixed n, fixed root
         }
 
         // obtain pass in parameters
@@ -118,8 +271,8 @@ public abstract class AbstractCalibratedCPPTree extends TaxaConditionedTreeGener
             rootAgeValue = cladeCalibrations.getFirst().getAge();
             // if only one root calibration, then return cpp
             if (cladeCalibrations.size() == 1) {
-                return delegateToCPPTree(new Value<>("", cladeCalibrations.getFirst().getTaxa()),
-                        new Value<>("", cladeCalibrations.getFirst().getAge()));
+                return sampleUncalibratedTree(cladeCalibrations.getFirst().getTaxa(),
+                        cladeCalibrations.getFirst().getAge());
             } else {
                 // else remove the root calibration from cladeCalibrations
                 backUpNames.addAll(Arrays.asList(cladeCalibrations.getFirst().getTaxa()));

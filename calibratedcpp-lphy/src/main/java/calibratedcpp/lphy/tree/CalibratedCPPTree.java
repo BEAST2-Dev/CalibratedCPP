@@ -103,10 +103,12 @@ public class CalibratedCPPTree extends AbstractCalibratedCPPTree {
     }
 
     @Override
-    protected double cdf(double t) {
-        return CDF(resolvedBirthRate, resolvedDeathRate, getSamplingProb().value().doubleValue(), t);
+    protected double logCDF(double t) {
+        return Math.log(CDF(resolvedBirthRate, resolvedDeathRate, getSamplingProb().value().doubleValue(), t));
     }
 
+    // Constant-rate keeps its tuned closed-form samplers (which handle the subcritical
+    // saturation regime) instead of the base's generic numerical inverter.
     @Override
     protected double[] sampleAges(double lowerTime, double upperTime, int nSims) {
         return sampleTimes(resolvedBirthRate, resolvedDeathRate, getSamplingProb().value().doubleValue(), lowerTime, upperTime, nSims);
@@ -115,16 +117,6 @@ public class CalibratedCPPTree extends AbstractCalibratedCPPTree {
     @Override
     protected double sampleStemAge(double greaterThan, int nTaxa) {
         return simRandomStem(resolvedBirthRate, resolvedDeathRate, greaterThan, nTaxa);
-    }
-
-    @Override
-    protected Value<Number> getConstantBirthRateValue() {
-        return new Value<>("", resolvedBirthRate);
-    }
-
-    @Override
-    protected Value<Number> getConstantDeathRateValue() {
-        return new Value<>("", resolvedDeathRate);
     }
 
     @Override
