@@ -81,6 +81,11 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
         return logP;
     }
 
+    @Override
+    public double getMean(){
+        return meanInput.get().get();
+    }
+
     @Override public List<Double> sample() { return mixture.sample(); }
 
     @Override public Double getLowerBoundOfParameter() { return mixture.getLowerBoundOfParameter(); }

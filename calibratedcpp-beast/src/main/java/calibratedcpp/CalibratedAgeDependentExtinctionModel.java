@@ -30,6 +30,7 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
             "Distribution of the lifetime of an individual.");
     public Input<RealScalar<UnitInterval>> rhoInput = new Input<>("rho", "Extant sampling probability.");
     public Input<RealScalar<PositiveReal>> birthRateInput = new Input<>("birthRate", "The birth rate.");
+    public Input<RealScalar<PositiveReal>> reproductiveNumberInput = new Input<>("reproductiveNumber", "The reproductive number birthrate*mean lifetime.");
     public Input<Integer> gridSizeInput = new Input<>("gridSize",
             "Number of grid points for the numerical Volterra IDE solver (used for non-Erlang lifetime distributions).", 1000);
 
@@ -71,7 +72,18 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
     }
 
     public void preCalc() {
-        birthRate = birthRateInput.get().get();
+        boolean hasBirthRate = birthRateInput.get() != null;
+        boolean hasReproductiveNumber = reproductiveNumberInput.get() != null;
+        if (hasBirthRate && hasReproductiveNumber) {
+            throw new IllegalArgumentException("Specify exactly one of birthRate or reproductiveNumber, not both.");
+        }
+        if (!hasBirthRate && !hasReproductiveNumber) {
+            throw new IllegalArgumentException("Exactly one of birthRate or reproductiveNumber must be specified.");
+        }
+        // R0 = birthRate * mean(lifetime)  =>  birthRate = R0 / mean(lifetime).
+        birthRate = hasBirthRate
+                ? birthRateInput.get().get()
+                : reproductiveNumberInput.get().get() / lifetimeDistributionInput.get().getMean();
         rho = rhoInput.get().get();
 
         if (lifetimesAreErlang) {
