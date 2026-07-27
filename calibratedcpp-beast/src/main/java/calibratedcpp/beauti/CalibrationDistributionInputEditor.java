@@ -195,6 +195,7 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
     private void buildMRCARow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition) {
         MRCAPrior mrca = findMRCAPrior(ts, partition);
         DistDef curDef = findDef(detectDistName(mrca));
+        Double lowerBound = cladeLowerBound(ts, partition);
 
         ChoiceBox<String> distCb = new ChoiceBox<>();
         DISTS.forEach(d -> distCb.getItems().add(d.name()));
@@ -203,7 +204,7 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
         HBox paramsBox = new HBox(6);
         paramsBox.setAlignment(Pos.CENTER_LEFT);
-        renderParamFields(paramsBox, curDef, mrca);
+        renderParamFields(paramsBox, curDef, mrca, lowerBound);
 
         CheckBox monoCb = new CheckBox();
         monoCb.setSelected(mrca == null || Boolean.TRUE.equals(mrca.getInputValue("monophyletic")));
@@ -215,18 +216,19 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
         distCb.setOnAction(e -> {
             DistDef nd = findDef(distCb.getValue());
-            renderParamFields(paramsBox, nd, null);
+            renderParamFields(paramsBox, nd, null, lowerBound);
             attachParamListeners(paramsBox, apply);
-            applyMRCAPrior(cd, ts, partition, nd, defaultParams(nd), monoCb.isSelected());
+            applyMRCAPrior(cd, ts, partition, nd, defaultParams(nd, lowerBound), monoCb.isSelected());
         });
 
         row.getChildren().addAll(distCb, paramsBox, monoCb);
     }
 
-    private void renderParamFields(HBox paramsBox, DistDef def, MRCAPrior existingMrca) {
+    private void renderParamFields(HBox paramsBox, DistDef def, MRCAPrior existingMrca, Double lowerBound) {
         paramsBox.getChildren().clear();
         for (ParamDef pd : def.params()) {
-            double val = getDistParam(existingMrca, def.name(), pd.key(), pd.defaultVal());
+            double dflt = pd.key().equals("offset") && lowerBound != null ? lowerBound : pd.defaultVal();
+            double val = getDistParam(existingMrca, def.name(), pd.key(), dflt);
             Label lbl = new Label(pd.label() + ":");
             lbl.setStyle("-fx-font-size:11px");
             TextField tf = numField(fmt(val));
@@ -258,6 +260,21 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         Map<String, Double> m = new LinkedHashMap<>();
         def.params().forEach(pd -> m.put(pd.key(), pd.defaultVal()));
         return m;
+    }
+
+    /** Default params, but with the offset seeded from the clade's lower bound when one exists. */
+    private static Map<String, Double> defaultParams(DistDef def, Double lowerBound) {
+        Map<String, Double> m = defaultParams(def);
+        if (lowerBound != null && m.containsKey("offset")) m.put("offset", lowerBound);
+        return m;
+    }
+
+    /** The clade's lower-bound age from its CalibrationCladePrior, or null if none is provided. */
+    private Double cladeLowerBound(TaxonSet ts, String partition) {
+        CalibrationCladePrior ccp = findCladePrior(ts, partition);
+        if (ccp == null) return null;
+        double lo = ccp.getLower();
+        return Double.isNaN(lo) ? null : lo;
     }
 
     // ── Mode switching ────────────────────────────────────────────────────────────
