@@ -11,7 +11,7 @@
 
     <properties>
         <beast.version>2.8.0-beta5</beast.version>
-        <substmodels.version>1.0.0-SNAPSHOT</substmodels.version>
+        <substmodels.version>1.3.2</substmodels.version>
         <beast.orc.version>1.3.1</beast.orc.version>
         <jmh.version>1.37</jmh.version>
         <beast.module>beast.base</beast.module>
@@ -54,7 +54,7 @@
             <version>${beast.version}</version>
         </dependency>
         <dependency>
-            <groupId>substmodels</groupId>
+            <groupId>io.github.beast2-dev</groupId>
             <artifactId>substmodels</artifactId>
             <version>${substmodels.version}</version>
         </dependency>
