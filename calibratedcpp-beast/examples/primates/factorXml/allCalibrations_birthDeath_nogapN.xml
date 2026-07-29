@@ -79,11 +79,38 @@ spec="Alignment">
     </state>
     <distribution id="posterior" spec="CompoundDistribution">
       <distribution id="prior" spec="CompoundDistribution">
-        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" tree="@tree">
-          <diversificationRate id="SkylineParameter" spec="calibratedcpp.SkylineParameter" values="@diversificationRate"/>
-          <turnover id="SkylineParameter1" spec="calibratedcpp.SkylineParameter" values="@turnover"/>
-          <rho id="RealScalarParam" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.05"/>
-          <calibrations id="TaxonSet1" spec="TaxonSet">
+                <distribution id="treePrior" spec="beast.base.spec.evolution.speciation.BirthDeathGernhard08Model" conditionalOnRoot="true" tree="@tree" birthDiffRate="@diversificationRate" relativeDeathRate="@turnover">
+          <sampleProbability id="rhoSampleProb" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" estimate="false" value="0.05"/>
+        </distribution>
+        <distribution id="kappa.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@kappa">
+          <M id="RealScalarParam1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
+          <S id="RealScalarParam2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.25"/>
+        </distribution>
+        <distribution id="turnover.prior" spec="beast.base.spec.inference.distribution.Beta" param="@turnover">
+          <alpha id="RealScalarParam3" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
+          <beta id="RealScalarParam4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
+        </distribution>
+        <distribution id="sigma.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@sigma">
+          <M id="RealScalarParam5" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="-0.693"/>
+          <S id="RealScalarParam6" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.5"/>
+        </distribution>
+        <distribution id="mRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@mRate">
+          <M id="RealScalarParam7" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="-9.0"/>
+          <S id="RealScalarParam8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="5.0"/>
+        </distribution>
+        <distribution id="pi.prior" spec="beast.base.spec.inference.distribution.Dirichlet" param="@pi">
+          <alpha id="RealVectorParam" spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="4" domain="Real" estimate="false">3.0 3.0 3.0 3.0</alpha>
+        </distribution>
+        <distribution id="diversificationRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@diversificationRate">
+          <M id="RealScalarParam9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
+          <S id="RealScalarParam10" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.25"/>
+        </distribution>
+        <distribution id="gamma.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@gamma">
+          <M id="RealScalarParam11" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
+          <S id="RealScalarParam12" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="2.0"/>
+        </distribution>
+        <distribution id="MRCAPrior0" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet1" spec="TaxonSet">
             <taxon idref="Aotus_nancymaae"/>
             <taxon idref="Callithrix_jacchus"/>
             <taxon idref="Carlito_syrichta"/>
@@ -113,8 +140,11 @@ spec="Alignment">
             <taxon idref="Saimiri_boliviensis"/>
             <taxon idref="Theropithecus_gelada"/>
             <taxon idref="Tupaia_chinensis"/>
-          </calibrations>
-          <calibrations id="TaxonSet2" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform0" spec="beast.base.spec.inference.distribution.Uniform" lower="65.79" upper="125.816"/>
+        </distribution>
+        <distribution id="MRCAPrior1" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet2" spec="TaxonSet">
             <taxon idref="Tupaia_chinensis"/>
             <taxon idref="Galeopterus_variegatus"/>
             <taxon idref="Otolemur_garnettii"/>
@@ -143,8 +173,11 @@ spec="Alignment">
             <taxon idref="Mandrillus_leucophaeus"/>
             <taxon idref="Papio_anubis"/>
             <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
-          <calibrations id="TaxonSet3" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform1" spec="beast.base.spec.inference.distribution.Uniform" lower="65.79" upper="125.816"/>
+        </distribution>
+        <distribution id="MRCAPrior2" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet3" spec="TaxonSet">
             <taxon idref="Otolemur_garnettii"/>
             <taxon idref="Microcebus_murinus"/>
             <taxon idref="Propithecus_coquereli"/>
@@ -171,9 +204,12 @@ spec="Alignment">
             <taxon idref="Mandrillus_leucophaeus"/>
             <taxon idref="Papio_anubis"/>
             <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
-        
-          <calibrations id="TaxonSet5" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform2" spec="beast.base.spec.inference.distribution.Uniform" lower="55.935" upper="66.095"/>
+        </distribution>
+    
+        <distribution id="MRCAPrior4" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet5" spec="TaxonSet">
             <taxon idref="Colobus_angolensis_palliatus"/>
             <taxon idref="Piliocolobus_tephrosceles"/>
             <taxon idref="Rhinopithecus_bieti"/>
@@ -186,14 +222,20 @@ spec="Alignment">
             <taxon idref="Mandrillus_leucophaeus"/>
             <taxon idref="Papio_anubis"/>
             <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
-          <calibrations id="TaxonSet6" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform4" spec="beast.base.spec.inference.distribution.Uniform" lower="12.47" upper="25.235"/>
+        </distribution>
+        <distribution id="MRCAPrior5" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet6" spec="TaxonSet">
             <taxon idref="Colobus_angolensis_palliatus"/>
             <taxon idref="Piliocolobus_tephrosceles"/>
             <taxon idref="Rhinopithecus_bieti"/>
             <taxon idref="Rhinopithecus_roxellana"/>
-          </calibrations>
-          <calibrations id="TaxonSet7" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform5" spec="beast.base.spec.inference.distribution.Uniform" lower="8.125" upper="15.0"/>
+        </distribution>
+        <distribution id="MRCAPrior6" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet7" spec="TaxonSet">
             <taxon idref="Chlorocebus_sabaeus"/>
             <taxon idref="Macaca_nemestrina"/>
             <taxon idref="Macaca_fascicularis"/>
@@ -202,8 +244,11 @@ spec="Alignment">
             <taxon idref="Mandrillus_leucophaeus"/>
             <taxon idref="Papio_anubis"/>
             <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
-          <calibrations id="TaxonSet8" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform6" spec="beast.base.spec.inference.distribution.Uniform" lower="6.5" upper="15.0"/>
+        </distribution>
+        <distribution id="MRCAPrior7" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet8" spec="TaxonSet">
             <taxon idref="Macaca_nemestrina"/>
             <taxon idref="Macaca_fascicularis"/>
             <taxon idref="Macaca_mulatta"/>
@@ -211,130 +256,52 @@ spec="Alignment">
             <taxon idref="Mandrillus_leucophaeus"/>
             <taxon idref="Papio_anubis"/>
             <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
-          <calibrations id="TaxonSet9" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform7" spec="beast.base.spec.inference.distribution.Uniform" lower="5.33" upper="12.51"/>
+        </distribution>
+        <distribution id="MRCAPrior8" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet9" spec="TaxonSet">
             <taxon idref="Nomascus_leucogenys"/>
             <taxon idref="Pongo_abelii"/>
             <taxon idref="Gorilla_gorilla"/>
             <taxon idref="Homo_sapiens"/>
             <taxon idref="Pan_paniscus"/>
             <taxon idref="Pan_troglodytes"/>
-          </calibrations>
-          <calibrations id="TaxonSet10" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform8" spec="beast.base.spec.inference.distribution.Uniform" lower="13.4" upper="25.235"/>
+        </distribution>
+        <distribution id="MRCAPrior9" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet10" spec="TaxonSet">
             <taxon idref="Pongo_abelii"/>
             <taxon idref="Gorilla_gorilla"/>
             <taxon idref="Homo_sapiens"/>
             <taxon idref="Pan_paniscus"/>
             <taxon idref="Pan_troglodytes"/>
-          </calibrations>
-          <calibrations id="TaxonSet11" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform9" spec="beast.base.spec.inference.distribution.Uniform" lower="12.3" upper="25.235"/>
+        </distribution>
+        <distribution id="MRCAPrior10" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet11" spec="TaxonSet">
             <taxon idref="Homo_sapiens"/>
             <taxon idref="Pan_paniscus"/>
             <taxon idref="Pan_troglodytes"/>
-          </calibrations>
-          <calibrations id="TaxonSet12" spec="TaxonSet">
+          </taxonset>
+          <distr id="Uniform10" spec="beast.base.spec.inference.distribution.Uniform" lower="4.631" upper="15.0"/>
+        </distribution>
+        <distribution id="MRCAPrior11" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet12" spec="TaxonSet">
             <taxon idref="Cebus_capucinus_imitator"/>
             <taxon idref="Saimiri_boliviensis"/>
             <taxon idref="Aotus_nancymaae"/>
             <taxon idref="Callithrix_jacchus"/>
-          </calibrations>
-          <calibrations id="TaxonSet13" spec="TaxonSet">
-            <taxon idref="Cebus_capucinus_imitator"/>
-            <taxon idref="Saimiri_boliviensis"/>
-          </calibrations>
-        </distribution>
-        <distribution id="kappa.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@kappa">
-          <M id="RealScalarParam1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
-          <S id="RealScalarParam2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.25"/>
-        </distribution>
-        <distribution id="turnover.prior" spec="beast.base.spec.inference.distribution.Beta" param="@turnover">
-          <alpha id="RealScalarParam3" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
-          <beta id="RealScalarParam4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
-        </distribution>
-        <distribution id="sigma.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@sigma">
-          <M id="RealScalarParam5" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="-0.693"/>
-          <S id="RealScalarParam6" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.5"/>
-        </distribution>
-        <distribution id="mRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@mRate">
-          <M id="RealScalarParam7" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="-9.0"/>
-          <S id="RealScalarParam8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="5.0"/>
-        </distribution>
-        <distribution id="pi.prior" spec="beast.base.spec.inference.distribution.Dirichlet" param="@pi">
-          <alpha id="RealVectorParam" spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="4" domain="Real" estimate="false">3.0 3.0 3.0 3.0</alpha>
-        </distribution>
-        <distribution id="diversificationRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@diversificationRate">
-          <M id="RealScalarParam9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-          <S id="RealScalarParam10" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.25"/>
-        </distribution>
-        <distribution id="gamma.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@gamma">
-          <M id="RealScalarParam11" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-          <S id="RealScalarParam12" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="2.0"/>
-        </distribution>
-        <distribution id="MRCAPrior0" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet1" tree="@tree">
-          <distr id="OffsetExp0" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="65.79"/>
-            <distribution id="Exponential0" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="20.037171"/>
-            </distribution>
-          </distr>
-        </distribution>
-        <distribution id="MRCAPrior1" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet2" tree="@tree">
-          <distr id="OffsetExp1" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="65.79"/>
-            <distribution id="Exponential1" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="20.037171"/>
-            </distribution>
-          </distr>
-        </distribution>
-        <distribution id="MRCAPrior2" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet3" tree="@tree">
-          <distr id="OffsetExp2" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="55.935"/>
-            <distribution id="Exponential2" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="3.391491"/>
-            </distribution>
-          </distr>
-        </distribution>
-    
-        <distribution id="MRCAPrior4" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet5" tree="@tree">
-          <distr id="OffsetExp4" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="12.47"/>
-            <distribution id="Exponential4" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="4.261062"/>
-            </distribution>
-          </distr>
-        </distribution>
-        <distribution id="MRCAPrior5" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet6" tree="@tree">
-          <distr id="Uniform5" spec="beast.base.spec.inference.distribution.Uniform" lower="8.125" upper="15.0"/>
-        </distribution>
-        <distribution id="MRCAPrior6" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet7" tree="@tree">
-          <distr id="Uniform6" spec="beast.base.spec.inference.distribution.Uniform" lower="6.5" upper="15.0"/>
-        </distribution>
-        <distribution id="MRCAPrior7" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet8" tree="@tree">
-          <distr id="Uniform7" spec="beast.base.spec.inference.distribution.Uniform" lower="5.33" upper="12.51"/>
-        </distribution>
-        <distribution id="MRCAPrior8" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet9" tree="@tree">
-          <distr id="OffsetExp8" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="13.4"/>
-            <distribution id="Exponential8" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="3.950620"/>
-            </distribution>
-          </distr>
-        </distribution>
-        <distribution id="MRCAPrior9" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet10" tree="@tree">
-          <distr id="OffsetExp9" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="12.3"/>
-            <distribution id="Exponential9" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="4.317809"/>
-            </distribution>
-          </distr>
-        </distribution>
-        <distribution id="MRCAPrior10" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet11" tree="@tree">
-          <distr id="Uniform10" spec="beast.base.spec.inference.distribution.Uniform" lower="4.631" upper="15.0"/>
-        </distribution>
-        <distribution id="MRCAPrior11" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet12" tree="@tree">
+          </taxonset>
           <distr id="Uniform11" spec="beast.base.spec.inference.distribution.Uniform" lower="13.183" upper="34.5"/>
         </distribution>
-        <distribution id="MRCAPrior12" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet13" tree="@tree">
+        <distribution id="MRCAPrior12" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" tree="@tree">
+          <taxonset id="TaxonSet13" spec="TaxonSet">
+            <taxon idref="Cebus_capucinus_imitator"/>
+            <taxon idref="Saimiri_boliviensis"/>
+          </taxonset>
           <distr id="Uniform12" spec="beast.base.spec.inference.distribution.Uniform" lower="13.032" upper="34.5"/>
         </distribution>
         <distribution id="branchRates.prior" spec="beast.base.spec.inference.distribution.IID" param="@branchRates">

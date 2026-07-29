@@ -79,7 +79,7 @@ spec="Alignment">
     </state>
     <distribution id="posterior" spec="CompoundDistribution">
       <distribution id="prior" spec="CompoundDistribution">
-        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" tree="@tree">
+        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" conditionOnCalibrations="false" tree="@tree">
           <diversificationRate id="SkylineParameter" spec="calibratedcpp.SkylineParameter" values="@diversificationRate"/>
           <turnover id="SkylineParameter1" spec="calibratedcpp.SkylineParameter" values="@turnover"/>
           <rho id="RealScalarParam" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.05"/>

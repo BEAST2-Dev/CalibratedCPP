@@ -79,7 +79,7 @@ spec="Alignment">
     </state>
     <distribution id="posterior" spec="CompoundDistribution">
       <distribution id="prior" spec="CompoundDistribution">
-        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" tree="@tree">
+        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" conditionOnCalibrations="false" tree="@tree">
           <diversificationRate id="SkylineParameter" spec="calibratedcpp.SkylineParameter" values="@diversificationRate"/>
           <turnover id="SkylineParameter1" spec="calibratedcpp.SkylineParameter" values="@turnover"/>
           <rho id="RealScalarParam" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.05"/>
@@ -271,37 +271,17 @@ spec="Alignment">
           <S id="RealScalarParam12" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="2.0"/>
         </distribution>
         <distribution id="MRCAPrior0" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet1" tree="@tree">
-          <distr id="OffsetExp0" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="65.79"/>
-            <distribution id="Exponential0" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="20.037171"/>
-            </distribution>
-          </distr>
+          <distr id="Uniform0" spec="beast.base.spec.inference.distribution.Uniform" lower="65.79" upper="125.816"/>
         </distribution>
         <distribution id="MRCAPrior1" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet2" tree="@tree">
-          <distr id="OffsetExp1" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="65.79"/>
-            <distribution id="Exponential1" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="20.037171"/>
-            </distribution>
-          </distr>
+          <distr id="Uniform1" spec="beast.base.spec.inference.distribution.Uniform" lower="65.79" upper="125.816"/>
         </distribution>
         <distribution id="MRCAPrior2" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet3" tree="@tree">
-          <distr id="OffsetExp2" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="55.935"/>
-            <distribution id="Exponential2" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="3.391491"/>
-            </distribution>
-          </distr>
+          <distr id="Uniform2" spec="beast.base.spec.inference.distribution.Uniform" lower="55.935" upper="66.095"/>
         </distribution>
     
         <distribution id="MRCAPrior4" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet5" tree="@tree">
-          <distr id="OffsetExp4" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="12.47"/>
-            <distribution id="Exponential4" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="4.261062"/>
-            </distribution>
-          </distr>
+          <distr id="Uniform4" spec="beast.base.spec.inference.distribution.Uniform" lower="12.47" upper="25.235"/>
         </distribution>
         <distribution id="MRCAPrior5" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet6" tree="@tree">
           <distr id="Uniform5" spec="beast.base.spec.inference.distribution.Uniform" lower="8.125" upper="15.0"/>
@@ -313,20 +293,10 @@ spec="Alignment">
           <distr id="Uniform7" spec="beast.base.spec.inference.distribution.Uniform" lower="5.33" upper="12.51"/>
         </distribution>
         <distribution id="MRCAPrior8" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet9" tree="@tree">
-          <distr id="OffsetExp8" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="13.4"/>
-            <distribution id="Exponential8" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="3.950620"/>
-            </distribution>
-          </distr>
+          <distr id="Uniform8" spec="beast.base.spec.inference.distribution.Uniform" lower="13.4" upper="25.235"/>
         </distribution>
         <distribution id="MRCAPrior9" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet10" tree="@tree">
-          <distr id="OffsetExp9" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="12.3"/>
-            <distribution id="Exponential9" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="4.317809"/>
-            </distribution>
-          </distr>
+          <distr id="Uniform9" spec="beast.base.spec.inference.distribution.Uniform" lower="12.3" upper="25.235"/>
         </distribution>
         <distribution id="MRCAPrior10" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet11" tree="@tree">
           <distr id="Uniform10" spec="beast.base.spec.inference.distribution.Uniform" lower="4.631" upper="15.0"/>
