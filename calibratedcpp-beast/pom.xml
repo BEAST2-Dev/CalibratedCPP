@@ -6,7 +6,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>calibratedcpp</artifactId>
+    <artifactId>calibratedcpp-beast</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
