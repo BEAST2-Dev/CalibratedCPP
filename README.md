@@ -28,6 +28,23 @@ The implementation has the following structure:
 - `CalibratedBirthDeathSkylineModel` extends `CalibratedCoalescentPointProcess` and implements `calculateLogNodeAgeDensity()` and `calculateLogNodeAgeCDF()` with node age density and CDF for the birth-death process with piecewise constant rates.
 - `CalibratedAgeDependentBirthDeathModel` extends `CalibratedCoalescentPointProcess` and implements `calculateLogNodeAgeDensity()` and `calculateLogNodeAgeCDF()` for the case when individuals have arbitrary lifetime distributions and give birth at a constant rate. The special case where individuals have Erlang distributed (Gamma distributed with integer shape parameter) lifetimes has a fast solution.
 
+Build the package:
+```bash
+cd calibratedcpp-beast
+mvn clean package -DskipTests
+```
+
+Run an example XML with BEAST:
+```bash
+mvn exec:exec -Dbeast.args="src/test/resources/calibratedcpp/examples/b3test/cats_halfAlignment_b3.xml"
+```
+Start BEAUti:
+```bash
+mvn exec:exec -Dbeast.module=beast.fx -Dbeast.main=beastfx.app.beauti.Beauti
+```
+
+
+
 ### calibratedcpp-lphy
 
 The Lphy simulator is currently implemented within LinguaPhylo as a generative method called `CalibratedCPP`:

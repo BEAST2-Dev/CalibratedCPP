@@ -1,0 +1,55 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+    <id>beast-package</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <!-- version.xml at ZIP root -->
+    <files>
+        <file>
+            <source>${project.basedir}/version.xml</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <!-- Source JAR at top level, not in /lib: everything under /lib is put on
+             the module path, and a sources jar has no compiled classes to offer it. -->
+        <file>
+            <source>${project.build.directory}/${project.build.finalName}-sources.jar</source>
+            <destName>${project.build.finalName}-src.jar</destName>
+            <outputDirectory>/</outputDirectory>
+        </file>
+    </files>
+
+    <!-- Everything in /lib lands on the module path, so only include jars meant to be
+         loaded at runtime. BEAST core/FX (io.github.compevol) are provided by the BEAST
+         runtime, and ORC/SSM are separate packages declared in version.xml's <depends> —
+         neither is bundled here. hipparchus-core and JTransforms are this package's own
+         runtime deps and must be included. -->
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <scope>runtime</scope>
+            <includes>
+                <include>io.github.moverwater:calibratedcpp</include>
+                <include>org.hipparchus:hipparchus-core</include>
+                <include>com.github.wendykierp:JTransforms</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets>
+        <!-- fxtemplates/ inside jar now -->
+        <!-- examples/ -->
+        <fileSet>
+            <directory>${project.basedir}/src/test/resources/calibratedcpp/examples</directory>
+            <outputDirectory>/examples</outputDirectory>
+            <excludes>
+                <exclude>legacy/**</exclude>
+                <exclude>**/reports/**</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

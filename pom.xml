@@ -41,7 +41,7 @@
     <properties>
         <lphy.vision>1.8.0-beta1</lphy.vision>
         <lphybeast.vision>2.0.0-SNAPSHOT</lphybeast.vision>
-        <revision>0.0.1</revision>
+        <revision>0.0.1-SNAPSHOT</revision>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
