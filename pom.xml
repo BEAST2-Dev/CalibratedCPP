@@ -34,6 +34,14 @@
         <url>https://github.com/moverwater/CalibratedCPP</url>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/moverwater/CalibratedCPP</url>
+        </repository>
+    </distributionManagement>
+
+
     <properties>
         <lphy.vision>1.8.0-beta1</lphy.vision>
         <lphybeast.vision>2.0.0-SNAPSHOT</lphybeast.vision>
@@ -45,13 +53,6 @@
         <substmodels.version>1.3.2</substmodels.version>
         <beast.orc.version>1.3.1</beast.orc.version>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://central.sonatype.com/</url>
-        </repository>
-    </distributionManagement>
 
     <modules>
         <module>calibratedcpp-beast</module>
