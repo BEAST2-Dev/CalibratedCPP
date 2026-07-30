@@ -59,8 +59,7 @@ jobs:
       # once that's fixed.
       - name: Build and test
         if: "!startsWith(github.ref, 'refs/tags/v')"
-        run: mvn verify -pl calibratedcpp-beast,calibratedcpp-lphy,calibratedcpp-lphy-studio -am
-        # run: mvn verify
+        run: mvn verify
 
 #TODO: need secrets
 #      - name: Deploy to GitHub Packages
