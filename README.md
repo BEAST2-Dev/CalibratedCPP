@@ -34,6 +34,35 @@ cd calibratedcpp-beast
 mvn exec:exec -Dbeast.module=beast.fx -Dbeast.main=beastfx.app.beauti.Beauti
 ```
 
+### Release
+
+This repo does not yet have an automated `ci-publish.yml` / `release.sh` (unlike
+the [gold-standard BEAST 3 package setup](https://github.com/CompEvol/beast3/blob/master/scripts/package-release-setup.md)),
+so releases are done manually:
+
+1. Tag and push the release:
+
+```bash
+git tag v0.0.1
+git push origin v0.0.1
+```
+
+2. Build the BEAST2 package ZIP:
+
+```bash
+mvn clean package
+```
+
+This produces `calibratedcpp-beast/target/calibratedcpp-beast-<version>.zip`
+(built from `calibratedcpp-beast/src/assembly/beast-package.xml`), containing
+the package jar, `version.xml`, and examples.
+
+Create a GitHub release for the tag and attach the ZIP.
+
+Add/update the CBAN entry so the package is discoverable in BEAUti: submit
+a PR to [CompEvol/CBAN/packages2.8.xml](https://github.com/CompEvol/CBAN/blob/master/packages2.8.xml)
+pointing at the ZIP's download URL.
+
 ## Project structure
 CalibratedCPP contains 5 subprojects:
 

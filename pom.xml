@@ -52,7 +52,31 @@
         <beast.labs.version>2.1.0-beta2</beast.labs.version>
         <substmodels.version>1.3.2</substmodels.version>
         <beast.orc.version>1.3.1</beast.orc.version>
+        <junit.version>5.10.2</junit.version>
+        <hipparchus.version>4.0.1</hipparchus.version>
+        <jtransforms.version>3.1</jtransforms.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hipparchus</groupId>
+                <artifactId>hipparchus-core</artifactId>
+                <version>${hipparchus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.wendykierp</groupId>
+                <artifactId>JTransforms</artifactId>
+                <version>${jtransforms.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <modules>
         <module>calibratedcpp-beast</module>
@@ -63,6 +87,15 @@
     </modules>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.7.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
