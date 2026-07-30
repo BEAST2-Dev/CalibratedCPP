@@ -104,34 +104,28 @@
                 <distribution id="CalibratedCoalescentPointProcess" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" tree="@tree" rho="@rho">
                     <turnover spec="calibratedcpp.SkylineParameter" values="@mu"/>
                     <diversificationRate spec="calibratedcpp.SkylineParameter" values="@diversificationRate"/>
-                    <calibrations id="CalibrationClade" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet1" spec="TaxonSet">
-                            <taxon idref="IberianLynx_Lynx_pardinus"/>
-                            <taxon idref="FishingCat_Prionailurus_viverrinus"/>
-                            <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
-                            <taxon idref="JungleCat_Felis_chaus"/>
-                            <taxon idref="BlackfootedCat_Felis_nigripes"/>
-                            <taxon idref="DomesticCat_Felis_catus"/>
-                            <taxon idref="SandCat_Felis_margarita"/>
-                        </taxa>
+                    <calibrations id="TaxonSet1" spec="TaxonSet">
+                        <taxon idref="IberianLynx_Lynx_pardinus"/>
+                        <taxon idref="FishingCat_Prionailurus_viverrinus"/>
+                        <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
+                        <taxon idref="JungleCat_Felis_chaus"/>
+                        <taxon idref="BlackfootedCat_Felis_nigripes"/>
+                        <taxon idref="DomesticCat_Felis_catus"/>
+                        <taxon idref="SandCat_Felis_margarita"/>
                     </calibrations>
-                    <calibrations id="CalibrationClade1" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet2" spec="TaxonSet">
-                            <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
-                            <taxon idref="SnowLeopard_Panthera_uncia"/>
-                            <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
-                            <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
-                            <taxon idref="Jaguar_Panthera_onca"/>
-                            <taxon idref="Leopard_Panthera_pardus"/>
-                            <taxon idref="Lion_Panthera_leo"/>
-                        </taxa>
+                    <calibrations id="TaxonSet2" spec="TaxonSet">
+                        <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
+                        <taxon idref="Jaguar_Panthera_onca"/>
+                        <taxon idref="Leopard_Panthera_pardus"/>
+                        <taxon idref="Lion_Panthera_leo"/>
                     </calibrations>
-                    <calibrations id="CalibrationClade2" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet3" spec="TaxonSet">
-                            <taxon idref="SnowLeopard_Panthera_uncia"/>
-                            <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
-                            <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
-                        </taxa>
+                    <calibrations id="TaxonSet3" spec="TaxonSet">
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
                     </calibrations>
                 </distribution>
                 <distribution id="mRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@mRate">
@@ -245,7 +239,6 @@
             <log id="TreeStatLogger" spec="beast.base.evolution.tree.TreeStatLogger" tree="@tree"/>
             <log id="RatesStat.branchRates" spec="beast.base.evolution.RateStatistic" branchratemodel="@branchRates.model" tree="@tree"/>
             <log idref="D.treeLikelihood"/>
-            <log id="CalibrationPriorLog" spec="calibrationprior.logger.MRCALogger" tree="@tree" calibrations="@CalibrationPrior"/>
         </logger>
         <logger id="TreeWithMetaDataLogger.tree" spec="Logger" fileName="$(filebase).trees" logEvery="50" mode="tree">
             <log id="TreeWithMetaDataLogger" spec="beast.base.spec.evolution.TreeWithMetaDataLogger" branchratemodel="@branchRates.model" tree="@tree"/>

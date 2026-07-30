@@ -130,57 +130,49 @@ model {
                         <alpha idref="lifetimeShape"/>
                         <theta idref="lifetimeScale"/>
                     </lifetimeDistribution>
-                    <calibrations id="CalibrationClade" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet1" spec="TaxonSet">
-                            <taxon idref="IberianLynx_Lynx_pardinus"/>
-                            <taxon idref="FishingCat_Prionailurus_viverrinus"/>
-                            <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
-                            <taxon idref="JungleCat_Felis_chaus"/>
-                            <taxon idref="BlackfootedCat_Felis_nigripes"/>
-                            <taxon idref="DomesticCat_Felis_catus"/>
-                            <taxon idref="SandCat_Felis_margarita"/>
-                            <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
-                            <taxon idref="SnowLeopard_Panthera_uncia"/>
-                            <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
-                            <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
-                            <taxon idref="Jaguar_Panthera_onca"/>
-                            <taxon idref="Leopard_Panthera_pardus"/>
-                            <taxon idref="Lion_Panthera_leo"/>
-                            <taxon idref="StripedHyena_Hyaena_hyaena"/>
-                            <taxon idref="ScimitarToothedCat_Homotherium_latidens"/>
-                            <taxon idref="SpottedHyena_Crocuta_crocuta"/>
-                            <taxon idref="Caracal_Caracal_caracal"/>
-                            <taxon idref="Cheetah_Acinonyx_jubatus"/>
-                        </taxa>
+                    <calibrations id="TaxonSet1" spec="TaxonSet">
+                        <taxon idref="IberianLynx_Lynx_pardinus"/>
+                        <taxon idref="FishingCat_Prionailurus_viverrinus"/>
+                        <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
+                        <taxon idref="JungleCat_Felis_chaus"/>
+                        <taxon idref="BlackfootedCat_Felis_nigripes"/>
+                        <taxon idref="DomesticCat_Felis_catus"/>
+                        <taxon idref="SandCat_Felis_margarita"/>
+                        <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
+                        <taxon idref="Jaguar_Panthera_onca"/>
+                        <taxon idref="Leopard_Panthera_pardus"/>
+                        <taxon idref="Lion_Panthera_leo"/>
+                        <taxon idref="StripedHyena_Hyaena_hyaena"/>
+                        <taxon idref="ScimitarToothedCat_Homotherium_latidens"/>
+                        <taxon idref="SpottedHyena_Crocuta_crocuta"/>
+                        <taxon idref="Caracal_Caracal_caracal"/>
+                        <taxon idref="Cheetah_Acinonyx_jubatus"/>
                     </calibrations>
-                    <calibrations id="CalibrationClade1" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet2" spec="TaxonSet">
-                            <taxon idref="IberianLynx_Lynx_pardinus"/>
-                            <taxon idref="FishingCat_Prionailurus_viverrinus"/>
-                            <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
-                            <taxon idref="JungleCat_Felis_chaus"/>
-                            <taxon idref="BlackfootedCat_Felis_nigripes"/>
-                            <taxon idref="DomesticCat_Felis_catus"/>
-                            <taxon idref="SandCat_Felis_margarita"/>
-                        </taxa>
+                    <calibrations id="TaxonSet2" spec="TaxonSet">
+                        <taxon idref="IberianLynx_Lynx_pardinus"/>
+                        <taxon idref="FishingCat_Prionailurus_viverrinus"/>
+                        <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
+                        <taxon idref="JungleCat_Felis_chaus"/>
+                        <taxon idref="BlackfootedCat_Felis_nigripes"/>
+                        <taxon idref="DomesticCat_Felis_catus"/>
+                        <taxon idref="SandCat_Felis_margarita"/>
                     </calibrations>
-                    <calibrations id="CalibrationClade2" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet3" spec="TaxonSet">
-                            <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
-                            <taxon idref="SnowLeopard_Panthera_uncia"/>
-                            <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
-                            <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
-                            <taxon idref="Jaguar_Panthera_onca"/>
-                            <taxon idref="Leopard_Panthera_pardus"/>
-                            <taxon idref="Lion_Panthera_leo"/>
-                        </taxa>
+                    <calibrations id="TaxonSet3" spec="TaxonSet">
+                        <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
+                        <taxon idref="Jaguar_Panthera_onca"/>
+                        <taxon idref="Leopard_Panthera_pardus"/>
+                        <taxon idref="Lion_Panthera_leo"/>
                     </calibrations>
-                    <calibrations id="CalibrationClade3" spec="calibration.CalibrationClade">
-                        <taxa id="TaxonSet4" spec="TaxonSet">
-                            <taxon idref="SnowLeopard_Panthera_uncia"/>
-                            <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
-                            <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
-                        </taxa>
+                    <calibrations id="TaxonSet4" spec="TaxonSet">
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
                     </calibrations>
                 </distribution>
                 <distribution id="rho.prior" spec="beast.base.spec.inference.distribution.Uniform" param="@rho">

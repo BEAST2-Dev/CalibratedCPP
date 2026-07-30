@@ -17,6 +17,23 @@ $$Q(t) = \frac{\rho\lambda(1-e^{-(\lambda-\mu)t})}{\rho\lambda+(\lambda(1-\rho)-
 
 The Calibrated CPP is a calibrated tree prior using the CPP. Calibrated tree priors are used for molecular clock dating by conditioning on the existence and ages of the most recent common ancestors of monophyletic clades.
 
+## For developer
+
+Build the package:
+```bash
+mvn clean package -DskipTests
+```
+
+Run an example XML with BEAST:
+```bash
+mvn -pl calibratedcpp-beast exec:exec -Dbeast.args="-validate src/test/resources/calibratedcpp/examples/b3test/b3_b3.xml"
+```
+Start BEAUti:
+```bash
+cd calibratedcpp-beast
+mvn exec:exec -Dbeast.module=beast.fx -Dbeast.main=beastfx.app.beauti.Beauti
+```
+
 ## Project structure
 CalibratedCPP contains 5 subprojects:
 
@@ -27,23 +44,6 @@ The implementation has the following structure:
 - `CalibratedBirthDeathModel` extends `CalibratedCoalescentPointProcess` and implements `calculateLogNodeAgeDensity()` and `calculateLogNodeAgeCDF()` with node age density and CDF for the constant rate birth-death process.
 - `CalibratedBirthDeathSkylineModel` extends `CalibratedCoalescentPointProcess` and implements `calculateLogNodeAgeDensity()` and `calculateLogNodeAgeCDF()` with node age density and CDF for the birth-death process with piecewise constant rates.
 - `CalibratedAgeDependentBirthDeathModel` extends `CalibratedCoalescentPointProcess` and implements `calculateLogNodeAgeDensity()` and `calculateLogNodeAgeCDF()` for the case when individuals have arbitrary lifetime distributions and give birth at a constant rate. The special case where individuals have Erlang distributed (Gamma distributed with integer shape parameter) lifetimes has a fast solution.
-
-Build the package:
-```bash
-cd calibratedcpp-beast
-mvn clean package -DskipTests
-```
-
-Run an example XML with BEAST:
-```bash
-mvn exec:exec -Dbeast.args="src/test/resources/calibratedcpp/examples/b3test/cats_halfAlignment_b3.xml"
-```
-Start BEAUti:
-```bash
-mvn exec:exec -Dbeast.module=beast.fx -Dbeast.main=beastfx.app.beauti.Beauti
-```
-
-
 
 ### calibratedcpp-lphy
 
