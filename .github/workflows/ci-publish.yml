@@ -59,19 +59,19 @@ jobs:
       # once that's fixed.
       - name: Build and test
         if: "!startsWith(github.ref, 'refs/tags/v')"
-        run: mvn verify -pl calibratedcpp-beast,calibratedcpp-lphy,calibratedcpp-lphy-studio -am
+        run: mvn verify -pl calibratedcpp-beast -am
         # run: mvn verify
 
       - name: Deploy to GitHub Packages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: mvn deploy -DskipTests -pl calibratedcpp-beast,calibratedcpp-lphy,calibratedcpp-lphy-studio -am
+        run: mvn deploy -DskipTests -pl calibratedcpp-beast -am
         # run: mvn deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to Maven Central
         if: startsWith(github.ref, 'refs/tags/v')
-        run: mvn -Prelease clean deploy -pl calibratedcpp-beast,calibratedcpp-lphy,calibratedcpp-lphy-studio -am
+        run: mvn -Prelease clean deploy -pl calibratedcpp-beast -am
         # run: mvn -Prelease clean deploy
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
