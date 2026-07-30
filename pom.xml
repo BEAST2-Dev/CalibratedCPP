@@ -58,9 +58,8 @@
         <module>calibratedcpp-beast</module>
         <module>calibratedcpp-lphy</module>
         <module>calibratedcpp-lphy-studio</module>
-<!-- TODO cannot active them before new lphybeast is released -->
-<!--        <module>calibratedcpp-lphybeast</module>-->
-<!--        <module>calibratedcpp-lphybeast-launcher</module>-->
+        <module>calibratedcpp-lphybeast</module>
+        <module>calibratedcpp-lphybeast-launcher</module>
     </modules>
 
     <build>
