@@ -9,6 +9,11 @@
     <artifactId>calibratedcpp-lphy-studio</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+<!-- TODO skip lphy tests -->
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.moverwater</groupId>

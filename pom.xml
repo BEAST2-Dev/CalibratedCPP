@@ -84,19 +84,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- calibratedcpp-root is just an aggregator, nothing to publish. But "-pl <modules> -am"
-                 always pulls it into the reactor since the modules inherit from it, so without this
-                 it fails trying to deploy the root pom itself. inherited=false keeps this skip on
-                 calibratedcpp-root only — child modules still deploy as normal. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <inherited>false</inherited>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
