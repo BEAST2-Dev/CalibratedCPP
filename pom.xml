@@ -2,13 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- No external <parent>: io.github.linguaphylo:lphybeast-root is a SNAPSHOT that is
-         never published anywhere resolvable (not Central, no snapshot repo declared), which
-         breaks this build on any machine/CI that doesn't happen to have it cached locally.
-         Self-contained instead, following the same pattern as ../beast3/pom.xml (also root,
-         no parent). Anything actually needed from lphybeast-root's dependencyManagement is
-         declared with an explicit <version> directly where it's used
-         (calibratedcpp-lphybeast-launcher/pom.xml), not inherited. -->
+    <!-- No <parent>. We used to inherit io.github.linguaphylo:lphybeast-root, but it's an
+         unpublished SNAPSHOT, so any machine without it pre-cached fails to build. Self-contained
+         instead. Versions we used to get from it are now set directly in
+         calibratedcpp-lphybeast-launcher/pom.xml. -->
     <groupId>io.github.moverwater</groupId>
     <artifactId>calibratedcpp-root</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -86,6 +83,19 @@
                         <goals><goal>clean</goal></goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- calibratedcpp-root is just an aggregator, nothing to publish. But "-pl <modules> -am"
+                 always pulls it into the reactor since the modules inherit from it, so without this
+                 it fails trying to deploy the root pom itself. inherited=false keeps this skip on
+                 calibratedcpp-root only — child modules still deploy as normal. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
