@@ -3,7 +3,7 @@
     <parent>
         <groupId>io.github.moverwater</groupId>
         <artifactId>calibratedcpp-root</artifactId>
-        <version>${revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>calibratedcpp-lphybeast-launcher</artifactId>
     <packaging>pom</packaging>
@@ -36,6 +36,7 @@
                 <dependency>
                     <groupId>io.github.beast2-dev</groupId>
                     <artifactId>substmodels</artifactId>
+                    <version>${substmodels.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -51,6 +52,7 @@
                 <dependency>
                     <groupId>io.github.jordandouglas</groupId>
                     <artifactId>beast-orc</artifactId>
+                    <version>${beast.orc.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -68,8 +70,8 @@
                 <dependency><groupId>io.github.linguaphylo</groupId><artifactId>lphybeast-ssm</artifactId><version>${lphybeast.vision}</version></dependency>
                 <dependency><groupId>io.github.linguaphylo</groupId><artifactId>lphybeast-orc</artifactId><version>${lphybeast.vision}</version></dependency>
                 <!-- External BEAST2 package JARs — direct deps so %classpath is complete -->
-                <dependency><groupId>io.github.beast2-dev</groupId><artifactId>substmodels</artifactId></dependency>
-                <dependency><groupId>io.github.jordandouglas</groupId><artifactId>beast-orc</artifactId></dependency>
+                <dependency><groupId>io.github.beast2-dev</groupId><artifactId>substmodels</artifactId><version>${substmodels.version}</version></dependency>
+                <dependency><groupId>io.github.jordandouglas</groupId><artifactId>beast-orc</artifactId><version>${beast.orc.version}</version></dependency>
             </dependencies>
         </profile>
 

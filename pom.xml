@@ -2,17 +2,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- inherit pom in lphybeast-root -->
-    <parent>
-        <groupId>io.github.linguaphylo</groupId>
-        <artifactId>lphybeast-root</artifactId>
-        <!--  lphybeast version here    -->
-        <version>2.0.0-SNAPSHOT</version>
-    </parent>
-
+    <!-- No external <parent>: io.github.linguaphylo:lphybeast-root is a SNAPSHOT that is
+         never published anywhere resolvable (not Central, no snapshot repo declared), which
+         breaks this build on any machine/CI that doesn't happen to have it cached locally.
+         Self-contained instead, following the same pattern as ../beast3/pom.xml (also root,
+         no parent). Anything actually needed from lphybeast-root's dependencyManagement is
+         declared with an explicit <version> directly where it's used
+         (calibratedcpp-lphybeast-launcher/pom.xml), not inherited. -->
     <groupId>io.github.moverwater</groupId>
     <artifactId>calibratedcpp-root</artifactId>
-    <version>${revision}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>calibratedcpp-root</name>
@@ -41,9 +40,13 @@
     <properties>
         <lphy.vision>1.8.0-beta1</lphy.vision>
         <lphybeast.vision>2.0.0-SNAPSHOT</lphybeast.vision>
-        <revision>0.0.1-SNAPSHOT</revision>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- BEAST3 core and external BEAST2 package versions shared across modules -->
+        <beast.version>2.8.0-beta7</beast.version>
+        <beast.labs.version>2.1.0-beta2</beast.labs.version>
+        <substmodels.version>1.3.2</substmodels.version>
+        <beast.orc.version>1.3.1</beast.orc.version>
     </properties>
 
     <distributionManagement>
@@ -129,7 +132,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.5.0</version>
+                        <version>0.11.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>

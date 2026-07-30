@@ -4,11 +4,11 @@
     <parent>
         <groupId>io.github.moverwater</groupId>
         <artifactId>calibratedcpp-root</artifactId>
-        <version>${revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>calibratedcpp-lphy</artifactId>
-    <version>${revision}</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
