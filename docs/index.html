@@ -86,13 +86,16 @@
         epoch, together with the times at which they change:
       </p>
       <ul>
-        <li><strong>Values</strong> — the rate in each epoch, ordered from the root towards the present.</li>
+        <li><strong>Values</strong> — the rate in each epoch, ordered from the root towards the present
+            (if <code>timesAreAges="false"</code>) or present towards the root (if <code>timesAreAges="true"</code>).</li>
         <li><strong>Change times</strong> — the epoch boundaries. They can be fixed by the user or estimated, and given as ages before the present, as forward times, or as fractions of the tree's total age. If omitted, the epochs are spread evenly over the age of the tree.</li>
       </ul>
           <figure class="screenshot">
               <img src="assets/screenshots/skylineparam.png"/>
-              <figcaption>Skyline values are ordered from root to tip (past to present). Change times can be specified either
-              as ages (time before the present) or as times since the origin/root of the tree.</figcaption>
+              <figcaption>Change times can be specified either
+              as ages (time before the present) or as times since the origin/root of the tree. Skyline values are ordered
+                  from root to tip when times are since the start of the process (blue)
+                  or tip to root when times are ages before the present (red).</figcaption>
           </figure>
       <p>
         The process is anchored in time in one of two ways: by conditioning on the tree's
@@ -436,7 +439,8 @@
         (check <strong>Times are ages</strong> / <strong>Relative to process length</strong>
         accordingly), or spread evenly with <strong>Distribute evenly</strong>. A single epoch
         gives constant rates. The following image shows an example where the diversificaton rate has a change time 66 million 
-        years before the present at the time of the K-Pg mass extinction.
+        years before the present at the time of the K-Pg mass extinction. Optionally, you can choose to estimate the change times
+          by clicking <strong>Estimate change times</strong>.
       </p>
       <figure class="screenshot">
         <img src="assets/screenshots/beauti-skylineparam.png" alt="BEAUti setting skyline parameter">

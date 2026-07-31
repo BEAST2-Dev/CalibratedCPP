@@ -461,7 +461,7 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
         valRow.setSpacing(4);
         VBox valBox = FXUtils.newVBox();
         valBox.setSpacing(2);
-        valBox.getChildren().addAll(new Label("Epoch values (root → present):"), valRow);
+        valBox.getChildren().addAll(new Label("Epoch values:"), valRow);
         box.getChildren().add(valBox);
 
         rebuildSkylineRows(sp, nChanges, ctRow, valRow, agesCb, relCb);

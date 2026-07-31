@@ -116,8 +116,7 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
         // 2. Create Master Timeline (Union of all times).
         // Only cuts falling strictly inside (0, maxT) become integration boundaries: a cut outside
         // that range bounds an epoch that lies wholly outside the process and so contributes
-        // nothing. The per-parameter lists above deliberately retain those out-of-range cuts, since
-        // getVal() needs the full list to keep values[0] pinned to the root epoch.
+        // nothing. The per-parameter lists above deliberately retain those out-of-range cuts
         SortedSet<Double> timesSet = new TreeSet<>();
         timesSet.add(0.0);
         for (List<Double> cuts : List.of(bTimes, dTimes, rTimes, divTimes, tTimes))
@@ -208,14 +207,15 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
                 }
 
                 // Out-of-range cuts are deliberately retained, so that this list always has
-                // exactly rateP.size()-1 entries and getVal()'s index flip stays exact. A cut
-                // older than the root (age > maxTime) sorts to the end and leaves values[0]
-                // unused; a cut younger than the present (age < 0) sorts to the front and leaves
-                // the last value unused. Either way the epoch lies wholly outside the process and
-                // correctly contributes nothing.
+                // exactly rateP.size()-1 entries and getVal()'s index mapping stays exact.
+                // Change times are validated non-negative and strictly increasing (and <= 1 when
+                // relative), so the only way out of the process is an absolute time past maxTime —
+                // always the trailing k. Since values share the direction of the times, that
+                // strands values[size-k .. size-1]: those epochs lie wholly outside [0, maxTime]
+                // and correctly contribute nothing. (Under !timesAreAges those k cuts convert to
+                // negative ages and land at the front of this list after the reverse() below.)
                 times.add(tAge);
             }
-            // From-root conversions negate v, so the ages came out descending.
             if (!reverse) Collections.reverse(times);
         } else {
             // --- Implicit Equidistant Times ---
@@ -233,10 +233,9 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
 
     /**
      * Retrieves the rate value for a given time t.
-     * Enforces Rates: Root -> Present.
      * * @param t The current time (Age).
      */
-    private double getVal(Tensor<?, ?> p, List<Double> cuts, double t) {
+    private double getVal(Tensor<?, ?> p, List<Double> cuts, double t, boolean reverse) {
         if (p == null) return 0;
 
         // Find which time interval 't' falls into based on the cuts (which are Ages).
@@ -244,23 +243,14 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
         int idx = Collections.binarySearch(cuts, t);
         int intervalIndex = (idx >= 0) ? idx + 1 : -idx - 1;
 
-        // ORIENTATION LOGIC:
-        // We know 'cuts' are Ages (0 -> Max).
-        // intervalIndex 0 corresponds to the time immediately near Present (Age 0).
-        //
-        // Requirement: Rates are specified Root-to-Present.
-        // Therefore:
-        //   Rate[0]     = Root (Oldest)
-        //   Rate[Last]  = Present (Youngest)
-        //
-        // So, if we are at intervalIndex 0 (Present), we need the LAST rate index.
-        // If we are at intervalIndex Max (Root), we need the FIRST rate index.
-        //
-        // This flip is only exact while cuts.size() == p.size()-1, which is why processInput()
-        // retains out-of-range cuts rather than discarding them: dropping one would shift every
-        // epoch's rate, not just the out-of-range epoch's.
-
-        int pIdx = p.size() - 1 - intervalIndex;
+        // ORIENTATION LOGIC: values[0] is always in [0,changeTime[0]]
+        // If timesAreAges, values are specified Present-to-Root:
+        //   values[0]    in [0, cut[0]]            (interval before the first change time)
+        //   values[Last] in [cut[Last], maxTime]
+        // If !timesAreAges, values are specified Root-to-Present, and the mapping is mirrored:
+        //   values[0]    in [cut[Last], maxTime]
+        //   values[Last] in [0, cut[0]]
+        int pIdx = reverse ? intervalIndex : p.size() - 1 - intervalIndex;
 
         return (Double) p.get(Math.max(0, Math.min(pIdx, p.size() - 1)));
     }
@@ -277,7 +267,7 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
     private double getValSafe(Input<SkylineParameter> input, List<Double> times, double t) {
         SkylineParameter sp = input.get();
         if (sp == null || sp.valuesInput.get() == null) return 0.0;
-        return getVal(sp.valuesInput.get(), times, t);
+        return getVal(sp.valuesInput.get(), times, t, sp.timesAreAgesInput.get());
     }
 
     // --- Math Helpers ---

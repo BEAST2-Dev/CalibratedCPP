@@ -177,10 +177,10 @@ public class CalibratedBirthDeathSkylineModelTest {
 //      // BEAST3 types for CalibratedBirthDeathSkylineModel
 //      SkylineParameter birthRateSkyline = new SkylineParameter();
 //      SkylineParameter deathRateSkyline = new SkylineParameter();
-//      birthRateSkyline.initByName("values", new RealVectorParam<>(new double[]{2.0, 1.0, 3.0}, NonNegativeReal.INSTANCE),
+//      birthRateSkyline.initByName("values", new RealVectorParam<>(new double[]{3.0, 1.0, 2.0}, NonNegativeReal.INSTANCE),
 //              "changeTimes", new RealVectorParam<>(new double[]{1.0, 1.5}, NonNegativeReal.INSTANCE),
 //              "timesAreAges", true);
-//      deathRateSkyline.initByName("values", new RealVectorParam<>(new double[]{1.1, 2.0, 0.5}, NonNegativeReal.INSTANCE),
+//      deathRateSkyline.initByName("values", new RealVectorParam<>(new double[]{0.5, 2.0, 1.1}, NonNegativeReal.INSTANCE),
 //              "changeTimes", new RealVectorParam<>(new double[]{0.5, 1.25}, NonNegativeReal.INSTANCE),
 //              "timesAreAges", true);
 //
