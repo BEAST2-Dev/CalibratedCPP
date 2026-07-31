@@ -52,6 +52,8 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
     protected PolynomialSplineFunction gSpline;
     protected PolynomialSplineFunction lifetimePdfSpline;  // g(s): lifetime PDF
     protected PolynomialSplineFunction survivalSpline;     // S(t) = 1 - CDF_g(t)
+    private double coarsePanel;                            // first coarse-grid step (maxTime / M)
+    private boolean densitySingularAt0;                   // g(0) = +inf (Weibull shape < 1)
 
     private static final GaussIntegratorFactory GAUSS_FACTORY = new GaussIntegratorFactory();
 
@@ -208,6 +210,13 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
                 gValues[j] = dist.density(coarseT[j]);
                 sValues[j] = 1.0 - dist.cumulativeProbability(coarseT[j]);
             }
+            // density(0) is +inf for a Weibull shape < 1; a spline node cannot hold it. Only then, use the
+            // mean density over the first panel, CDF(hc)/hc, so lifetimePdfSpline stays finite (the s=0 point
+            // has measure zero in the G'(t) convolution, which is integrated over the open interval). Finite
+            // densities (shape >= 1, exponential, ...) keep their exact g(0), leaving the smooth case intact.
+            densitySingularAt0 = !Double.isFinite(gValues[0]);
+            if (densitySingularAt0) gValues[0] = dist.cumulativeProbability(hc) / hc;
+            coarsePanel = hc;
             coarseT[M] = maxTime;
         } catch (MathIllegalStateException e){
             throw new RuntimeException("Failed to evaluate lifetime distribution", e);
@@ -223,61 +232,68 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
         double h = maxTime / N;
         double[] gridG      = new double[N + 1];
         double[] gridGPrime = new double[N + 1];
-        double[] gValues    = new double[N + 1];
+        double[] wValues    = new double[N + 1];   // per-panel probability mass (product-integration weights)
         double[] sValues    = new double[N + 1];
 
+        // Product-integration convolution weights instead of pointwise density samples. Sampling the
+        // density as h*g[k] loses an order of accuracy when g(s) ~ s^(k-1) diverges at s=0 (Weibull shape
+        // < 1: ~30% error in G at a grid step of 0.01 for k=0.4) and needs the infinite g(0) special-cased.
+        // w[k] is instead the exact probability mass of the panel centred on t_k, taken from the finite,
+        // smooth survival function: w[k] = S((k-1/2)h) - S((k+1/2)h); w[0] the half-panel [0, h/2]. This
+        // captures the singular mass at 0 exactly and restores the O(h^2) order the Richardson step needs.
         try {
-            for (int j = 0; j <= N; j++) {
-                double t = j * h;
-                gValues[j] = dist.density(t);
-                sValues[j] = 1.0 - dist.cumulativeProbability(t);
-            }
+            for (int j = 0; j <= N; j++) sValues[j] = 1.0 - dist.cumulativeProbability(j * h);
+            wValues[0] = dist.cumulativeProbability(0.5 * h);
+            for (int k = 1; k <= N; k++)
+                wValues[k] = dist.cumulativeProbability((k + 0.5) * h)
+                           - dist.cumulativeProbability((k - 0.5) * h);
         } catch (MathIllegalStateException e){
             throw new RuntimeException("Failed to evaluate lifetime distribution at a grid point", e);
         }
 
         gridG[0]      = 0.0;
         gridGPrime[0] = birthRate;
-        double g0    = gValues[0];
-        double denom = 1.0 - 0.5 * h * birthRate * (1.0 - 0.5 * h * g0);
+        double w0    = wValues[0];
+        double denom = 1.0 - 0.5 * h * birthRate * (1.0 - w0);
         double[] K   = new double[N + 1];
 
-        videRecurse(gridG, gridGPrime, gValues, sValues, K, g0, denom, h, 0, N);
+        videRecurse(gridG, gridGPrime, wValues, sValues, K, w0, denom, h, 0, N);
         return gridG;
     }
 
     private void videRecurse(double[] gridG, double[] gridGPrime,
-                             double[] gValues, double[] sValues,
-                             double[] K, double g0, double denom, double h,
+                             double[] wValues, double[] sValues,
+                             double[] K, double w0, double denom, double h,
                              int l, int r) {
         if (r - l == 1) {
             gridG[l + 1]  = (gridG[l] + 0.5 * h * gridGPrime[l]
                     + 0.5 * h * birthRate * (sValues[l + 1] - K[l + 1])) / denom;
-            double conv   = 0.5 * h * g0 * gridG[l + 1] + K[l + 1];
+            double conv   = w0 * gridG[l + 1] + K[l + 1];   // w0 = mass of the s=0 half-panel
             gridGPrime[l + 1] = birthRate * (gridG[l + 1] - conv + sValues[l + 1]);
             return;
         }
         int m = (l + r) / 2;
-        videRecurse(gridG, gridGPrime, gValues, sValues, K, g0, denom, h, l, m);
-        addCrossContributions(gridG, gValues, K, l, m, r, h);
-        videRecurse(gridG, gridGPrime, gValues, sValues, K, g0, denom, h, m, r);
+        videRecurse(gridG, gridGPrime, wValues, sValues, K, w0, denom, h, l, m);
+        addCrossContributions(gridG, wValues, K, l, m, r);
+        videRecurse(gridG, gridGPrime, wValues, sValues, K, w0, denom, h, m, r);
     }
 
     /**
      * Adds the contribution of G[l+1..m] to K[m+1..r] via a single FFT-based linear convolution.
      *
-     * <p>The required sum is K[m+1+k'] += h * Σ_{i=0}^{lenG-1} G[l+1+i] * g[lenG+k'-i],
-     * which equals h * c[lenG-1+k'] where c = linearConvolve(G[l+1..m], g[1..lenG+lenK-1]).</p>
+     * <p>The required sum is K[m+1+k'] += Σ_{i=0}^{lenG-1} G[l+1+i] * w[lenG+k'-i],
+     * which equals c[lenG-1+k'] where c = linearConvolve(G[l+1..m], w[1..lenG+lenK-1]) and w is the
+     * product-integration mass-weight vector (already carrying the panel width, so no extra h factor).</p>
      */
-    private void addCrossContributions(double[] gridG, double[] gValues, double[] K,
-                                       int l, int m, int r, double h) {
+    private void addCrossContributions(double[] gridG, double[] wValues, double[] K,
+                                       int l, int m, int r) {
         int lenG   = m - l;
         int lenK   = r - m;
         double[] Gsub   = Arrays.copyOfRange(gridG, l + 1, m + 1);
-        double[] gSlice = new double[lenG + lenK - 1];
-        System.arraycopy(gValues, 1, gSlice, 0, gSlice.length);
-        double[] c = linearConvolve(Gsub, gSlice);
-        for (int kp = 0; kp < lenK; kp++) K[m + 1 + kp] += h * c[lenG - 1 + kp];
+        double[] wSlice = new double[lenG + lenK - 1];
+        System.arraycopy(wValues, 1, wSlice, 0, wSlice.length);
+        double[] c = linearConvolve(Gsub, wSlice);
+        for (int kp = 0; kp < lenK; kp++) K[m + 1 + kp] += c[lenG - 1 + kp];
     }
 
     /** Zero-pad-and-FFT linear convolution of two real sequences. */
@@ -317,8 +333,20 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
      */
     private double evaluateGPrime(double t) {
         if (t <= 0.0) return birthRate;
-        GaussIntegrator gl = GAUSS_FACTORY.legendre(32, 0.0, t);
-        double integral = gl.integrate(s -> gSpline.value(t - s) * lifetimePdfSpline.value(s));
+        double integral;
+        if (densitySingularAt0 && t > coarsePanel) {
+            // g(s) has an integrable singularity at s=0 (Weibull shape < 1) that the pdf spline cannot
+            // resolve. Split the convolution: on the first panel [0, δ] approximate G(t-s) ≈ G(t) and use
+            // the exact mass ∫₀^δ g = 1 - S(δ) from the (smooth) survival spline; integrate the finite
+            // remainder [δ, t] with Gauss-Legendre as usual. Reduces to the plain quadrature as δ → 0.
+            double delta = coarsePanel;
+            double singular = gSpline.value(t) * (1.0 - survivalSpline.value(delta));
+            GaussIntegrator gl = GAUSS_FACTORY.legendre(32, delta, t);
+            integral = singular + gl.integrate(s -> gSpline.value(t - s) * lifetimePdfSpline.value(s));
+        } else {
+            GaussIntegrator gl = GAUSS_FACTORY.legendre(32, 0.0, t);
+            integral = gl.integrate(s -> gSpline.value(t - s) * lifetimePdfSpline.value(s));
+        }
         return birthRate * (gSpline.value(t) - integral + survivalSpline.value(t));
     }
 

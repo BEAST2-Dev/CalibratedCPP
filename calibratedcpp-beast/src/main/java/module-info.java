@@ -16,6 +16,7 @@ open module calibratedcpp.beast {
     exports calibration;
     exports calibrationprior;
     exports calibratedcpp.beauti;
+    exports calibratedcpp.distribution;
 
     provides beastfx.app.inputeditor.InputEditor with
         calibratedcpp.beauti.CalibratedBirthDeathSkylineInputEditor,
@@ -31,6 +32,10 @@ open module calibratedcpp.beast {
         calibratedcpp.CalibratedAgeDependentExtinctionModel,
         calibratedcpp.CalibratedCPPTreeInitialiser,
         calibratedcpp.SkylineParameter,
+        calibratedcpp.distribution.Weibull,
+        calibratedcpp.distribution.Erlang,
+        calibratedcpp.distribution.ScalarMixtureDistribution,
+        calibratedcpp.distribution.WeibullMixture,
         calibratedcpp.operators.ChangeTimeOperator,
         calibrationprior.CalibrationPrior,
         calibrationprior.CalibrationDistribution,
