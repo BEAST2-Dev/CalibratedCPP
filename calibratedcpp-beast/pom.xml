@@ -3,31 +3,22 @@
     <parent>
         <groupId>io.github.moverwater</groupId>
         <artifactId>calibratedcpp-root</artifactId>
-        <version>${revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>calibratedcpp-beast</artifactId>
-    <version>${revision}</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <beast.version>2.8.0-beta5</beast.version>
-        <substmodels.version>1.3.2</substmodels.version>
-        <beast.orc.version>1.3.1</beast.orc.version>
         <jmh.version>1.37</jmh.version>
         <beast.module>beast.base</beast.module>
         <beast.main>beast.base.minimal.BeastMain</beast.main>
         <beast.args/>
-        <beast.pkg.name>calibratedcpp</beast.pkg.name>
-        <beast.pkg.version>0.0.1</beast.pkg.version>
+<!--        <beast.pkg.name>calibratedcpp</beast.pkg.name>-->
+<!--        <beast.pkg.version>0.0.1</beast.pkg.version>-->
     </properties>
 
     <dependencies>
-<!--   For BDSKY tests   -->
-        <dependency>
-            <groupId>beast2</groupId>
-            <artifactId>bdsky</artifactId>
-            <version>1.5.1</version>
-        </dependency>
         <dependency>
             <groupId>io.github.compevol</groupId>
             <artifactId>beast-pkgmgmt</artifactId>
@@ -36,12 +27,10 @@
         <dependency>
             <groupId>org.hipparchus</groupId>
             <artifactId>hipparchus-core</artifactId>
-            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.wendykierp</groupId>
             <artifactId>JTransforms</artifactId>
-            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>io.github.compevol</groupId>
@@ -63,6 +52,11 @@
             <artifactId>beast-orc</artifactId>
             <version>${beast.orc.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.beast2-dev</groupId>
+            <artifactId>beast-labs</artifactId>
+            <version>${beast.labs.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -73,7 +67,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -86,15 +79,9 @@
     </repositories>
     <build>
         <resources>
-            <!-- Standard source resources -->
+            <!-- Standard source resources (includes calibratedcpp.beast/fxtemplates/*.xml) -->
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
-            </resource>
-            <!-- BEAUti template — declared here so IntelliJ picks it up automatically -->
-            <resource>
-                <directory>${project.basedir}/fxtemplates</directory>
-                <targetPath>fxtemplates</targetPath>
-                <includes><include>*.xml</include></includes>
             </resource>
         </resources>
         <plugins>
@@ -170,25 +157,11 @@
                             </resources>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>embed-fxtemplates-in-jar</id>
-                        <phase>generate-resources</phase>
-                        <goals><goal>copy-resources</goal></goals>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/fxtemplates</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.basedir}/fxtemplates</directory>
-                                    <includes><include>*.xml</include></includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
             <!-- Run BEAST with calibratedcpp on the module path:
-                 mvn exec:exec -Dbeast.args="examples/b3test/cats_halfAlignment.xml"
+                 mvn exec:exec -Dbeast.args="src/test/resources/calibratedcpp/examples/b3test/cats_halfAlignment_b3.xml"
                  mvn exec:exec -Dbeast.module=beast.fx -Dbeast.main=beastfx.app.beauti.Beauti -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -228,10 +201,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
                 <configuration>
                     <descriptors>
-                        <descriptor>src/assembly/calibratedcpp-beast-assembly.xml</descriptor>
+                        <descriptor>src/assembly/beast-package.xml</descriptor>
                     </descriptors>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <appendAssemblyId>false</appendAssemblyId>

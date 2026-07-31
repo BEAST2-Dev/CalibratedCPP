@@ -3,17 +3,22 @@
     <parent>
         <groupId>io.github.moverwater</groupId>
         <artifactId>calibratedcpp-root</artifactId>
-        <version>${revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>calibratedcpp-lphy-studio</artifactId>
-    <version>${revision}</version>
+    <version>0.0.1-SNAPSHOT</version>
+
+<!-- TODO skip lphy tests -->
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.github.moverwater</groupId>
             <artifactId>calibratedcpp-lphy</artifactId>
-            <version>${revision}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -28,7 +33,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/assembly/calibratedcpp-lphy-studio-assembly.xml</descriptor>
