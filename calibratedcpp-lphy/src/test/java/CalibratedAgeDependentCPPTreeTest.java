@@ -91,12 +91,22 @@ public class CalibratedAgeDependentCPPTreeTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void nullCalibrationsAndRootAgeThrows() {
-        assertThrows(IllegalArgumentException.class, () ->
-                new CalibratedAgeDependentCPPTree(
-                        new Value<>("", 1.0), new Value<>("", 0.5), new Value<>("", 3),
-                        new Value<>("", 1.0),
-                        null, null, null, null));
+    void nullCalibrationsAndRootAgeSamplesRandomStem() {
+        // Neither calibrations nor rootAge is now valid: the uncalibrated path samples the stem/origin
+        // from the process (n given -> random stem). This replaces the old "must provide calibrations
+        // or rootAge" invariant, removed to enable the random-stem / random-N modes.
+        CalibratedAgeDependentCPPTree gen = new CalibratedAgeDependentCPPTree(
+                new Value<>("", 1.0), new Value<>("", 0.5), new Value<>("", 3),
+                new Value<>("", 2.0),
+                null, null, null, null);
+        TimeTree tree = gen.sample().value();
+
+        int leaves = 0;
+        for (int i = 0; i < tree.getNodeCount(); i++) {
+            if (tree.getNodeByIndex(i).isLeaf()) leaves++;
+        }
+        assertEquals(3, leaves, "n=3 tips sampled");
+        assertAgesOrder(tree);
     }
 
     @Test

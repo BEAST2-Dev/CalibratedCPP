@@ -216,9 +216,6 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
      */
     private void solveVIDE() {
         // Auto-scale the grid with the origin so spacing (maxTime / N) stays ~1/POINTS_PER_UNIT_TIME.
-        // A grid fixed at gridSize over [0, maxTime] under-resolves the G spline for large maxTime; since the
-        // density is now the spline derivative, that narrows q(t) in the tail and over-confidently sharpens the
-        // likelihood for large-stem trees.
         int N = Math.min(MAX_GRID, Math.max(gridSizeInput.get(), (int) Math.ceil(maxTime * POINTS_PER_UNIT_TIME)));
         if (N % 2 != 0) N++;  // Richardson requires an even step count
 
