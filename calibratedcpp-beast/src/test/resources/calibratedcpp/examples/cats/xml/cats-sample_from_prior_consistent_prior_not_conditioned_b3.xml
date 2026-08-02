@@ -175,7 +175,7 @@
             </distribution>
         </distribution>
         <operator id="branchRates.scale" parameter="@branchRates" upper="10.0" weight="12.523946590098141" scaleFactor="0.375" spec="beast.base.spec.inference.operator.ScaleOperator"/>
-        <operator id="sigma.scale" parameter="@sigma" upper="10.0" weight="2.504789318019628" scaleFactor="0.375" spec="beast.base.spec.inference.operator.ScaleOperator"/>/&gt;
+        <operator id="sigma.scale" parameter="@sigma" upper="10.0" weight="2.504789318019628" scaleFactor="0.375" spec="beast.base.spec.inference.operator.ScaleOperator"/>
         <operator id="gamma.scale" parameter="@gamma" upper="10.0" weight="1.0" scaleFactor="0.375" spec="beast.base.spec.inference.operator.ScaleOperator"/>
         <operator id="diversificationRate.scale" parameter="@diversificationRate" weight="1.0" upper="10.0" scaleFactor="0.375" spec="beast.base.spec.inference.operator.ScaleOperator"/>
         <operator id="mRate.scale" parameter="@mRate" upper="10.0" weight="1.0" scaleFactor="0.375" spec="beast.base.spec.inference.operator.ScaleOperator"/>
