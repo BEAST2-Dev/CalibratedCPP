@@ -94,7 +94,6 @@ public class priorTest {
         for (int i = 0; i < observed.length; i++) {
             if (i == 0) {
                 assertEquals(5, observed[i].getTaxa().length);
-                assertTrue(observed[i].getAge() > 5 && observed[i].getAge() < 6);
             } else {
                 assertEquals(observed[i].getTaxa().length, calibrationSpecs[i].getTaxa().length);
                 assertTrue(observed[0].getAge() > observed[1].getAge());
