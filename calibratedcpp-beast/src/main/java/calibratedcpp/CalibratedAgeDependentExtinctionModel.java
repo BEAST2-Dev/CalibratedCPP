@@ -32,7 +32,15 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
     public Input<RealScalar<PositiveReal>> birthRateInput = new Input<>("birthRate", "The birth rate.");
     public Input<RealScalar<PositiveReal>> reproductiveNumberInput = new Input<>("reproductiveNumber", "The reproductive number birthrate*mean lifetime.");
     public Input<Integer> gridSizeInput = new Input<>("gridSize",
-            "Number of grid points for the numerical Volterra IDE solver (used for non-Erlang lifetime distributions).", 1000);
+            "Minimum number of grid points for the numerical Volterra IDE solver (non-Erlang lifetimes). The actual " +
+            "count auto-scales with the origin, N = clamp(ceil(maxTime * POINTS_PER_UNIT_TIME), gridSize, MAX_GRID), " +
+            "so spacing stays fine relative to the node-age scale. A fixed grid over [0, maxTime] under-resolves the " +
+            "G spline for large maxTime, which narrows the node-age density and makes the likelihood over-confident.", 1000);
+
+    /** Target grid density: grid spacing is held near 1/POINTS_PER_UNIT_TIME regardless of maxTime. */
+    private static final int POINTS_PER_UNIT_TIME = 100;
+    /** Hard cap on grid points, to bound cost when maxTime is very large (e.g. near-critical R0). */
+    private static final int MAX_GRID = 20000;
 
     protected boolean lifetimesAreErlang;
     protected boolean useNumericalSolver;
@@ -200,7 +208,11 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
      * resolution for the cubic spline.</p>
      */
     private void solveVIDE() {
-        int N = gridSizeInput.get();
+        // Auto-scale the grid with the origin so spacing (maxTime / N) stays ~1/POINTS_PER_UNIT_TIME.
+        // A grid fixed at gridSize over [0, maxTime] under-resolves the G spline for large maxTime; since the
+        // density is now the spline derivative, that narrows q(t) in the tail and over-confidently sharpens the
+        // likelihood for large-stem trees.
+        int N = Math.min(MAX_GRID, Math.max(gridSizeInput.get(), (int) Math.ceil(maxTime * POINTS_PER_UNIT_TIME)));
         if (N % 2 != 0) N++;  // Richardson requires an even step count
 
         ScalarDistribution<RealScalar<PositiveReal>, Double> dist = lifetimeDistributionInput.get();
