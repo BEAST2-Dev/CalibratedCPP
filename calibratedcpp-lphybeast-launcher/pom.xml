@@ -97,7 +97,7 @@
                      Launch calibratedcpp's own wrapper main (not lphybeast.LPhyBeastMain
                      directly) so -MRCAPrior/-conditionOnCalibrations are real convert-subcommand
                      flags, entirely within this repo. See CalibratedCppLPhyBeastMain's javadoc. -->
-                <commandlineArgs>-Dpicocli.disable.closures=true --module-path %classpath --add-modules ALL-MODULE-PATH -m calibratedcpp.lphybeast/calibratedcpp.lphybeast.CalibratedCppLPhyBeastMain ${lphybeast.args}</commandlineArgs>
+                <commandlineArgs>-Dpicocli.disable.closures=true --module-path %classpath --add-modules ALL-MODULE-PATH -m calibratedcpp.lphybeast/calibratedcpp.lphybeast.CalibratedCPPLPhyBeastMain ${lphybeast.args}</commandlineArgs>
             </configuration>
         </plugin>
     </plugins></build>
