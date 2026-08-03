@@ -51,6 +51,7 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
     // --- Numerical VIDE fields ---
     // gSpline stores G(t) = F(t) - 1, so fp - 1 = rho*G(t) without cancellation
     protected PolynomialSplineFunction gSpline;
+    protected PolynomialSplineFunction gPrimeSpline;       // dG/dt, analytic derivative of gSpline
     protected PolynomialSplineFunction lifetimePdfSpline;  // g(s): lifetime PDF
     protected PolynomialSplineFunction survivalSpline;     // S(t) = 1 - CDF_g(t)
     private double coarsePanel;                            // first coarse-grid step (maxTime / M)
@@ -236,6 +237,7 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
 
         SplineInterpolator interp = new SplineInterpolator();
         gSpline           = interp.interpolate(coarseT, gridG);
+        gPrimeSpline      = gSpline.polynomialSplineDerivative();
         lifetimePdfSpline = interp.interpolate(coarseT, gValues);
         survivalSpline    = interp.interpolate(coarseT, sValues);
     }
@@ -345,21 +347,14 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
      */
     private double evaluateGPrime(double t) {
         if (t <= 0.0) return birthRate;
-        double integral;
-        if (densitySingularAt0 && t > coarsePanel) {
-            // g(s) has an integrable singularity at s=0 (Weibull shape < 1) that the pdf spline cannot
-            // resolve. Split the convolution: on the first panel [0, δ] approximate G(t-s) ≈ G(t) and use
-            // the exact mass ∫₀^δ g = 1 - S(δ) from the (smooth) survival spline; integrate the finite
-            // remainder [δ, t] with Gauss-Legendre as usual. Reduces to the plain quadrature as δ → 0.
-            double delta = coarsePanel;
-            double singular = gSpline.value(t) * (1.0 - survivalSpline.value(delta));
-            GaussIntegrator gl = GAUSS_FACTORY.legendre(32, delta, t);
-            integral = singular + gl.integrate(s -> gSpline.value(t - s) * lifetimePdfSpline.value(s));
-        } else {
-            GaussIntegrator gl = GAUSS_FACTORY.legendre(32, 0.0, t);
-            integral = gl.integrate(s -> gSpline.value(t - s) * lifetimePdfSpline.value(s));
-        }
-        return birthRate * (gSpline.value(t) - integral + survivalSpline.value(t));
+        // G'(t) as the analytic derivative of the (smooth, accurate) G spline. The renewal-equation
+        // quadrature form  birthRate·(G(t) − ∫₀ᵗ G(t−s) g(s) ds + S(t))  is a difference of large,
+        // near-equal terms that catastrophically cancels in the tail (t ≫ mean lifetime), where it
+        // returns garbage (underflow to ~1e-300 or an order-of-magnitude overshoot). The tail is
+        // exactly where large-stem / near-critical trees place node ages, so that cancellation wrecks
+        // the likelihood. The spline derivative is well-conditioned everywhere and makes the density
+        // ρG'/(1+ρG)² exactly the derivative of the CDF ρG/(1+ρG) — internally consistent by construction.
+        return gPrimeSpline.value(Math.min(t, maxTime));
     }
 
     // -------------------------------------------------------------------------
