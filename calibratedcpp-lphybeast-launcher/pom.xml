@@ -82,7 +82,9 @@
     </properties>
 
     <build><plugins>
-        <!-- mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert examples/CPPTree.lphy" -->
+        <!-- mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert examples/CPPTree.lphy"
+             mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert -MRCAPrior examples/CPPTree.lphy"
+             mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert -conditionOnCalibrations false examples/CPPTree.lphy" -->
         <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
@@ -91,8 +93,11 @@
                 <executable>java</executable>
                 <classpathScope>compile</classpathScope>
                 <!-- ALL-MODULE-PATH: every named JPMS module on the path joins
-                     the module graph automatically — ServiceLoader finds all providers -->
-                <commandlineArgs>-Dpicocli.disable.closures=true --module-path %classpath --add-modules ALL-MODULE-PATH -m lphy.beast/lphybeast.LPhyBeastMain ${lphybeast.args}</commandlineArgs>
+                     the module graph automatically — ServiceLoader finds all providers.
+                     Launch calibratedcpp's own wrapper main (not lphybeast.LPhyBeastMain
+                     directly) so -MRCAPrior/-conditionOnCalibrations are real convert-subcommand
+                     flags, entirely within this repo. See CalibratedCppLPhyBeastMain's javadoc. -->
+                <commandlineArgs>-Dpicocli.disable.closures=true --module-path %classpath --add-modules ALL-MODULE-PATH -m calibratedcpp.lphybeast/calibratedcpp.lphybeast.CalibratedCppLPhyBeastMain ${lphybeast.args}</commandlineArgs>
             </configuration>
         </plugin>
     </plugins></build>

@@ -5,6 +5,7 @@ open module calibratedcpp.lphybeast {
     requires beast.base;
     requires lphy.base;
 
+    exports calibratedcpp.lphybeast;
     exports calibratedcpp.lphybeast.spi;
     exports calibratedcpp.lphybeast.tobeast.generators;
 

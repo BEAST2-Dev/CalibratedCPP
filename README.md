@@ -89,9 +89,9 @@ Calibrations can be viewed as calibration taxa names and the sampled ages.
 ### calibratedcpp-lphybeast
 
 This subproject is converting Lphy simulators to XMLs for BEAST2 running:
-- The simulator set conditionOnCalibrations as true for default, users should manually modify this flag in the output XML to make it turn off.
 - Construct BirthDeathSkylineModel with birth death parameters and conditions on the origin of the tree. The birth and death rates are SkylineParameter, which allow users to specify how times varies. Default false as BEAST2 model, users can manually change the XML to turn them on.
-- Set calibrations in CalibrationPrior, taking upper and lower bounds of the calibration nodes that passed to ConditionedMRCAPrior.
+- For calibrations sourced from `ConditionedMRCAPrior`, the default is to build a single joint `CalibrationPrior` (preserving the nested/overlap calibration structure — LogNormal at each disjoint root, Beta on overlapping child/parent ratios, truncated LogNormal on nested non-overlapping children). Pass `-MRCAPrior` to `convert`/`run` to instead build one independent, per-clade `MRCAPrior(Uniform(lower,upper))` (no joint structure).
+- `conditionOnCalibrations` on `CalibratedBirthDeathSkylineModel`/`CalibratedAgeDependentBirthDeathModel` defaults to `true` iff calibrations are provided. Pass `-conditionOnCalibrations true|false` to `convert`/`run` to override it, instead of hand-editing the output XML.
 
 ### calibratedcpp-lphybeast-launcher
 
@@ -100,6 +100,23 @@ Run from the project root:
 ```angular2html
 mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert ../calibratedcpp-lphy/examples/example.lphy"
 mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="run -l 30000000 ../calibratedcpp-lphy/examples/example.lphy"
+```
+
+Two calibratedcpp-only flags are available on `convert`/`run`, in addition to lphybeast's own
+options (paths inside `-Dlphybeast.args="..."` should be absolute, since the forked process's
+working directory is `calibratedcpp-lphybeast-launcher/`, not the repo root):
+```bash
+# Default: joint CalibrationPrior for ConditionedMRCAPrior-sourced calibrations
+mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert ../calibratedcpp-lphy/examples/example.lphy"
+
+# -MRCAPrior: independent per-clade MRCAPrior(Uniform) instead of the joint CalibrationPrior
+mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert -MRCAPrior ../calibratedcpp-lphy/examples/example.lphy"
+
+# -conditionOnCalibrations: specify conditionOnCalibrations (true/false)
+mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert -conditionOnCalibrations false ../calibratedcpp-lphy/examples/example.lphy"
+
+# flags combine freely, and work with 'run' (convert + launch BEAST) the same way
+mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="run -MRCAPrior -conditionOnCalibrations false ../calibratedcpp-lphy/examples/example.lphy"
 ```
 
 ## Well-Calibrated Study

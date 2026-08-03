@@ -41,7 +41,9 @@ public class CalibratedAgeDependentCPPToBEAST
         boolean hasCalibrations = generator.getCalibrations() != null;
         boolean rootConditioned = !hasCalibrations || generator.getRootCondition();
         model.setInputValue("conditionOnRoot", rootConditioned);
-        model.setInputValue("conditionOnCalibrations", hasCalibrations);
+        Boolean conditionOnCalibrationsOverride = MRCAPriorCalibrationUtils.getConditionOnCalibrationsOverride();
+        model.setInputValue("conditionOnCalibrations",
+                conditionOnCalibrationsOverride != null ? conditionOnCalibrationsOverride : hasCalibrations);
 
         if (!rootConditioned) {
             model.setInputValue("origin", new RealScalarParam<>(
@@ -90,17 +92,26 @@ public class CalibratedAgeDependentCPPToBEAST
             return model;
         }
 
-        // ConditionedMRCAPrior's joint density is only used to simulate consistent "true" ages;
-        // for inference, each clade gets its own independent monophyly + Uniform(lower,upper)
-        // MRCAPrior over its original bounds, same as the UniformMRCA path above.
+        // Default: preserve ConditionedMRCAPrior's joint/nested density as a single BEAST
+        // CalibrationPrior. -DcalibratedcppMRCAPrior=true reverts to the older behaviour: each
+        // clade gets its own independent monophyly + Uniform(lower,upper) MRCAPrior over its
+        // original bounds, same as the UniformMRCA path above (and what this converter always
+        // did before this option existed).
         ConditionedMRCAPrior conditionedMRCAPrior =
                 (ConditionedMRCAPrior) calibrationsValue.getInputs().get(0);
         Calibration[] calibrationSpecs = conditionedMRCAPrior.getCalibrations().value();
-        for (int i = 0; i < calibrationSpecs.length; i++) {
-            beast.base.spec.evolution.tree.MRCAPrior mrcaPrior = MRCAPriorCalibrationUtils.buildBoundedMRCAPrior(
-                    value, taxonSets.get(i), calibrationSpecs[i].getLower(), calibrationSpecs[i].getUpper());
-            context.addBEASTObject(mrcaPrior, conditionedMRCAPrior);
-            context.addExtraLoggable(mrcaPrior);
+        if (MRCAPriorCalibrationUtils.isMrcaPriorMode()) {
+            for (int i = 0; i < calibrationSpecs.length; i++) {
+                beast.base.spec.evolution.tree.MRCAPrior mrcaPrior = MRCAPriorCalibrationUtils.buildBoundedMRCAPrior(
+                        value, taxonSets.get(i), calibrationSpecs[i].getLower(), calibrationSpecs[i].getUpper());
+                context.addBEASTObject(mrcaPrior, conditionedMRCAPrior);
+                context.addExtraLoggable(mrcaPrior);
+            }
+        } else {
+            double coverage = conditionedMRCAPrior.getCoverage() != null
+                    ? conditionedMRCAPrior.getCoverage().value().doubleValue() : 0.9;
+            MRCAPriorCalibrationUtils.buildCalibrationPrior(
+                    value, taxonSets, calibrationSpecs, coverage, context, conditionedMRCAPrior);
         }
 
         return model;

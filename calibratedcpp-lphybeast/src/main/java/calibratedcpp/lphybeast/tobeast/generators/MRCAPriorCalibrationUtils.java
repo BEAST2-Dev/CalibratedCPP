@@ -2,15 +2,21 @@ package calibratedcpp.lphybeast.tobeast.generators;
 
 import beast.base.core.BEASTInterface;
 import beast.base.evolution.alignment.TaxonSet;
+import beast.base.spec.domain.NonNegativeReal;
 import beast.base.spec.domain.Real;
+import beast.base.spec.domain.UnitInterval;
 import beast.base.spec.evolution.tree.MRCAPrior;
 import beast.base.spec.inference.distribution.Uniform;
 import beast.base.spec.inference.parameter.RealScalarParam;
+import calibratedcpp.lphy.prior.Calibration;
 import calibratedcpp.lphy.prior.CalibrationArray;
 import calibratedcpp.lphy.prior.OffsetExponentialMRCA;
 import calibratedcpp.lphy.prior.UniformMRCA;
 import calibratedcpp.lphy.prior.toCalibrationArray;
+import calibrationprior.CalibrationCladePrior;
+import calibrationprior.CalibrationPrior;
 import lphy.core.model.Generator;
+import lphy.core.model.GraphicalModelNode;
 import lphy.core.model.Value;
 import lphy.core.vectorization.array.ArrayFunction;
 import lphybeast.BEASTContext;
@@ -117,5 +123,66 @@ public class MRCAPriorCalibrationUtils {
         mrcaPrior.setInputValue("distr", uniform);
         mrcaPrior.initAndValidate();
         return mrcaPrior;
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // calibratedcpp-only converter switches. Not real lphybeast CLI flags -- forwarded as -D
+    // system properties by calibratedcpp-lphybeast-launcher/pom.xml's exec-maven-plugin config
+    // (e.g. "mvn ... -DcalibratedcppMRCAPrior=true -DcalibratedcppConditionOnCalibrations=false"),
+    // read here so both CalibratedCPPToBEAST and CalibratedAgeDependentCPPToBEAST share one
+    // parsing path instead of duplicating System.getProperty calls.
+
+    /**
+     * @return true if calibrations sourced from {@code ConditionedMRCAPrior} should be converted
+     *         to independent per-clade {@code MRCAPrior(Uniform)} objects (today's/the
+     *         age-dependent converter's long-standing behaviour), instead of the default: a
+     *         single joint {@code CalibrationPrior} preserving the nested/overlap structure.
+     */
+    public static boolean isMrcaPriorMode() {
+        return Boolean.parseBoolean(System.getProperty("calibratedcppMRCAPrior", "false"));
+    }
+
+    /**
+     * @return the {@code conditionOnCalibrations} override for
+     *         {@code CalibratedBirthDeathSkylineModel}/{@code CalibratedAgeDependentBirthDeathModel},
+     *         or {@code null} if not overridden (caller should fall back to its own default).
+     */
+    public static Boolean getConditionOnCalibrationsOverride() {
+        String raw = System.getProperty("calibratedcppConditionOnCalibrations");
+        if (raw == null || raw.isBlank()) return null;
+        return Boolean.parseBoolean(raw);
+    }
+
+    /**
+     * Builds a single joint {@code CalibrationPrior} over all given clades — one
+     * {@code CalibrationCladePrior} per (calibration spec, taxon set) pair — preserving the
+     * nested/overlap structure {@code ConditionedMRCAPrior} encodes (LogNormal at each disjoint
+     * root, Beta on overlapping child/parent ratios, truncated LogNormal on nested
+     * non-overlapping children), instead of throwing that structure away in favour of independent
+     * per-clade bounds. Registered into {@code context} the same way as the independent-MRCAPrior
+     * path: {@code addBEASTObject} (for provenance/XML wiring) + {@code addExtraLoggable}.
+     */
+    public static void buildCalibrationPrior(
+            BEASTInterface treeValue, List<TaxonSet> taxonSets, Calibration[] calibrationSpecs,
+            double confidenceLevel, BEASTContext context, GraphicalModelNode lphyRef) {
+
+        List<CalibrationCladePrior> cladePriors = new ArrayList<>();
+        for (int i = 0; i < calibrationSpecs.length; i++) {
+            CalibrationCladePrior ccp = new CalibrationCladePrior();
+            ccp.setInputValue("taxa", taxonSets.get(i));
+            ccp.setInputValue("upperAge", new RealScalarParam<>(calibrationSpecs[i].getUpper(), NonNegativeReal.INSTANCE));
+            ccp.setInputValue("lowerAge", new RealScalarParam<>(calibrationSpecs[i].getLower(), NonNegativeReal.INSTANCE));
+            ccp.setInputValue("confidenceLevel", new RealScalarParam<>(confidenceLevel, UnitInterval.INSTANCE));
+            ccp.initAndValidate();
+            cladePriors.add(ccp);
+        }
+
+        CalibrationPrior calibrationPrior = new CalibrationPrior();
+        calibrationPrior.setInputValue("tree", treeValue);
+        calibrationPrior.setInputValue("calibration", cladePriors);
+        calibrationPrior.initAndValidate();
+
+        context.addBEASTObject(calibrationPrior, lphyRef);
+        context.addExtraLoggable(calibrationPrior);
     }
 }
