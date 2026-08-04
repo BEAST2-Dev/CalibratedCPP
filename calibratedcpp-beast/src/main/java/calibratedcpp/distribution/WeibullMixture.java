@@ -35,6 +35,11 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
 
     private Simplex weights;
 
+    // Last parameter values the derived scale/components were built for, so refresh() is idempotent:
+    // it early-returns when nothing changed, making it cheap to call from every accessor (the VIDE
+    // solver hits density()/cumulativeProbability() thousands of times per solve).
+    private double lastMean = Double.NaN, lastK1 = Double.NaN, lastK2 = Double.NaN, lastW0 = Double.NaN;
+
     @Override
     public void initAndValidate() {
         weights = weightsInput.get() != null
@@ -57,22 +62,31 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
         final double mean = meanInput.get().get();
         final double k1 = shape1Input.get().get();
         final double k2 = shape2Input.get().get();
+        final double w0 = weights.get(0);
+
+        // Idempotent: the derived scale/components already match the current parameters, so nothing
+        // to rebuild. This makes refresh() free to call from every accessor (below).
+        if (mean == lastMean && k1 == lastK1 && k2 == lastK2 && w0 == lastW0) return;
 
         // E[X] = theta * sum_i w_i * Gamma(1 + 1/k_i)  =>  theta = mean / that sum
-        final double denom = weights.get(0) * Gamma.gamma(1.0 + 1.0 / k1)
+        final double denom = w0 * Gamma.gamma(1.0 + 1.0 / k1)
                 + weights.get(1) * Gamma.gamma(1.0 + 1.0 / k2);
         scale.set(mean / denom);
 
         mixture.refresh();   // cascades to weibull1.refresh() and weibull2.refresh()
+        lastMean = mean; lastK1 = k1; lastK2 = k2; lastW0 = w0;
     }
 
     // --- delegate the scalar surface to the internal mixture ---
+    // Every accessor refreshes first so the mixture always reflects the current parameters; the guard
+    // in refresh() makes this cheap. Without it, a consumer that reads the distribution without going
+    // through calculateLogP() (e.g. the age-dependent likelihood's VIDE solver) scores a stale Q.
 
-    @Override public double logDensity(double x)            { return mixture.logDensity(x); }
-    @Override public double density(double x)               { return mixture.density(x); }
-    @Override public double cumulativeProbability(double x) { return mixture.cumulativeProbability(x); }
+    @Override public double logDensity(double x)            { refresh(); return mixture.logDensity(x); }
+    @Override public double density(double x)               { refresh(); return mixture.density(x); }
+    @Override public double cumulativeProbability(double x) { refresh(); return mixture.cumulativeProbability(x); }
 
-    @Override protected double calcLogP(Double value)       { return mixture.logDensity(value); }
+    @Override protected double calcLogP(Double value)       { refresh(); return mixture.logDensity(value); }
 
     @Override
     public double calculateLogP() {
@@ -86,7 +100,7 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
         return meanInput.get().get();
     }
 
-    @Override public List<Double> sample() { return mixture.sample(); }
+    @Override public List<Double> sample() { refresh(); return mixture.sample(); }
 
     @Override public Double getLowerBoundOfParameter() { return mixture.getLowerBoundOfParameter(); }
     @Override public Double getUpperBoundOfParameter() { return mixture.getUpperBoundOfParameter(); }

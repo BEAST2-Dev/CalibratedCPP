@@ -89,6 +89,13 @@ public class CalibratedAgeDependentExtinctionModel extends CalibratedCoalescentP
         if (!hasBirthRate && !hasReproductiveNumber) {
             throw new IllegalArgumentException("Exactly one of birthRate or reproductiveNumber must be specified.");
         }
+        // Refresh the lifetime distribution against the CURRENT parameter values before it is read.
+        // As a likelihood component it is reached only via getMean()/density()/cumulativeProbability(),
+        // none of which self-refresh — so without this its derived state (e.g. WeibullMixture's shared
+        // scale theta = mean / sum_i w_i*Gamma(1+1/k_i)) stays frozen at its initial values for the whole
+        // MCMC run, and the solved Q(t) does not track mean/shape moves. (Erlang self-refreshes on every
+        // access, so it was unaffected; the numerical-lifetime path was silently scoring a stale Q.)
+        lifetimeDistributionInput.get().refresh();
         // R0 = birthRate * mean(lifetime)  =>  birthRate = R0 / mean(lifetime).
         birthRate = hasBirthRate
                 ? birthRateInput.get().get()
