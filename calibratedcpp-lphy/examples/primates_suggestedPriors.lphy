@@ -1,0 +1,89 @@
+data {
+    D = readNexus(file="./data/primates_100Sites.nex");
+    L = D.nchar();
+    taxa = D.taxa();
+    n = ntaxa(taxa=taxa);
+}
+model {
+    Euarchontoglires = D.getTaxaNames();
+
+    Euarchonta = ["Tupaia_chinensis","Galeopterus_variegatus","Otolemur_garnettii","Microcebus_murinus",
+               "Propithecus_coquereli","Carlito_syrichta","Cebus_capucinus_imitator",
+               "Saimiri_boliviensis","Aotus_nancymaae","Callithrix_jacchus","Nomascus_leucogenys","Pongo_abelii","Gorilla_gorilla",
+               "Homo_sapiens","Pan_paniscus","Pan_troglodytes","Colobus_angolensis_palliatus","Piliocolobus_tephrosceles","Rhinopithecus_bieti",
+               "Rhinopithecus_roxellana","Chlorocebus_sabaeus","Macaca_nemestrina", "Macaca_fascicularis",
+               "Macaca_mulatta", "Cercocebus_atys","Mandrillus_leucophaeus","Papio_anubis","Theropithecus_gelada"];
+    Primates = ["Otolemur_garnettii", "Microcebus_murinus", "Propithecus_coquereli", "Carlito_syrichta","Cebus_capucinus_imitator",
+               "Saimiri_boliviensis", "Aotus_nancymaae", "Callithrix_jacchus", "Nomascus_leucogenys",
+               "Pongo_abelii",
+               "Gorilla_gorilla",
+               "Homo_sapiens",
+               "Pan_paniscus",
+               "Pan_troglodytes",
+               "Colobus_angolensis_palliatus",
+               "Piliocolobus_tephrosceles",
+               "Rhinopithecus_bieti",
+               "Rhinopithecus_roxellana",
+               "Chlorocebus_sabaeus",
+               "Macaca_nemestrina",
+               "Macaca_fascicularis",
+               "Macaca_mulatta",
+               "Cercocebus_atys",
+               "Mandrillus_leucophaeus",
+               "Papio_anubis",
+                "Theropithecus_gelada"];
+    Lorisiformes = ["Otolemur_garnettii", "Microcebus_murinus", "Propithecus_coquereli"];
+    Cercopithecidae = ["Colobus_angolensis_palliatus", "Piliocolobus_tephrosceles", "Rhinopithecus_bieti","Rhinopithecus_roxellana","Chlorocebus_sabaeus", "Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis","Theropithecus_gelada"];
+    Colobinae = ["Colobus_angolensis_palliatus","Piliocolobus_tephrosceles", "Rhinopithecus_bieti","Rhinopithecus_roxellana"];
+    Cercopithecinae = ["Chlorocebus_sabaeus", "Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus","Papio_anubis", "Theropithecus_gelada"];
+    Papionini = ["Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis","Theropithecus_gelada"];
+    Hominoidea = ["Nomascus_leucogenys", "Pongo_abelii","Gorilla_gorilla", "Homo_sapiens", "Pan_paniscus","Pan_troglodytes"];
+    Hominidae = ["Pongo_abelii", "Gorilla_gorilla", "Homo_sapiens", "Pan_paniscus", "Pan_troglodytes"];
+    Homo_Pan = ["Homo_sapiens", "Pan_paniscus", "Pan_troglodytes"];
+    Callitrichidae_Cebidae = ["Cebus_capucinus_imitator","Saimiri_boliviensis", "Aotus_nancymaae","Callithrix_jacchus"];
+    Cebidae = ["Cebus_capucinus_imitator", "Saimiri_boliviensis"];
+
+    // De Vries & Beck (2023) Table 1 suggested prior distributions. Offset-exponential for the
+    // 7 deep/well-preserved calibrations (Glires isn't in this 29-taxon dataset, leaving 6 here):
+    // Euarchontoglires, Euarchonta, Primates, Cercopithecidae, Hominoidea, Hominidae. offset =
+    // the hard minimum bound; mean is tuned so 5% of the exponential's mass lies beyond the
+    // soft maximum bound (mean = (upper - lower) / -ln(0.05)), matching the paper's own stated
+    // convention. The remaining calibrations keep the paper's plain Uniform(lower, upper).
+    cEuarchontoglires ~ OffsetExponentialMRCA(taxa=Euarchontoglires, offset=65.79, mean=20.037171);
+    cEuarchonta ~ OffsetExponentialMRCA(taxa=Euarchonta, offset=65.79, mean=20.037171);
+    cPrimates ~ OffsetExponentialMRCA(taxa=Primates, offset=55.935, mean=3.391491);
+    cLorisiformes ~ UniformMRCA(taxa=Lorisiformes, upper=55.8, lower=18.5);
+    cCercopithecidae ~ OffsetExponentialMRCA(taxa=Cercopithecidae, offset=12.47, mean=4.261062);
+    cColobinae ~ UniformMRCA(taxa=Colobinae, upper=15.0, lower=8.125);
+    cCercopithecinae ~ UniformMRCA(taxa=Cercopithecinae, upper=15.0, lower=6.5);
+    cPapionini ~ UniformMRCA(taxa=Papionini, upper=12.51, lower=5.33);
+    cHominoidea ~ OffsetExponentialMRCA(taxa=Hominoidea, offset=13.4, mean=3.950620);
+    cHominidae ~ OffsetExponentialMRCA(taxa=Hominidae, offset=12.3, mean=4.317809);
+    cHomo_Pan ~ UniformMRCA(taxa=Homo_Pan, upper=15.0, lower=4.631);
+    cCallitrichidae_Cebidae ~ UniformMRCA(taxa=Callitrichidae_Cebidae, upper=34.5, lower=13.183);
+    cCebidae ~ UniformMRCA(taxa=Cebidae, upper=34.5, lower=13.032);
+
+    calibrations = toArray(calibrations=[cEuarchontoglires, cEuarchonta, cPrimates, cLorisiformes,
+                                          cCercopithecidae, cColobinae, cCercopithecinae, cPapionini,
+                                          cHominoidea, cHominidae, cHomo_Pan, cCallitrichidae_Cebidae, cCebidae]);
+
+    diversificationRate ~ LogNormal(meanlog = 0.0, sdlog = 1.25);
+    turnover ~ Beta(alpha = 1.0, beta = 1.0);
+    tree ~ CalibratedCPP(calibrations = calibrations, turnover = turnover, diversification = diversificationRate, rho = 0.05, n=n);
+
+
+
+    π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
+    kappa ~ LogNormal(meanlog = 1.0 , sdlog = 1.25);
+    Q = hky(kappa = kappa, freq = π);
+
+    gamma ~ LogNormal(meanlog=0, sdlog=2);
+    siteRates ~ DiscretizeGamma(shape=gamma, ncat=4, replicates=L);
+
+    sigma ~ LogNormal(meanlog=-0.693,sdlog=0.5);
+    branchRates ~ UCLN_Mean1(uclnSigma=sigma, tree=tree);
+
+    mRate ~ LogNormal(meanlog=-9, sdlog=5);
+
+    D ~ PhyloCTMC(L = L, Q = Q, branchRates = branchRates, mu = mRate, tree = tree, siteRates = siteRates);
+}
