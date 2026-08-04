@@ -144,7 +144,7 @@ public class MRCAPriorCalibrationUtils {
 
     /**
      * @return the {@code conditionOnCalibrations} override for
-     *         {@code CalibratedBirthDeathSkylineModel}/{@code CalibratedAgeDependentBirthDeathModel},
+     *         {@code CalibratedBirthDeathSkylineModel}/{@code CalibratedAgeDependentExtinctionModel},
      *         or {@code null} if not overridden (caller should fall back to its own default).
      */
     public static Boolean getConditionOnCalibrationsOverride() {

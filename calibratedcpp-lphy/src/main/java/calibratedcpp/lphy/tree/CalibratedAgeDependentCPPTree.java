@@ -22,7 +22,7 @@ import static calibratedcpp.lphy.tree.CPPUtils.simRandomStem;
  * estimate 1/lifetime for an effective constant death rate, so this class feeds
  * the exact same {@link CPPUtils} birth-death law into {@link AbstractCalibratedCPPTree}
  * as {@link CalibratedCPPTree} does; only the resolved rate differs. The full
- * age-dependent likelihood is evaluated in BEAST via CalibratedAgeDependentBirthDeathModel.
+ * age-dependent likelihood is evaluated in BEAST via CalibratedAgeDependentExtinctionModel.
  */
 public class CalibratedAgeDependentCPPTree extends AbstractCalibratedCPPTree {
 
@@ -77,7 +77,7 @@ public class CalibratedAgeDependentCPPTree extends AbstractCalibratedCPPTree {
             description = "The Calibrated Coalescent Point Process with age-dependent individual lifetimes. "
                     + "The lifetime parameter must come from a continuous distribution (Gamma, LogNormal, or Exp). "
                     + "Tree sampling uses effectiveDeathRate = 1/lifetime for initialisation; "
-                    + "the exact age-dependent likelihood is evaluated in BEAST via CalibratedAgeDependentBirthDeathModel.")
+                    + "the exact age-dependent likelihood is evaluated in BEAST via CalibratedAgeDependentExtinctionModel.")
     @Override
     public RandomVariable<TimeTree> sample() {
         return super.sample();

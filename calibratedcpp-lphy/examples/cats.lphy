@@ -1,5 +1,5 @@
 data{
-    D = readNexus(file="./data/cats.nex");
+    D = readNexus(file="./data/cats_100Sites.nex");
     L = D.nchar();
     taxa = D.taxa();
     n = ntaxa(taxa=taxa);

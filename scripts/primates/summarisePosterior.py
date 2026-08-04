@@ -20,6 +20,10 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(BASE, "data")
 OUT_CSV = os.path.join(BASE, "taxonset3_age_summary.csv")
 
+# The calibrationPrior (CPP's own clade-age prior, as opposed to the classic MRCAPrior-based
+# runs above) results live under the calibratedcpp-beast example folder, not scripts/primates/data.
+CP_DATA = os.path.join(BASE, "..", "..", "calibratedcpp-beast", "examples", "primates", "data")
+
 RUNS = {
     # CPP, suggested priors (offset-exponential + uniform), conditionOnCalibrations=true (default)
     "CPP_suggested, with data":               os.path.join(DATA, "allCalibrations_suggestedPriors_nogapN.txt"),
@@ -33,12 +37,30 @@ RUNS = {
     # CPP, uniform priors, conditionOnCalibrations=false
     "CPP_uniform_condCalFalse, with data":    os.path.join(DATA, "allCalibrations_nogapN_condCalFalse.txt"),
     "CPP_uniform_condCalFalse, prior only":   os.path.join(DATA, "sample-from-prior_allCalibrations_uniform_condCalFalse.txt"),
+    # CPP, dos Reis et al. calibration bounds, conditionOnCalibrations=true (default)
+    "CPP_dosReis, with data":                 os.path.join(DATA, "allCalibrations_dosReis_nogapN.txt"),
+    "CPP_dosReis, prior only":                os.path.join(DATA, "sample-from-prior_allCalibrations_dosReis.txt"),
+    # CPP, dos Reis calibration bounds, conditionOnCalibrations=false
+    "CPP_dosReis_condCalFalse, with data":    os.path.join(DATA, "allCalibrations_dosReis_nogapN_condCalFalse.txt"),
+    "CPP_dosReis_condCalFalse, prior only":   os.path.join(DATA, "sample-from-prior_allCalibrations_dosReis_condCalFalse.txt"),
     # BD (BirthDeathGernhard08Model), suggested priors -- no conditionOnCalibrations equivalent
     "BD_suggested, with data":                os.path.join(DATA, "allCalibrations_birthDeath_suggestedPriors_nogapN.txt"),
     "BD_suggested, prior only":               os.path.join(DATA, "sample-from-prior_allCalibrations_birthDeath_suggestedPriors.txt"),
     # BD, uniform priors (all calibrations Uniform) -- no conditionOnCalibrations equivalent
     "BD_uniform, with data":                  os.path.join(DATA, "allCalibrations_birthDeath_nogapN.txt"),
     "BD_uniform, prior only":                 os.path.join(DATA, "sample-from-prior_allCalibrations_birthDeath_uniform.txt"),
+
+    # CPP calibrationPrior (new clade-age prior spec), uniform calibration bounds,
+    # conditionOnCalibrations=true (default). No suggestedPriors_calibrationPrior run exists yet.
+    "CPP_calibrationPrior_uniform, with data":                os.path.join(CP_DATA, "primates_uniformBounds_calibrationPrior.txt"),
+    "CPP_calibrationPrior_uniform, prior only":               os.path.join(CP_DATA, "sample-from-prior_primates_uniformBounds_calibrationPrior.txt"),
+    # CPP calibrationPrior, uniform calibration bounds, conditionOnCalibrations=false
+    "CPP_calibrationPrior_uniform_condCalFalse, with data":   os.path.join(CP_DATA, "primates_uniformBounds_calibrationPrior_condCalFalse.txt"),
+    # CPP calibrationPrior, dos Reis et al. calibration bounds, conditionOnCalibrations=true (default)
+    "CPP_calibrationPrior_dosReis, with data":                os.path.join(CP_DATA, "primates_dosReis_calibrationPrior.txt"),
+    "CPP_calibrationPrior_dosReis, prior only":               os.path.join(CP_DATA, "sample-from-prior_primates_dosReis_calibrationPrior.txt"),
+    # CPP calibrationPrior, dos Reis calibration bounds, conditionOnCalibrations=false
+    "CPP_calibrationPrior_dosReis_condCalFalse, with data":   os.path.join(CP_DATA, "primates_dosReis_calibrationPrior_condCalFalse.txt"),
 }
 
 # Each pair is (H0 run name, H1 run name), both "with data" runs. BF = odds_older(H0) /
@@ -51,6 +73,14 @@ BF_PAIRS = [
     ("CPP_suggested, with data", "CPP_uniform, with data"),
     ("CPP_suggested_condCalFalse, with data", "CPP_uniform_condCalFalse, with data"),
     ("BD_suggested, with data", "BD_uniform, with data"),
+    ("CPP_dosReis, with data", "CPP_suggested, with data"),
+    ("CPP_dosReis, with data", "CPP_uniform, with data"),
+    ("CPP_dosReis_condCalFalse, with data", "CPP_dosReis, with data"),
+    ("CPP_calibrationPrior_uniform, with data", "CPP_calibrationPrior_uniform_condCalFalse, with data"),
+    ("CPP_calibrationPrior_dosReis, with data", "CPP_calibrationPrior_dosReis_condCalFalse, with data"),
+    ("CPP_calibrationPrior_dosReis, with data", "CPP_calibrationPrior_uniform, with data"),
+    ("CPP_calibrationPrior_uniform, with data", "CPP_uniform, with data"),
+    ("CPP_calibrationPrior_dosReis, with data", "CPP_dosReis, with data"),
 ]
 
 # Supervisor's cross-model BF: M1 = the model that concludes younger, M2 = the model that
@@ -64,6 +94,18 @@ MODEL_PAIRS = [
 ]
 
 COLUMN = "mrca.age(TaxonSet3)"
+# The dosReis XML family numbers its TaxonSets in a different order (TaxonSet2 = Primates,
+# TaxonSet3 = Haplorrhini, hard-fixed at ~45 Ma) -- override the column for those runs only.
+COLUMN_OVERRIDES = {
+    "CPP_dosReis, with data":               "mrca.age(TaxonSet2)",
+    "CPP_dosReis, prior only":              "mrca.age(TaxonSet2)",
+    "CPP_dosReis_condCalFalse, with data":  "mrca.age(TaxonSet2)",
+    "CPP_dosReis_condCalFalse, prior only": "mrca.age(TaxonSet2)",
+    # calibrationPrior dosReis XML numbers Primates as TaxonSet2 too (uniformBounds keeps TaxonSet3)
+    "CPP_calibrationPrior_dosReis, with data":              "mrca.age(TaxonSet2)",
+    "CPP_calibrationPrior_dosReis, prior only":             "mrca.age(TaxonSet2)",
+    "CPP_calibrationPrior_dosReis_condCalFalse, with data": "mrca.age(TaxonSet2)",
+}
 BOUNDARY = 66.0
 BURNIN = 0.10
 
@@ -124,7 +166,7 @@ def main():
         if not os.path.exists(path):
             print(f"{name}: MISSING ({path})")
             continue
-        vals = read_column(path, COLUMN, BURNIN)
+        vals = read_column(path, COLUMN_OVERRIDES.get(name, COLUMN), BURNIN)
         n = len(vals)
         mean_age = sum(vals) / n
         hpd_lo, hpd_hi = hpd_interval(vals)
