@@ -51,7 +51,7 @@ model {
     cEuarchontoglires = calibration(taxa=Euarchontoglires, upper=125.816, lower=65.79);
     cEuarchonta = calibration(taxa=Euarchonta, upper=125.816, lower=65.79);
     cPrimates = calibration(taxa=Primates, upper=66.095, lower=55.935);
-    cLorisiformes = calibration(taxa=Lorisiformes, upper=55.8, lower=18.5);
+    cLorisiformes = calibration(taxa=Lorisiformes, upper=55.8, lower=36.573);
     cCercopithecidae = calibration(taxa=Cercopithecidae, upper=25.235, lower=12.47);
     cColobinae = calibration(taxa=Colobinae, upper=15.0, lower=8.125);
     cCercopithecinae = calibration(taxa=Cercopithecinae, upper=15.0, lower=6.5);

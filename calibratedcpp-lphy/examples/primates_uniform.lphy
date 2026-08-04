@@ -49,7 +49,7 @@ model {
     cEuarchontoglires ~ UniformMRCA(taxa=Euarchontoglires, upper=125.816, lower=65.79);
     cEuarchonta ~ UniformMRCA(taxa=Euarchonta, upper=125.816, lower=65.79);
     cPrimates ~ UniformMRCA(taxa=Primates, upper=66.095, lower=55.935);
-    cLorisiformes ~ UniformMRCA(taxa=Lorisiformes, upper=55.8, lower=18.5);
+    cLorisiformes = calibration(taxa=Lorisiformes, upper=55.8, lower=36.573);
     cCercopithecidae ~ UniformMRCA(taxa=Cercopithecidae, upper=25.235, lower=12.47);
     cColobinae ~ UniformMRCA(taxa=Colobinae, upper=15.0, lower=8.125);
     cCercopithecinae ~ UniformMRCA(taxa=Cercopithecinae, upper=15.0, lower=6.5);

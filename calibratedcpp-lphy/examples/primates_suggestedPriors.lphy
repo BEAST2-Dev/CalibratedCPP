@@ -52,7 +52,7 @@ model {
     cEuarchontoglires ~ OffsetExponentialMRCA(taxa=Euarchontoglires, offset=65.79, mean=20.037171);
     cEuarchonta ~ OffsetExponentialMRCA(taxa=Euarchonta, offset=65.79, mean=20.037171);
     cPrimates ~ OffsetExponentialMRCA(taxa=Primates, offset=55.935, mean=3.391491);
-    cLorisiformes ~ UniformMRCA(taxa=Lorisiformes, upper=55.8, lower=18.5);
+    cLorisiformes = calibration(taxa=Lorisiformes, upper=55.8, lower=36.573);
     cCercopithecidae ~ OffsetExponentialMRCA(taxa=Cercopithecidae, offset=12.47, mean=4.261062);
     cColobinae ~ UniformMRCA(taxa=Colobinae, upper=15.0, lower=8.125);
     cCercopithecinae ~ UniformMRCA(taxa=Cercopithecinae, upper=15.0, lower=6.5);
