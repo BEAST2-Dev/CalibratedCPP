@@ -1,13 +1,16 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.moverwater</groupId>
+        <groupId>io.github.beast2-dev</groupId>
         <artifactId>calibratedcpp-root</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>calibratedcpp-beast</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>calibratedcpp-beast</name>
+    <description>BEAST 3 package implementing the Calibrated CPP tree prior, its calibration
+        priors and operators.</description>
 
     <properties>
         <jmh.version>1.37</jmh.version>
@@ -62,6 +65,7 @@
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

@@ -2,17 +2,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- No <parent>. We used to inherit io.github.linguaphylo:lphybeast-root, but it's an
-         unpublished SNAPSHOT, so any machine without it pre-cached fails to build. Self-contained
-         instead. Versions we used to get from it are now set directly in
-         calibratedcpp-lphybeast-launcher/pom.xml. -->
-    <groupId>io.github.moverwater</groupId>
+    <!-- No <parent>. We used to inherit io.github.linguaphylo:lphybeast-root; the versions it
+         supplied are declared in this file's <properties> below instead. -->
+    <groupId>io.github.beast2-dev</groupId>
     <artifactId>calibratedcpp-root</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>calibratedcpp-root</name>
-    <url>https://github.com/moverwater/CalibratedCPP</url>
+    <description>Calibrated Coalescent Point Process (Calibrated CPP) for BEAST 3. The CPP is a
+        model of ultrametric trees where node ages are i.i.d. random variables, capturing
+        birth-death processes with time-dependent birth and death rates and age-dependent death
+        rates.</description>
+    <url>https://github.com/BEAST2-Dev/CalibratedCPP</url>
 
     <licenses>
         <license>
@@ -26,25 +28,29 @@
             <name>Marcus Overwater</name>
             <url>https://github.com/moverwater</url>
         </developer>
+        <developer>
+            <name>Eva Yutong Li</name>
+            <url>https://github.com/EvaLiyt</url>
+        </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/moverwater/CalibratedCPP.git</connection>
-        <developerConnection>scm:git:ssh://github.com/moverwater/CalibratedCPP.git</developerConnection>
-        <url>https://github.com/moverwater/CalibratedCPP</url>
+        <connection>scm:git:git://github.com/BEAST2-Dev/CalibratedCPP.git</connection>
+        <developerConnection>scm:git:ssh://github.com/BEAST2-Dev/CalibratedCPP.git</developerConnection>
+        <url>https://github.com/BEAST2-Dev/CalibratedCPP</url>
     </scm>
 
     <distributionManagement>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/moverwater/CalibratedCPP</url>
+            <url>https://maven.pkg.github.com/BEAST2-Dev/CalibratedCPP</url>
         </repository>
     </distributionManagement>
 
 
     <properties>
         <lphy.vision>1.8.0-beta1</lphy.vision>
-        <lphybeast.vision>2.0.0-SNAPSHOT</lphybeast.vision>
+        <lphybeast.vision>1.4.0-beta1</lphybeast.vision>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- BEAST3 core and external BEAST2 package versions shared across modules -->

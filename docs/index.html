@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calibrated CPP</title>
-<meta name="description" content="A BEAST2 package implementing the Calibrated Coalescent Point Process for calibrated molecular clock dating.">
+<meta name="description" content="A BEAST3 package implementing the Calibrated Coalescent Point Process, a tree prior where node ages are i.i.d. random variables.">
 <link rel="stylesheet" href="assets/style.css">
 <script>
   MathJax = { tex: { inlineMath: [['$$', '$$']], displayMath: [['\\[', '\\]']] } };
@@ -20,7 +20,7 @@
             <!-- ==================== MODEL ==================== -->
       <section id="model" class="doc-section">
       <h1>The Calibrated Coalescent Point Process</h1>
-      <p class="lead">A BEAST2 package for calibrated molecular clock dating using the Coalescent Point Process (CPP).</p>
+      <p class="lead">A BEAST3 package for the Calibrated Coalescent Point Process (CPP), a tree prior where node ages are i.i.d. random variables.</p>
           <h2>Bayesian Molecular Clock Dating</h2>
           Bayesian molecular clock dating jointly infers substitution rates, diversificaiton dynamics, and time calibrated phylogenetic trees from molecular sequences.
          However, when sequences are taken from a single time (like extant species), calibrations derived from fossil data are needed to separate evolutionary distance (substitutions/site)
@@ -67,7 +67,7 @@
         The package provides two tree priors — a <strong>birth-death skyline</strong> model and
         an <strong>age-dependent birth-death</strong> model — together with a shared way to
         specify <strong>calibrations</strong>. The sections below describe each in turn, then show
-        how to set them up in BEAST2 XML, in BEAUti, and in an LPhy script.
+        how to set them up in BEAST3 XML, in BEAUti, and in an LPhy script.
       </p>
 
       <h2>Birth-Death Skyline</h2>
@@ -178,9 +178,9 @@
       </p>
       </section>
 
-      <!-- ==================== BEAST2 XML ==================== -->
+      <!-- ==================== BEAST3 XML ==================== -->
       <section id="beast-xml" class="doc-section">
-      <h1>Specify an analysis in BEAST2 XML</h1>
+      <h1>Specify an analysis in BEAST3 XML</h1>
       <p>
         A Calibrated CPP analysis needs a <strong>tree prior</strong> distribution — either the
         birth-death skyline model or the age-dependent birth-death model — and, if you have fossil
@@ -569,8 +569,8 @@
       </table>
       <p>
         The LPhy generator itself is constant-rate; if you want the piecewise-constant
-        <em>skyline</em> rates, set those up on the generated BEAST2 XML side (see
-        <a href="#beast-xml">Specify in BEAST2 XML</a> or <a href="#beauti">Specify in BEAUti</a>).
+        <em>skyline</em> rates, set those up on the generated BEAST3 XML side (see
+        <a href="#beast-xml">Specify in BEAST3 XML</a> or <a href="#beauti">Specify in BEAUti</a>).
       </p>
 
       <h3>Minimal example</h3>
@@ -649,7 +649,7 @@ model {
 }</code></pre>
       <p>
         This mirrors the <a href="#specifying-calibrations">calibrations</a> used
-        directly in BEAST2 XML — LPhyBEAST converts each <code>calibration()</code>/<code>ConditionedMRCAPrior</code>
+        directly in BEAST3 XML — LPhyBEAST converts each <code>calibration()</code>/<code>ConditionedMRCAPrior</code>
         into the equivalent <code>CalibrationPrior</code> and taxon-set wiring automatically when
         generating the XML.
       </p>
@@ -658,7 +658,7 @@ model {
       <p>
         <a href="https://linguaphylo.github.io/">LPhy Studio</a> lets you type or load an
         <code>.lphy</code> script and inspect the simulated tree, calibrations, and sampled ages
-        before converting to BEAST2 XML.
+        before converting to BEAST3 XML.
       </p>
       <figure class="screenshot">
         <img src="assets/screenshots/lphy-studio.png" alt="LPhy Studio showing a simulated calibrated tree with calibration taxa and sampled ages">

@@ -5,13 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.github.moverwater</groupId>
+        <groupId>io.github.beast2-dev</groupId>
         <artifactId>calibratedcpp-root</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>calibratedcpp-lphybeast</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>calibratedcpp-lphybeast</name>
+    <description>LPhyBEAST extension converting Calibrated CPP LPhy models to BEAST 3 XML.</description>
 
     <dependencies>
         <dependency>
@@ -19,6 +21,7 @@
             <artifactId>lphybeast</artifactId>
             <version>${lphybeast.vision}</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -36,13 +39,13 @@
         </dependency>
 
         <dependency>
-            <groupId>io.github.moverwater</groupId>
+            <groupId>io.github.beast2-dev</groupId>
             <artifactId>calibratedcpp-beast</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>io.github.moverwater</groupId>
+            <groupId>io.github.beast2-dev</groupId>
             <artifactId>calibratedcpp-lphy</artifactId>
             <version>${project.version}</version>
         </dependency>

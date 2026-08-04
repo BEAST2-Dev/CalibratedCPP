@@ -1,22 +1,23 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.moverwater</groupId>
+        <groupId>io.github.beast2-dev</groupId>
         <artifactId>calibratedcpp-root</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>calibratedcpp-lphy-studio</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>calibratedcpp-lphy-studio</name>
+    <description>LPhy Studio extension providing viewers for Calibrated CPP types.</description>
 
-<!-- TODO skip lphy tests -->
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
+<!--    <properties>-->
+<!--        <maven.test.skip>true</maven.test.skip>-->
+<!--    </properties>-->
 
     <dependencies>
         <dependency>
-            <groupId>io.github.moverwater</groupId>
+            <groupId>io.github.beast2-dev</groupId>
             <artifactId>calibratedcpp-lphy</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

@@ -33,9 +33,11 @@
             <useProjectArtifact>true</useProjectArtifact>
             <scope>runtime</scope>
             <includes>
-                <include>io.github.moverwater:calibratedcpp</include>
+                <include>io.github.beast2-dev:calibratedcpp-beast</include>
                 <include>org.hipparchus:hipparchus-core</include>
                 <include>com.github.wendykierp:JTransforms</include>
+                <!-- JTransforms needs this; its other dep, commons-math3, comes from BEAST. -->
+                <include>pl.edu.icm:JLargeArrays</include>
             </includes>
         </dependencySet>
     </dependencySets>

@@ -12,8 +12,8 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
-                <include>io.github.moverwater:calibratedcpp-lphy</include>
-                <include>io.github.moverwater:calibratedcpp-lphy-studio</include>
+                <include>io.github.beast2-dev:calibratedcpp-lphy</include>
+                <include>io.github.beast2-dev:calibratedcpp-lphy-studio</include>
             </includes>
 
             <sources>
@@ -57,8 +57,8 @@
             <outputDirectory>/lib</outputDirectory>
             <includes>
                 <!-- only calibratedcpp jars -->
-                <include>io.github.moverwater:calibratedcpp-lphy</include>
-                <include>io.github.moverwater:calibratedcpp-lphy-studio</include>
+                <include>io.github.beast2-dev:calibratedcpp-lphy</include>
+                <include>io.github.beast2-dev:calibratedcpp-lphy-studio</include>
             </includes>
         </dependencySet>
     </dependencySets>

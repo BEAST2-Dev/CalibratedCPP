@@ -4,7 +4,7 @@
 const NAV_SECTIONS = [
   { id: "model", label: "Model" },
   { id: "constraint-tree", label: "Constraint Tree Format" },
-  { id: "beast-xml", label: "Specify in BEAST2 XML" },
+  { id: "beast-xml", label: "Specify in BEAST3 XML" },
   { id: "beauti", label: "Specify in BEAUti" },
   { id: "lphy", label: "Specify in an LPhy script" },
   { id: "citing", label: "Citing" },
@@ -87,12 +87,12 @@ function renderSidebar() {
 
   mount.innerHTML = `
     <a class="site-title" href="#model">Calibrated CPP</a>
-    <span class="site-desc">A BEAST2 package for calibrated molecular clock dating</span>
+    <span class="site-desc">A BEAST3 package for the Calibrated Coalescent Point Process</span>
   `;
   mount.appendChild(nav);
   const gh = document.createElement("a");
   gh.className = "github-link";
-  gh.href = "https://github.com/moverwater/CalibratedCPP_BEAST";
+  gh.href = "https://github.com/BEAST2-Dev/CalibratedCPP";
   gh.target = "_blank";
   gh.rel = "noopener";
   gh.innerHTML = "View on GitHub &rarr;";

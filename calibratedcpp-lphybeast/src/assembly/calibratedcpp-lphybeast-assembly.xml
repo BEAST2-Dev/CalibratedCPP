@@ -13,7 +13,7 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
-                <include>io.github.moverwater:calibratedcpp-lphybeast</include>
+                <include>io.github.beast2-dev:calibratedcpp-lphybeast</include>
             </includes>
 
             <sources>
@@ -41,7 +41,7 @@
         <dependencySet>
             <outputDirectory>/lib</outputDirectory>
             <includes>
-                <include>io.github.moverwater:calibratedcpp-lphybeast</include>
+                <include>io.github.beast2-dev:calibratedcpp-lphybeast</include>
             </includes>
             <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
