@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<beast version="2.8"
-       namespace="beast.core:beast.core.util:beast.evolution.alignment:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.tree.coalescent:beast.base.core:beast.base.evolution.alignment:beast.base.evolution.likelihood:beast.base.evolution.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.tree:beast.base.evolution.tree.coalescent:beast.base.inference:beast.base.inference.operator:beast.base.inference.util:beast.pkgmgmt"
-       required="">
-     <data id="D" spec="Alignment">
+<beast namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.base.evolution.alignment:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.tree.coalescent:beast.pkgmgmt:beast.base.core:beast.base.inference.util:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" required="" version="2.8">
+     <data
+id="D"
+spec="Alignment">
         <sequence id="Sequence" spec="Sequence" taxon="Aotus_nancymaae" totalcount="4" value="?"/>
         <sequence id="Sequence1" spec="Sequence" taxon="Callithrix_jacchus" totalcount="4" value="?"/>
         <sequence id="Sequence2" spec="Sequence" taxon="Carlito_syrichta" totalcount="4" value="?"/>
@@ -73,7 +73,7 @@
     </state>
     <distribution id="posterior" spec="CompoundDistribution">
       <distribution id="prior" spec="CompoundDistribution">
-        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" tree="@tree">
+        <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" conditionOnCalibrations="false" tree="@tree">
           <diversificationRate id="SkylineParameter" spec="calibratedcpp.SkylineParameter" values="@diversificationRate"/>
           <turnover id="SkylineParameter1" spec="calibratedcpp.SkylineParameter" values="@turnover"/>
           <rho id="RealScalarParam" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.05"/>
@@ -242,7 +242,9 @@
           <alpha id="RealScalarParam3" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
           <beta id="RealScalarParam4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
         </distribution>
-
+        
+        
+        
         <distribution id="diversificationRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@diversificationRate">
           <M id="RealScalarParam9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
           <S id="RealScalarParam10" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.25"/>
@@ -289,15 +291,15 @@
       </distribution>
       
     </distribution>
-    <operator id="diversificationRate.scale" parameter="@diversificationRate" upper="10.0" weight="1.0" spec="beast.base.spec.inference.operator.ScaleOperator"/>
-    <operator id="tree.intervalScale" scaleFactor="0.1" tree="@tree" weight="10.304113218507691" spec="beast.base.spec.evolution.operator.ScaleTreeOperator"/>
+    <operator id="diversificationRate.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@diversificationRate" upper="10.0" weight="1.0"/>
+    <operator id="tree.intervalScale" spec="beast.base.spec.evolution.operator.IntervalScaleOperator" scaleFactor="0.1" tree="@tree" weight="10.304113218507691"/>
     <operator id="tree.narrowExchange" spec="Exchange" tree="@tree" weight="10.304113218507691"/>
     <operator id="tree.rootAgeScale" spec="beast.base.spec.evolution.operator.ScaleTreeOperator" rootOnly="true" tree="@tree" upper="0.975" weight="1.0"/>
     <operator id="tree.subtreeSlide" spec="kernel.BactrianSubtreeSlide" size="8.39038465282535" tree="@tree" weight="10.304113218507691"/>
     <operator id="tree.uniform" spec="kernel.BactrianNodeOperator" tree="@tree" weight="10.304113218507691"/>
     <operator id="tree.wideExchange" spec="Exchange" isNarrow="false" tree="@tree" weight="1.9472943612303364"/>
     <operator id="tree.wilsonBalding" spec="WilsonBalding" tree="@tree" weight="1.9472943612303364"/>
-    <operator id="turnover.scale" parameter="@turnover" upper="10.0" weight="1.0" spec="beast.base.spec.inference.operator.ScaleOperator"/>
+    <operator id="turnover.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@turnover" upper="10.0" weight="1.0"/>
     <logger id="ScreenLogger" spec="Logger" logEvery="50000">
       <log idref="posterior"/>
       <log idref="prior"/>

@@ -1,5 +1,5 @@
 data {
-    D = readNexus(file="./data/primates_100Sites.nex");
+    D = readNexus(file="./data/primates_nogapN.nex");
     L = D.nchar();
     taxa = D.taxa();
     n = ntaxa(taxa=taxa);
@@ -49,7 +49,6 @@ model {
     cEuarchontoglires ~ UniformMRCA(taxa=Euarchontoglires, upper=125.816, lower=65.79);
     cEuarchonta ~ UniformMRCA(taxa=Euarchonta, upper=125.816, lower=65.79);
     cPrimates ~ UniformMRCA(taxa=Primates, upper=66.095, lower=55.935);
-    cLorisiformes = calibration(taxa=Lorisiformes, upper=55.8, lower=36.573);
     cCercopithecidae ~ UniformMRCA(taxa=Cercopithecidae, upper=25.235, lower=12.47);
     cColobinae ~ UniformMRCA(taxa=Colobinae, upper=15.0, lower=8.125);
     cCercopithecinae ~ UniformMRCA(taxa=Cercopithecinae, upper=15.0, lower=6.5);
@@ -60,15 +59,13 @@ model {
     cCallitrichidae_Cebidae ~ UniformMRCA(taxa=Callitrichidae_Cebidae, upper=34.5, lower=13.183);
     cCebidae ~ UniformMRCA(taxa=Cebidae, upper=34.5, lower=13.032);
 
-    calibrations = toArray(calibrations=[cEuarchontoglires, cEuarchonta, cPrimates, cLorisiformes,
+    calibrations = toArray(calibrations=[cEuarchontoglires, cEuarchonta, cPrimates,
                                           cCercopithecidae, cColobinae, cCercopithecinae, cPapionini,
                                           cHominoidea, cHominidae, cHomo_Pan, cCallitrichidae_Cebidae, cCebidae]);
 
     diversificationRate ~ LogNormal(meanlog = 0.0, sdlog = 1.25);
     turnover ~ Beta(alpha = 1.0, beta = 1.0);
     tree ~ CalibratedCPP(calibrations = calibrations, turnover = turnover, diversification = diversificationRate, rho = 0.05, n=n);
-
-
 
     π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
     kappa ~ LogNormal(meanlog = 1.0 , sdlog = 1.25);
