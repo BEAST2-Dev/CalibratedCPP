@@ -15,7 +15,6 @@ import calibratedcpp.lphy.tree.WeibullLifetime;
 import calibratedcpp.lphy.tree.WeibullMixtureLifetime;
 import calibratedcpp.lphy.util.TruncatedLogNormal;
 import calibratedcpp.lphybeast.tobeast.generators.CPPToBEAST;
-import calibratedcpp.lphybeast.tobeast.generators.CalibratedAgeDependentCPPToBEAST;
 import calibratedcpp.lphybeast.tobeast.generators.CalibratedAgeDependentExtinctionCPPToBEAST;
 import calibratedcpp.lphybeast.tobeast.generators.CalibratedCPPToBEAST;
 import calibratedcpp.lphybeast.tobeast.generators.CalibratedSkylineCPPToBEAST;
@@ -32,7 +31,7 @@ public class LBcalibratedcppImpl implements LPhyBEASTMapping {
     @Override
     public List<Class<? extends GeneratorToBEAST>> getGeneratorToBEASTs() {
         return List.of(
-                CalibratedCPPToBEAST.class, CPPToBEAST.class, CalibratedAgeDependentCPPToBEAST.class,
+                CalibratedCPPToBEAST.class, CPPToBEAST.class,
                 CalibratedSkylineCPPToBEAST.class, CalibratedAgeDependentExtinctionCPPToBEAST.class
         );
     }
