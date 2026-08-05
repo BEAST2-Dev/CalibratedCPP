@@ -1,0 +1,24 @@
+data {
+    clade1 = ["leaf_1", "leaf_2", "leaf_3", "leaf_4", "leaf_5"];
+    clade2 = ["leaf_1", "leaf_2", "leaf_3", "leaf_4", "leaf_5", "leaf_6", "leaf_7", "leaf_8"];
+    L = 500;
+}
+model {
+    shape ~ LogNormal(meanlog=0.4, sdlog=0.25);
+    scale ~ LogNormal(meanlog=0.7, sdlog=0.25);
+    lifetimeDist = weibullLifetime(shape=shape, scale=scale);
+
+    lambda ~ LogNormal(meanlog=0.5, sdlog=0.25);
+
+    c1 = calibration(taxa=clade1, upper=1.2, lower=0.8);
+    c2 = calibration(taxa=clade2, upper=2.4, lower=1.8);
+    calibrations ~ ConditionedMRCAPrior(calibrations=[c1, c2]);
+
+    tree ~ CalibratedAgeDependentExtinctionTree(lambda=lambda, lifetimeDist=lifetimeDist, rho=1, n=30, calibrations=calibrations, stemAge=5.0);
+
+    π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
+    kappa ~ LogNormal(meanlog=1.0, sdlog=1.25);
+    Q = hky(kappa=kappa, freq=π);
+
+    D ~ PhyloCTMC(L=L, Q=Q, mu=0.05, tree=tree);
+}
