@@ -1,8 +1,0 @@
-lambda ~ LogNormal(meanlog=0.5, sdlog=0.05);
-lifetime ~ LogNormal(meanlog=-8, sdlog=0.05);
-rho ~ LogNormal(meanlog=0.4, sdlog=0.2);
-cladeName = ["1", "2"];
-
-cal = calibration(taxa=cladeName, upper=0.2, lower=0.1);
-calibration ~ ConditionedMRCAPrior(calibrations=[cal]);
-T ~ CalibratedAgeDependentCPP(lambda=lambda, lifetime=lifetime, rho=rho, n=5, calibrations=calibration, stemAge=10.0);

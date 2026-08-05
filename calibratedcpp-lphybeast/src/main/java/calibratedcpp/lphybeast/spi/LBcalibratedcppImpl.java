@@ -8,10 +8,16 @@ import calibratedcpp.lphy.prior.ConditionedMRCAPrior;
 import calibratedcpp.lphy.prior.OffsetExponentialMRCA;
 import calibratedcpp.lphy.prior.UniformMRCA;
 import calibratedcpp.lphy.prior.toCalibrationArray;
+import calibratedcpp.lphy.tree.ExpLifetime;
+import calibratedcpp.lphy.tree.GammaLifetime;
+import calibratedcpp.lphy.tree.LifetimeDistribution;
+import calibratedcpp.lphy.tree.WeibullLifetime;
+import calibratedcpp.lphy.tree.WeibullMixtureLifetime;
 import calibratedcpp.lphy.util.TruncatedLogNormal;
 import calibratedcpp.lphybeast.tobeast.generators.CPPToBEAST;
-import calibratedcpp.lphybeast.tobeast.generators.CalibratedAgeDependentCPPToBEAST;
+import calibratedcpp.lphybeast.tobeast.generators.CalibratedAgeDependentExtinctionCPPToBEAST;
 import calibratedcpp.lphybeast.tobeast.generators.CalibratedCPPToBEAST;
+import calibratedcpp.lphybeast.tobeast.generators.CalibratedSkylineCPPToBEAST;
 import jebl.evolution.sequences.SequenceType;
 import lphy.core.model.Generator;
 import lphybeast.GeneratorToBEAST;
@@ -25,7 +31,8 @@ public class LBcalibratedcppImpl implements LPhyBEASTMapping {
     @Override
     public List<Class<? extends GeneratorToBEAST>> getGeneratorToBEASTs() {
         return List.of(
-                CalibratedCPPToBEAST.class, CPPToBEAST.class, CalibratedAgeDependentCPPToBEAST.class
+                CalibratedCPPToBEAST.class, CPPToBEAST.class,
+                CalibratedSkylineCPPToBEAST.class, CalibratedAgeDependentExtinctionCPPToBEAST.class
         );
     }
 
@@ -38,7 +45,9 @@ public class LBcalibratedcppImpl implements LPhyBEASTMapping {
     public List<Class<? extends Generator>> getExcludedGenerator() {
         return List.of(
                 TruncatedLogNormal.class, ConditionedMRCAPrior.class, CalibrationFunction.class,
-                UniformMRCA.class, OffsetExponentialMRCA.class, toCalibrationArray.class
+                UniformMRCA.class, OffsetExponentialMRCA.class, toCalibrationArray.class,
+                WeibullLifetime.class, GammaLifetime.class, ExpLifetime.class,
+                WeibullMixtureLifetime.class
         );
     }
 
@@ -50,7 +59,7 @@ public class LBcalibratedcppImpl implements LPhyBEASTMapping {
     @Override
     public List<Class> getExcludedValueType() {
         return List.of(
-                Calibration.class, CalibrationArray.class
+                Calibration.class, CalibrationArray.class, LifetimeDistribution.class
         );
     }
 }

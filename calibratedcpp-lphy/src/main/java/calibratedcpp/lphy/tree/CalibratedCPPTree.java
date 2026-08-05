@@ -38,7 +38,7 @@ public class CalibratedCPPTree extends AbstractCalibratedCPPTree {
                              @ParameterInfo(name = BirthDeathConstants.diversificationParamName, description = "diversification rate (lambda - mu), optional alternative to lambda/mu.", optional = true) Value<Number> diversification,
                              @ParameterInfo(name = BirthDeathConstants.turnoverParamName, description = "turnover (mu/lambda), optional alternative to lambda/mu.", optional = true) Value<Number> turnover,
                              @ParameterInfo(name = BirthDeathConstants.rhoParamName, description = "sampling probability") Value<Number> rho,
-                             @ParameterInfo(name = DistributionConstants.nParamName, description = "the total number of taxa.") Value<Integer> n,
+                             @ParameterInfo(name = DistributionConstants.nParamName, description = "the total number of taxa; omit for a random number of tips (uncalibrated only).", optional = true) Value<Integer> n,
                              @ParameterInfo(name = calibrationsName, description = "an array of calibrations generated from a MRCA prior (i.e. ConditionedMRCAPrior or MRCAPrior)", optional = true) Value<CalibrationArray> calibrations,
                              @ParameterInfo(name = otherTaxaNames, description = "a string array of taxa names for non-calibrated tips", optional = true) Value<String[]> otherNames,
                              @ParameterInfo(name = stemAgeName, description = "the stem age working as condition time", optional = true) Value<Number> stemAge,
@@ -103,10 +103,12 @@ public class CalibratedCPPTree extends AbstractCalibratedCPPTree {
     }
 
     @Override
-    protected double cdf(double t) {
-        return CDF(resolvedBirthRate, resolvedDeathRate, getSamplingProb().value().doubleValue(), t);
+    protected double logCDF(double t) {
+        return Math.log(CDF(resolvedBirthRate, resolvedDeathRate, getSamplingProb().value().doubleValue(), t));
     }
 
+    // Constant-rate keeps its tuned closed-form samplers (which handle the subcritical
+    // saturation regime) instead of the base's generic numerical inverter.
     @Override
     protected double[] sampleAges(double lowerTime, double upperTime, int nSims) {
         return sampleTimes(resolvedBirthRate, resolvedDeathRate, getSamplingProb().value().doubleValue(), lowerTime, upperTime, nSims);
@@ -115,16 +117,6 @@ public class CalibratedCPPTree extends AbstractCalibratedCPPTree {
     @Override
     protected double sampleStemAge(double greaterThan, int nTaxa) {
         return simRandomStem(resolvedBirthRate, resolvedDeathRate, greaterThan, nTaxa);
-    }
-
-    @Override
-    protected Value<Number> getConstantBirthRateValue() {
-        return new Value<>("", resolvedBirthRate);
-    }
-
-    @Override
-    protected Value<Number> getConstantDeathRateValue() {
-        return new Value<>("", resolvedDeathRate);
     }
 
     @Override
