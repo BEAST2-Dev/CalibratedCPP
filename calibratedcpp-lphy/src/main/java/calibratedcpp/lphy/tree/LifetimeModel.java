@@ -3,14 +3,14 @@ package calibratedcpp.lphy.tree;
 import org.apache.commons.math3.distribution.RealDistribution;
 
 /**
- * Engine-neutral lifetime distribution for the age-dependent-extinction CPP: an individual's lifetime
+ * Engine-neutral lifetime law for the age-dependent-extinction CPP: an individual's lifetime
  * has this density, and the node-age law is derived from it via a Volterra IDE (see
  * {@link CalibratedAgeDependentExtinctionTree}). Deliberately independent of both LPhy and BEAST — it
  * exposes only what the solver needs ({@code density}, {@code survival}), plus a mean for the horizon
  * heuristic. LPhy functions (e.g. {@code weibullLifetime}) produce these as {@code Value}s; the
  * LPhyBEAST converter maps them to a BEAST {@code ScalarDistribution}.
  */
-public interface LifetimeDistribution {
+public interface LifetimeModel {
 
     /** Lifetime probability density g(t). */
     double density(double t);
@@ -22,8 +22,8 @@ public interface LifetimeDistribution {
     double mean();
 
     /** Wrap any Apache commons-math3 continuous distribution as a lifetime distribution. */
-    static LifetimeDistribution of(RealDistribution d) {
-        return new LifetimeDistribution() {
+    static LifetimeModel of(RealDistribution d) {
+        return new LifetimeModel() {
             @Override public double density(double t)  { return d.density(t); }
             @Override public double survival(double t) { return 1.0 - d.cumulativeProbability(t); }
             @Override public double mean()             { return d.getNumericalMean(); }

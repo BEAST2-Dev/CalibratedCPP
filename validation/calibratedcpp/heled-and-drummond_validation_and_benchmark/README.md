@@ -45,6 +45,6 @@ python calibratedcpp-beast/validation/calibratedcpp/heled-and-drummond_validatio
 
 ## Output Files
 
- - [`benchmark_results.csv`](./benchmark_results.csv).
- - [`validation_results.csv`](./validation_results.csv).
+ - [`benchmark_results.csv`](benchmark_results.csv).
+ - [`validation_results.csv`](validation_results.csv).
  - [`combined_benchmark_validation.png`](./combined_benchmark_validation.png).

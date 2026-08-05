@@ -42,4 +42,4 @@ The age dependent extinction model describes a population where the lifetime of 
 
 ## Validation
 
-In the [`validation`](./validation) directory we validate the `BirthDeathModel` against the Heled and Drummond implementation of the Calibrated Birth-Death process and benchmark the performance. We also benchmark the likelihood calculation time on 93 real calibration analyses available on [phylodata](https://pypi.org/project/phylodata/).
+In the [`validation`](../validation) directory we validate the `BirthDeathModel` against the Heled and Drummond implementation of the Calibrated Birth-Death process and benchmark the performance. We also benchmark the likelihood calculation time on 93 real calibration analyses available on [phylodata](https://pypi.org/project/phylodata/).
