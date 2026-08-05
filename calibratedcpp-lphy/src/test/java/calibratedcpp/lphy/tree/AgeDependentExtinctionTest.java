@@ -39,7 +39,7 @@ public class AgeDependentExtinctionTest {
 
         CalibratedAgeDependentExtinctionTree ad = new CalibratedAgeDependentExtinctionTree(
                 new Value<>("", birth),
-                new Value<>("", LifetimeDistribution.of(new ExponentialDistribution(mean))),
+                new Value<>("", LifetimeModel.of(new ExponentialDistribution(mean))),
                 new Value<>("", rho), new Value<>("", 5),
                 null, null, /* stemAge */ new Value<>("", origin), null, null);
         ad.resolveRates();   // solves the VIDE once
@@ -60,7 +60,7 @@ public class AgeDependentExtinctionTest {
         int n = 8;
         CalibratedAgeDependentExtinctionTree ad = new CalibratedAgeDependentExtinctionTree(
                 new Value<>("", 1.5),
-                new Value<>("", LifetimeDistribution.of(new WeibullDistribution(1.5, 2.0))),
+                new Value<>("", LifetimeModel.of(new WeibullDistribution(1.5, 2.0))),
                 new Value<>("", 1.0), new Value<>("", n),
                 null, null, null, /* rootAge */ new Value<>("", rootAge), null);
 
@@ -77,7 +77,7 @@ public class AgeDependentExtinctionTest {
         WeibullMixtureLifetime f = new WeibullMixtureLifetime(
                 new Value<>("", mean), new Value<>("", 0.6), new Value<>("", 2.4),
                 new Value<>("", new Double[]{0.3, 0.7}));
-        LifetimeDistribution life = f.apply().value();
+        LifetimeModel life = f.apply().value();
 
         assertEquals(mean, life.mean(), 1e-12, "mixture mean is exact by construction of the shared scale");
         assertEquals(1.0, life.survival(0.0), 1e-9, "survival(0) = 1");
@@ -103,7 +103,7 @@ public class AgeDependentExtinctionTest {
         for (double k : new double[]{0.7, 0.5, 0.3, 0.15}) {
             CalibratedAgeDependentExtinctionTree ad = new CalibratedAgeDependentExtinctionTree(
                     new Value<>("", birth),
-                    new Value<>("", LifetimeDistribution.of(new WeibullDistribution(k, 1.0))),
+                    new Value<>("", LifetimeModel.of(new WeibullDistribution(k, 1.0))),
                     new Value<>("", 0.4), new Value<>("", n),
                     null, null, null, /* rootAge */ new Value<>("", rootAge), null);
             ad.resolveRates();   // solve the VIDE once before querying the CDF
@@ -131,7 +131,7 @@ public class AgeDependentExtinctionTest {
 
         CalibratedAgeDependentExtinctionTree ad = new CalibratedAgeDependentExtinctionTree(
                 new Value<>("", 1.5),
-                new Value<>("", LifetimeDistribution.of(new WeibullDistribution(1.5, 2.0))),
+                new Value<>("", LifetimeModel.of(new WeibullDistribution(1.5, 2.0))),
                 new Value<>("", 1.0), new Value<>("", 6),
                 new Value<>("", cals), null, /* stemAge */ null, /* rootAge */ null, null);
 

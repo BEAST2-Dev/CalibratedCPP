@@ -10,7 +10,7 @@ import calibratedcpp.lphy.prior.UniformMRCA;
 import calibratedcpp.lphy.prior.toCalibrationArray;
 import calibratedcpp.lphy.tree.ExpLifetime;
 import calibratedcpp.lphy.tree.GammaLifetime;
-import calibratedcpp.lphy.tree.LifetimeDistribution;
+import calibratedcpp.lphy.tree.LifetimeModel;
 import calibratedcpp.lphy.tree.WeibullLifetime;
 import calibratedcpp.lphy.tree.WeibullMixtureLifetime;
 import calibratedcpp.lphy.util.TruncatedLogNormal;
@@ -59,7 +59,7 @@ public class LBcalibratedcppImpl implements LPhyBEASTMapping {
     @Override
     public List<Class> getExcludedValueType() {
         return List.of(
-                Calibration.class, CalibrationArray.class, LifetimeDistribution.class
+                Calibration.class, CalibrationArray.class, LifetimeModel.class
         );
     }
 }

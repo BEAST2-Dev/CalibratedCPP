@@ -8,14 +8,14 @@ import org.apache.commons.math3.distribution.WeibullDistribution;
 import org.apache.commons.math3.special.Gamma;
 
 /**
- * Function producing a two-component Weibull mixture {@link LifetimeDistribution} for the age-dependent
+ * Function producing a two-component Weibull mixture {@link LifetimeModel} for the age-dependent
  * extinction CPP. Both components share a common scale θ that is derived from the requested mixture mean,
  * the two shapes and the weights, so the mixture mean is exactly {@code mean}:
  * <pre>  E[X] = θ · Σᵢ wᵢ·Γ(1 + 1/kᵢ)   ⇒   θ = mean / Σᵢ wᵢ·Γ(1 + 1/kᵢ).  </pre>
  * Mirrors the BEAST {@code calibratedcpp.distribution.WeibullMixture}; the LPhyBEAST converter maps this
  * function to that distribution.
  */
-public class WeibullMixtureLifetime extends DeterministicFunction<LifetimeDistribution> {
+public class WeibullMixtureLifetime extends DeterministicFunction<LifetimeModel> {
 
     public static final String meanParamName = "mean";
     public static final String shape1ParamName = "shape1";
@@ -37,7 +37,7 @@ public class WeibullMixtureLifetime extends DeterministicFunction<LifetimeDistri
             description = "A two-component Weibull mixture lifetime distribution with a specified mean for the "
                     + "age-dependent extinction CPP; the common scale is derived from the mean, shapes and weights.")
     @Override
-    public Value<LifetimeDistribution> apply() {
+    public Value<LifetimeModel> apply() {
         double mean = ((Value<Number>) getParams().get(meanParamName)).value().doubleValue();
         double k1 = ((Value<Number>) getParams().get(shape1ParamName)).value().doubleValue();
         double k2 = ((Value<Number>) getParams().get(shape2ParamName)).value().doubleValue();
@@ -62,7 +62,7 @@ public class WeibullMixtureLifetime extends DeterministicFunction<LifetimeDistri
         WeibullDistribution d2 = new WeibullDistribution(k2, theta);
         final double ww1 = w1, ww2 = w2, m = mean;
 
-        LifetimeDistribution mixture = new LifetimeDistribution() {
+        LifetimeModel mixture = new LifetimeModel() {
             @Override public double density(double t)  { return ww1 * d1.density(t) + ww2 * d2.density(t); }
             @Override public double survival(double t) {
                 return ww1 * (1.0 - d1.cumulativeProbability(t)) + ww2 * (1.0 - d2.cumulativeProbability(t));

@@ -6,7 +6,7 @@ data {
 model {
     shape ~ LogNormal(meanlog=0.4, sdlog=0.25);
     scale ~ LogNormal(meanlog=0.7, sdlog=0.25);
-    lifetimeDist = weibullLifetime(shape=shape, scale=scale);
+    lifetimeModel = weibullLifetime(shape=shape, scale=scale);
 
     lambda ~ LogNormal(meanlog=0.5, sdlog=0.25);
 
@@ -14,7 +14,7 @@ model {
     c2 = calibration(taxa=clade2, upper=2.4, lower=1.8);
     calibrations ~ ConditionedMRCAPrior(calibrations=[c1, c2]);
 
-    tree ~ CalibratedAgeDependentExtinctionTree(lambda=lambda, lifetimeDist=lifetimeDist, rho=1, n=30, calibrations=calibrations, stemAge=5.0);
+    tree ~ CalibratedAgeDependentExtinctionTree(lambda=lambda, lifetimeModel=lifetimeModel, rho=1, n=30, calibrations=calibrations, stemAge=5.0);
 
     π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
     kappa ~ LogNormal(meanlog=1.0, sdlog=1.25);

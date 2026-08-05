@@ -6,8 +6,8 @@ import lphy.core.model.annotation.GeneratorInfo;
 import lphy.core.model.annotation.ParameterInfo;
 import org.apache.commons.math3.distribution.GammaDistribution;
 
-/** Function producing a Gamma {@link LifetimeDistribution} value for the age-dependent extinction CPP. */
-public class GammaLifetime extends DeterministicFunction<LifetimeDistribution> {
+/** Function producing a Gamma {@link LifetimeModel} value for the age-dependent extinction CPP. */
+public class GammaLifetime extends DeterministicFunction<LifetimeModel> {
 
     public static final String shapeParamName = "shape";
     public static final String scaleParamName = "scale";
@@ -20,9 +20,9 @@ public class GammaLifetime extends DeterministicFunction<LifetimeDistribution> {
 
     @GeneratorInfo(name = "gammaLifetime", description = "A Gamma lifetime distribution for the age-dependent extinction CPP.")
     @Override
-    public Value<LifetimeDistribution> apply() {
+    public Value<LifetimeModel> apply() {
         double shape = ((Value<Number>) getParams().get(shapeParamName)).value().doubleValue();
         double scale = ((Value<Number>) getParams().get(scaleParamName)).value().doubleValue();
-        return new Value<>(null, LifetimeDistribution.of(new GammaDistribution(shape, scale)), this);
+        return new Value<>(null, LifetimeModel.of(new GammaDistribution(shape, scale)), this);
     }
 }

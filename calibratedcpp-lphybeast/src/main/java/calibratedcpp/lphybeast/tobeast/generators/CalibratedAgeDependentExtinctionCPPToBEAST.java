@@ -32,7 +32,7 @@ import static lphybeast.tobeast.TaxaUtils.getTaxonSet;
 
 /**
  * Maps the LPhy age-dependent-extinction generator to the BEAST {@link CalibratedAgeDependentExtinctionModel}.
- * The engine-neutral {@code LifetimeDistribution} value is mapped back to a BEAST {@link ScalarDistribution}
+ * The engine-neutral {@code LifetimeModel} value is mapped back to a BEAST {@link ScalarDistribution}
  * by inspecting the lifetime function that produced it (weibullLifetime → BEAST Weibull, etc.). The
  * origin / conditioning / calibration wiring matches {@link CalibratedCPPToBEAST}.
  */
@@ -102,14 +102,14 @@ public class CalibratedAgeDependentExtinctionCPPToBEAST
     }
 
     /**
-     * Recover a BEAST {@link ScalarDistribution} from the LPhy {@code LifetimeDistribution} value by
+     * Recover a BEAST {@link ScalarDistribution} from the LPhy {@code LifetimeModel} value by
      * inspecting the function that produced it. Its named parameters (e.g. {@code shape.lifetime ~ ...})
      * become live BEAST state nodes; constants are inlined — both handled by {@code getAsRealScalar}.
      */
-    private ScalarDistribution buildLifetimeDistribution(Value<?> lifetimeDist, BEASTContext context) {
-        Generator<?> gen = lifetimeDist.getGenerator();
+    private ScalarDistribution buildLifetimeDistribution(Value<?> lifetimeModel, BEASTContext context) {
+        Generator<?> gen = lifetimeModel.getGenerator();
         if (gen == null) {
-            throw new IllegalArgumentException("lifetimeDist must come from a lifetime function "
+            throw new IllegalArgumentException("lifetimeModel must come from a lifetime function "
                     + "(weibullLifetime, gammaLifetime or expLifetime).");
         }
         if (gen instanceof WeibullLifetime) {

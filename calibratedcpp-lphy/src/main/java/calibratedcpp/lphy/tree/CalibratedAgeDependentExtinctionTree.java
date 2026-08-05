@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * Calibrated CPP where individuals have an age-dependent extinction hazard: lifetimes follow a
- * {@link LifetimeDistribution} and births happen at a constant rate. The node-age law Q(t) is derived
+ * {@link LifetimeModel} and births happen at a constant rate. The node-age law Q(t) is derived
  * from the lifetime distribution via the Volterra integro-differential equation
  * <pre>  G'(t) = birthRate · ( G(t) - ∫₀ᵗ G(t-s) g(s) ds + S(t) ),   G(0) = 0  </pre>
  * with Q(t) = ρ·G(t) / (1 + ρ·G(t)). This solves the VIDE numerically (implicit-trapezoidal integrator,
@@ -31,23 +31,23 @@ import java.util.Map;
  */
 public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPTree {
 
-    public static final String lifetimeDistName = "lifetimeDist";
+    public static final String lifetimeModelName = "lifetimeModel";
     public static final String reproductiveNumberName = "reproductiveNumber";
 
     Value<Number> birthRate;
     Value<Number> reproductiveNumber;
-    Value<LifetimeDistribution> lifetimeDist;
+    Value<LifetimeModel> lifetimeModel;
 
     // resolved per sample() (cached across samples while the inputs are unchanged)
     private double rhoVal, birthRateVal, horizon;
     private PolynomialSplineFunction gSpline;
-    private LifetimeDistribution lastLifetime;
+    private LifetimeModel lastLifetime;
     private double cacheTarget = Double.NaN;
     private boolean cacheOriginGiven;
 
     public CalibratedAgeDependentExtinctionTree(
             @ParameterInfo(name = BirthDeathConstants.lambdaParamName, description = "per-lineage birth rate (alternative to reproductiveNumber).", optional = true) Value<Number> birthRate,
-            @ParameterInfo(name = lifetimeDistName, description = "individual lifetime distribution (e.g. from weibullLifetime/gammaLifetime).") Value<LifetimeDistribution> lifetimeDist,
+            @ParameterInfo(name = lifetimeModelName, description = "individual lifetime law (e.g. from weibullLifetime/gammaLifetime).") Value<LifetimeModel> lifetimeModel,
             @ParameterInfo(name = BirthDeathConstants.rhoParamName, description = "sampling probability.") Value<Number> rho,
             @ParameterInfo(name = DistributionConstants.nParamName, description = "the total number of taxa; omit for a random number of tips (uncalibrated only).", optional = true) Value<Integer> n,
             @ParameterInfo(name = calibrationsName, description = "an array of calibrations generated from a MRCA prior.", optional = true) Value<CalibrationArray> calibrations,
@@ -56,13 +56,13 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
             @ParameterInfo(name = rootAgeName, description = "the root age to condition on when no calibrations are provided.", optional = true) Value<Number> rootAge,
             @ParameterInfo(name = reproductiveNumberName, description = "reproductive number R0 = birthRate * mean(lifetime); R0 > 1 is supercritical. Alternative to birthRate.", optional = true) Value<Number> reproductiveNumber) {
         super(n, rho, calibrations, otherNames, stemAge, rootAge);
-        if (lifetimeDist == null) throw new IllegalArgumentException("lifetimeDist must be provided.");
+        if (lifetimeModel == null) throw new IllegalArgumentException("lifetimeModel must be provided.");
         if ((birthRate == null) == (reproductiveNumber == null)) {
             throw new IllegalArgumentException("Provide exactly one of birthRate or reproductiveNumber.");
         }
         this.birthRate = birthRate;
         this.reproductiveNumber = reproductiveNumber;
-        this.lifetimeDist = lifetimeDist;
+        this.lifetimeModel = lifetimeModel;
     }
 
     @GeneratorInfo(name = "CalibratedAgeDependentExtinctionTree", examples = {},
@@ -77,7 +77,7 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
     @Override
     protected void resolveRates() {
         double rho = getSamplingProb().value().doubleValue();
-        LifetimeDistribution life = getLifetime().value();
+        LifetimeModel life = getLifetime().value();
         double birth = resolveBirthRate(life);
         boolean originGiven = getStemAge() != null || getRootAge() != null;
 
@@ -152,7 +152,7 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
      * CalibratedAgeDependentExtinctionModel; the direct O(N^2) product-integration convolution replaces
      * its FFT divide-and-conquer (Richardson keeps N small, so this is ample for simulation).
      */
-    private void solveVIDE(LifetimeDistribution life, double birth, int N) {
+    private void solveVIDE(LifetimeModel life, double birth, int N) {
         double[] gFine = computeGridG(N, life, birth);
         double[] gCoarse = computeGridG(N / 2, life, birth);
 
@@ -179,7 +179,7 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
      * convergence that the Richardson step in {@link #solveVIDE} relies on. K accumulates the past-G part
      * directly (O(N^2) overall); the G(t_{i+1}) endpoint is folded into the implicit denominator.
      */
-    private double[] computeGridG(int N, LifetimeDistribution life, double birth) {
+    private double[] computeGridG(int N, LifetimeModel life, double birth) {
         double h = horizon / N;
         // S[j] = survival at the grid node; w[k] = probability mass of the panel centred on t_k (the
         // half-panel [0, h/2] for k=0), so the convolution never evaluates the (possibly infinite) density.
@@ -224,12 +224,12 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
 
     @Override
     protected AbstractCalibratedCPPTree newSubClade(int nTaxa, CalibrationArray subCalibrations) {
-        return new CalibratedAgeDependentExtinctionTree(birthRate, lifetimeDist, getSamplingProb(),
+        return new CalibratedAgeDependentExtinctionTree(birthRate, lifetimeModel, getSamplingProb(),
                 new Value<>("n", nTaxa), new Value<>("", subCalibrations), null, null, null, reproductiveNumber);
     }
 
     /** Birth rate, either given directly or derived from the reproductive number: lambda = R0 / mean(lifetime). */
-    private double resolveBirthRate(LifetimeDistribution life) {
+    private double resolveBirthRate(LifetimeModel life) {
         if (getBirthRate() != null) return getBirthRate().value().doubleValue();
         return getReproductiveNumber().value().doubleValue() / life.mean();
     }
@@ -239,7 +239,7 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
         Map<String, Value> map = super.getParams();
         if (birthRate != null) map.put(BirthDeathConstants.lambdaParamName, birthRate);
         if (reproductiveNumber != null) map.put(reproductiveNumberName, reproductiveNumber);
-        map.put(lifetimeDistName, lifetimeDist);
+        map.put(lifetimeModelName, lifetimeModel);
         return map;
     }
 
@@ -247,7 +247,7 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
     public void setParam(String paramName, Value value) {
         if (paramName.equals(BirthDeathConstants.lambdaParamName)) birthRate = value;
         else if (paramName.equals(reproductiveNumberName)) reproductiveNumber = value;
-        else if (paramName.equals(lifetimeDistName)) lifetimeDist = value;
+        else if (paramName.equals(lifetimeModelName)) lifetimeModel = value;
         else super.setParam(paramName, value);
     }
 
@@ -259,7 +259,7 @@ public class CalibratedAgeDependentExtinctionTree extends AbstractCalibratedCPPT
         return getParams().get(reproductiveNumberName);
     }
 
-    public Value<LifetimeDistribution> getLifetime() {
-        return getParams().get(lifetimeDistName);
+    public Value<LifetimeModel> getLifetime() {
+        return getParams().get(lifetimeModelName);
     }
 }

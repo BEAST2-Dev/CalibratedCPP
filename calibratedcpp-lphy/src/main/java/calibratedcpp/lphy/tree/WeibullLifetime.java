@@ -6,8 +6,8 @@ import lphy.core.model.annotation.GeneratorInfo;
 import lphy.core.model.annotation.ParameterInfo;
 import org.apache.commons.math3.distribution.WeibullDistribution;
 
-/** Function producing a Weibull {@link LifetimeDistribution} value for the age-dependent extinction CPP. */
-public class WeibullLifetime extends DeterministicFunction<LifetimeDistribution> {
+/** Function producing a Weibull {@link LifetimeModel} value for the age-dependent extinction CPP. */
+public class WeibullLifetime extends DeterministicFunction<LifetimeModel> {
 
     public static final String shapeParamName = "shape";
     public static final String scaleParamName = "scale";
@@ -20,9 +20,9 @@ public class WeibullLifetime extends DeterministicFunction<LifetimeDistribution>
 
     @GeneratorInfo(name = "weibullLifetime", description = "A Weibull lifetime distribution for the age-dependent extinction CPP.")
     @Override
-    public Value<LifetimeDistribution> apply() {
+    public Value<LifetimeModel> apply() {
         double shape = ((Value<Number>) getParams().get(shapeParamName)).value().doubleValue();
         double scale = ((Value<Number>) getParams().get(scaleParamName)).value().doubleValue();
-        return new Value<>(null, LifetimeDistribution.of(new WeibullDistribution(shape, scale)), this);
+        return new Value<>(null, LifetimeModel.of(new WeibullDistribution(shape, scale)), this);
     }
 }
