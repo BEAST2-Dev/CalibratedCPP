@@ -23,6 +23,7 @@ public class ExpLifetime extends DeterministicFunction<LifetimeModel> {
     @Override
     public Value<LifetimeModel> apply() {
         double mean = ((Value<Number>) getParams().get(meanParamName)).value().doubleValue();
-        return new Value<>(null, LifetimeModel.of(new ExponentialDistribution(mean)), this);
+        return new Value<>(null, LifetimeModel.of(new ExponentialDistribution(mean),
+                "Exp(mean=" + mean + ")"), this);
     }
 }

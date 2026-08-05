@@ -23,6 +23,7 @@ public class GammaLifetime extends DeterministicFunction<LifetimeModel> {
     public Value<LifetimeModel> apply() {
         double shape = ((Value<Number>) getParams().get(shapeParamName)).value().doubleValue();
         double scale = ((Value<Number>) getParams().get(scaleParamName)).value().doubleValue();
-        return new Value<>(null, LifetimeModel.of(new GammaDistribution(shape, scale)), this);
+        return new Value<>(null, LifetimeModel.of(new GammaDistribution(shape, scale),
+                "Gamma(shape=" + shape + ", scale=" + scale + ")"), this);
     }
 }

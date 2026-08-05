@@ -23,6 +23,7 @@ public class WeibullLifetime extends DeterministicFunction<LifetimeModel> {
     public Value<LifetimeModel> apply() {
         double shape = ((Value<Number>) getParams().get(shapeParamName)).value().doubleValue();
         double scale = ((Value<Number>) getParams().get(scaleParamName)).value().doubleValue();
-        return new Value<>(null, LifetimeModel.of(new WeibullDistribution(shape, scale)), this);
+        return new Value<>(null, LifetimeModel.of(new WeibullDistribution(shape, scale),
+                "Weibull(shape=" + shape + ", scale=" + scale + ")"), this);
     }
 }

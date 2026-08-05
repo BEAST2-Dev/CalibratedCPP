@@ -21,12 +21,17 @@ public interface LifetimeModel {
     /** Mean lifetime (used only to size the solver grid when no origin is supplied). */
     double mean();
 
-    /** Wrap any Apache commons-math3 continuous distribution as a lifetime distribution. */
     static LifetimeModel of(RealDistribution d) {
+        return of(d, d.getClass().getSimpleName());
+    }
+
+    /** Wrap any Apache commons-math3 continuous distribution; {@code label} is what loggers print. */
+    static LifetimeModel of(RealDistribution d, String label) {
         return new LifetimeModel() {
             @Override public double density(double t)  { return d.density(t); }
             @Override public double survival(double t) { return 1.0 - d.cumulativeProbability(t); }
             @Override public double mean()             { return d.getNumericalMean(); }
+            @Override public String toString()         { return label; }
         };
     }
 }

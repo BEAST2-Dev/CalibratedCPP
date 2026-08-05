@@ -68,6 +68,10 @@ public class WeibullMixtureLifetime extends DeterministicFunction<LifetimeModel>
                 return ww1 * (1.0 - d1.cumulativeProbability(t)) + ww2 * (1.0 - d2.cumulativeProbability(t));
             }
             @Override public double mean()             { return m; }   // exact by construction of theta
+            @Override public String toString() {
+                return "WeibullMixture(mean=" + m + ", shape1=" + k1 + ", shape2=" + k2
+                        + ", weights=[" + ww1 + ", " + ww2 + "])";
+            }
         };
         return new Value<>(null, mixture, this);
     }
