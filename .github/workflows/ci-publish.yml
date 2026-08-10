@@ -50,13 +50,6 @@ jobs:
           echo "Publishing version: $VERSION"
           mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
 
-      # TODO: calibratedcpp-lphybeast and calibratedcpp-lphybeast-launcher depend on
-      # io.github.linguaphylo:lphybeast-root/lphybeast/lphybeast-ssm/lphybeast-orc, which
-      # are only ever published as SNAPSHOTs and are not resolvable from Maven Central or
-      # any repository CI can reach. Scoped the build down to the 3 modules that don't
-      # need them until that dependency is either vendored/built-from-source in CI or a
-      # real released version is published. Restore the original repo-wide commands below
-      # once that's fixed.
       - name: Build and test
         if: "!startsWith(github.ref, 'refs/tags/v')"
         run: mvn verify

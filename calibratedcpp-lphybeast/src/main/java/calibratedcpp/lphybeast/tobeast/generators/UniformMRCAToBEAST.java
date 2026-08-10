@@ -12,16 +12,13 @@ import lphybeast.GeneratorToBEAST;
 import static lphybeast.tobeast.TaxaUtils.getTaxonSet;
 
 /**
- * Converts a single {@link UniformMRCA} calibration into a plain, independently-bounded BEAST
+ * Converts one {@link UniformMRCA} calibration into a BEAST
  * {@code MRCAPrior(monophyletic=true, distr=Uniform(lower,upper))}.
  *
- * <p>Registered in {@code LBcalibratedcppImpl.getExcludedGenerator()} rather than
- * {@code getGeneratorToBEASTs()} — {@code UniformMRCA} produces a {@code Calibration}, which
- * (like {@code ConditionedMRCAPrior}'s output) has no independent BEAST representation of its
- * own, and its {@code taxonset} must reuse the exact same {@link TaxonSet} instance the tree
- * model's {@code calibrations} list uses for the same clade. So this class is invoked directly
- * by {@code CalibratedCPPToBEAST}/{@code CalibratedAgeDependentCPPToBEAST} rather than through
- * lphybeast's generic auto-traversal, mirroring how {@code ConditionedMRCAPrior} is handled.
+ * <p>Listed in {@code LBcalibratedcppImpl.getExcludedGenerator()}, not {@code getGeneratorToBEASTs()},
+ * so the converters call it directly instead of lphybeast's auto-traversal: its {@code taxonset}
+ * must be the same {@link TaxonSet} instance the tree model's {@code calibrations} list holds for
+ * that clade.
  */
 public class UniformMRCAToBEAST implements GeneratorToBEAST<UniformMRCA, MRCAPrior> {
 

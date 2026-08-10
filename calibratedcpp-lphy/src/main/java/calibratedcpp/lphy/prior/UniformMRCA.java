@@ -10,11 +10,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A calibration whose MRCA age is uniformly distributed between a lower and upper bound.
- * Unlike {@link MRCAPrior} (which just wraps an externally-sampled age), this generator owns
- * the age's distribution directly, so the BEAST converter ({@code UniformMRCAToBEAST}) can build
- * the corresponding {@code MRCAPrior(distr=Uniform(lower,upper))} without inspecting any other
- * generator's graph.
+ * A calibration constraining the MRCA age of a clade to a lower and upper bound, the age being uniform between them.
+ * Bounds are how calibrations are specified here, so uniform is the main shape needed.
+ * Declaring it as its own LPhy generator, rather than composing one from a generic distribution,
+ * is what lets {@code UniformMRCAToBEAST} emit the matching BEAST prior.
  */
 public class UniformMRCA implements GenerativeDistribution<Calibration> {
 

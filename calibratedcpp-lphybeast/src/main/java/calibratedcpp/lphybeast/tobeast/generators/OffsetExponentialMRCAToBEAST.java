@@ -15,14 +15,8 @@ import lphybeast.GeneratorToBEAST;
 import static lphybeast.tobeast.TaxaUtils.getTaxonSet;
 
 /**
- * Converts a single {@link OffsetExponentialMRCA} calibration into a plain, independently-bounded
- * BEAST {@code MRCAPrior(monophyletic=true, distr=OffsetReal(offset=offset, distribution=Exponential(mean=mean)))}.
- *
- * <p>Registered in {@code LBcalibratedcppImpl.getExcludedGenerator()} rather than
- * {@code getGeneratorToBEASTs()}, mirroring {@code UniformMRCAToBEAST} exactly -- see that class's
- * javadoc for why (its output has no independent BEAST representation on its own, and its
- * {@code taxonset} must reuse the same {@link TaxonSet} instance the tree model's calibrations
- * list uses for the same clade).
+ * Converts one {@link OffsetExponentialMRCA} calibration into a BEAST
+ * {@code MRCAPrior(monophyletic=true, distr=OffsetReal(offset, Exponential(mean)))}.
  */
 public class OffsetExponentialMRCAToBEAST implements GeneratorToBEAST<OffsetExponentialMRCA, MRCAPrior> {
 
@@ -34,10 +28,6 @@ public class OffsetExponentialMRCAToBEAST implements GeneratorToBEAST<OffsetExpo
 
     /** Variant that reuses an already-built TaxonSet, so callers can share it with other clades. */
     public MRCAPrior generatorToBEAST(OffsetExponentialMRCA generator, BEASTInterface treeValue, TaxonSet taxonSet, BEASTContext context) {
-        // Exponential.mean requires the PositiveReal domain specifically (not the unconstrained
-        // Real domain context.getAsRealScalar produces), so it's built explicitly here rather
-        // than via the generic Value converter -- same reasoning as MRCAPriorCalibrationUtils'
-        // Uniform builder, which also constructs its RealScalarParams directly.
         Exponential exponential = new Exponential();
         exponential.setInputValue("mean", new RealScalarParam<>(generator.getMean().value().doubleValue(), PositiveReal.INSTANCE));
         exponential.initAndValidate();

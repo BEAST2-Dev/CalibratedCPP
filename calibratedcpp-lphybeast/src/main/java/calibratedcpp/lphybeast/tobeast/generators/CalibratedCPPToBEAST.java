@@ -27,7 +27,7 @@ public class CalibratedCPPToBEAST implements GeneratorToBEAST<CalibratedCPPTree,
         CalibratedBirthDeathSkylineModel model = new CalibratedBirthDeathSkylineModel();
         model.setInputValue("tree", value);
 
-        // When no calibrations are provided rootAge drives conditioning, so conditionOnRoot=true.
+        // without calibrations, rootAge drives conditioning
         boolean hasCalibrations = generator.getCalibrations() != null;
         boolean rootConditioned = !hasCalibrations || generator.getRootCondition();
         model.setInputValue("conditionOnRoot", rootConditioned);
@@ -90,7 +90,6 @@ public class CalibratedCPPToBEAST implements GeneratorToBEAST<CalibratedCPPTree,
         Value<CalibrationArray> calibrationsValue = generator.getCalibrations();
         if (MRCAPriorCalibrationUtils.isIndependentMRCAPriorSource(calibrationsValue)) {
             // calibrations came from array of independent UniformMRCA(taxa=,upper=,lower=)
-            // not ConditionedMRCAPrior's joint density
             // build one plain, independently-bounded MRCAPrior per clade instead of a CalibrationPrior.
             MRCAPriorCalibrationUtils.buildIndependentMRCAPriors(
                     MRCAPriorCalibrationUtils.collectIndependentCalibrationGenerators(calibrationsValue),
@@ -98,11 +97,8 @@ public class CalibratedCPPToBEAST implements GeneratorToBEAST<CalibratedCPPTree,
             return model;
         }
 
-        // Default: preserve ConditionedMRCAPrior's joint/nested density as a single BEAST
-        // CalibrationPrior. -DcalibratedcppMRCAPrior=true reverts to the older behaviour: each
-        // clade gets its own independent monophyly + Uniform(lower,upper) MRCAPrior over its
-        // original bounds, same as the UniformMRCA path above (and what this converter always
-        // did before this option existed).
+        // default keeps the joint density as one CalibrationPrior
+        // -MRCAPrior splits it per clade and build Uniform distributed node age for each clade
         ConditionedMRCAPrior conditionedMRCAPrior = (ConditionedMRCAPrior) calibrationsValue.getInputs().get(0);
         Calibration[] calibrationSpecs = conditionedMRCAPrior.getCalibrations().value();
         if (MRCAPriorCalibrationUtils.isMrcaPriorMode()) {

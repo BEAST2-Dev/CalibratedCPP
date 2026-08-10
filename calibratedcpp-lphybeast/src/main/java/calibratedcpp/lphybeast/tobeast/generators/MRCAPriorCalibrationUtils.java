@@ -26,31 +26,21 @@ import java.util.List;
 
 /**
  * Support for calibrations built from independent per-clade {@link UniformMRCA} /
- * {@link OffsetExponentialMRCA} LPhy generators (combined via {@code toArray(calibrations=[cal1,
- * cal2, ...])}, the same array-literal syntax used by {@code ConditionedMRCAPrior(calibrations=
- * [cal1, cal2, ...])}), as opposed to the joint calibration density produced by
- * {@link calibratedcpp.lphy.prior.ConditionedMRCAPrior}. The array can freely mix both generator
- * types -- each element owns its own age-distribution shape (Uniform vs. offset-exponential) and
- * is dispatched to the matching converter independently.
+ * {@link OffsetExponentialMRCA} generators combined via {@code toArray(calibrations=[...])},
+ * as opposed to the joint density produced by {@link calibratedcpp.lphy.prior.ConditionedMRCAPrior}.
+ * The array may mix both generator types and each is dispatched to its matching converter.
  */
 public class MRCAPriorCalibrationUtils {
 
-    /**
-     * @return true if {@code calibrationsValue}'s generator is not {@code ConditionedMRCAPrior}
-     *         (i.e. it was built via {@code toArray(calibrations=[...])} over independent
-     *         {@code UniformMRCA}/{@code OffsetExponentialMRCA} calls instead).
-     */
+    /** True if the calibrations came from {@code toArray(...)} rather than {@code ConditionedMRCAPrior}. */
     public static boolean isIndependentMRCAPriorSource(Value<CalibrationArray> calibrationsValue) {
         return calibrationsValue.getGenerator() instanceof toCalibrationArray;
     }
 
     /**
-     * Walks the {@code toArray(calibrations=[...])} array literal feeding {@code calibrationsValue}
-     * and returns the individual per-clade calibration generators (each a {@code UniformMRCA} or
-     * {@code OffsetExponentialMRCA}) in the same order their calibrations appear in the resulting
-     * {@link CalibrationArray} — so index i here lines up with index i of
-     * {@code calibrationsValue.value().getCalibrationArray()} and with any TaxonSet list built
-     * from that same array.
+     * Returns the per-clade calibration generators behind a {@code toArray(calibrations=[...])}
+     * literal, index-aligned with the resulting {@link CalibrationArray} and any TaxonSet list
+     * built from it.
      */
     public static List<Generator<?>> collectIndependentCalibrationGenerators(Value<?> calibrationsValue) {
         List<Generator<?>> out = new ArrayList<>();
@@ -80,12 +70,7 @@ public class MRCAPriorCalibrationUtils {
     }
 
     /**
-     * Builds one plain BEAST {@code MRCAPrior} per calibration generator (dispatched to
-     * {@code UniformMRCAToBEAST} or {@code OffsetExponentialMRCAToBEAST} by its actual type),
-     * reusing the caller's already-built {@link TaxonSet} for each clade (index-aligned with
-     * {@code calibrationGenerators}) so the {@code taxonset} reference matches the one used in
-     * the tree model's {@code calibrations} list, rather than building a second, duplicate
-     * TaxonSet for the same clade.
+     * Builds one {@code MRCAPrior} per calibration generator, reuse the correspond {@link TaxonSet}s
      */
     public static void buildIndependentMRCAPriors(
             List<Generator<?>> calibrationGenerators, List<TaxonSet> taxonSets,
@@ -125,28 +110,18 @@ public class MRCAPriorCalibrationUtils {
         return mrcaPrior;
     }
 
-    // ------------------------------------------------------------------------------------------
-    // calibratedcpp-only converter switches. Not real lphybeast CLI flags -- forwarded as -D
-    // system properties by calibratedcpp-lphybeast-launcher/pom.xml's exec-maven-plugin config
-    // (e.g. "mvn ... -DcalibratedcppMRCAPrior=true -DcalibratedcppConditionOnCalibrations=false"),
-    // read here so both CalibratedCPPToBEAST and CalibratedAgeDependentCPPToBEAST share one
-    // parsing path instead of duplicating System.getProperty calls.
+    // Converter switches, set from the -MRCAPrior / -conditionOnCalibrations flags parsed by
+    // CalibratedCPPLPhyBeastMain. Read here so all converters share one parsing path.
 
     /**
-     * @return true if calibrations sourced from {@code ConditionedMRCAPrior} should be converted
-     *         to independent per-clade {@code MRCAPrior(Uniform)} objects (today's/the
-     *         age-dependent converter's long-standing behaviour), instead of the default: a
-     *         single joint {@code CalibrationPrior} preserving the nested/overlap structure.
+     * True if {@code ConditionedMRCAPrior} calibrations should become independent per-clade
+     * {@code MRCAPrior(Uniform)}s instead of one joint {@code CalibrationPrior}.
      */
     public static boolean isMrcaPriorMode() {
         return Boolean.parseBoolean(System.getProperty("calibratedcppMRCAPrior", "false"));
     }
 
-    /**
-     * @return the {@code conditionOnCalibrations} override for
-     *         {@code CalibratedBirthDeathSkylineModel}/{@code CalibratedAgeDependentExtinctionModel},
-     *         or {@code null} if not overridden (caller should fall back to its own default).
-     */
+    /** The {@code conditionOnCalibrations} override, or null if unset so the caller's default applies. */
     public static Boolean getConditionOnCalibrationsOverride() {
         String raw = System.getProperty("calibratedcppConditionOnCalibrations");
         if (raw == null || raw.isBlank()) return null;
@@ -154,13 +129,9 @@ public class MRCAPriorCalibrationUtils {
     }
 
     /**
-     * Builds a single joint {@code CalibrationPrior} over all given clades — one
-     * {@code CalibrationCladePrior} per (calibration spec, taxon set) pair — preserving the
-     * nested/overlap structure {@code ConditionedMRCAPrior} encodes (LogNormal at each disjoint
-     * root, Beta on overlapping child/parent ratios, truncated LogNormal on nested
-     * non-overlapping children), instead of throwing that structure away in favour of independent
-     * per-clade bounds. Registered into {@code context} the same way as the independent-MRCAPrior
-     * path: {@code addBEASTObject} (for provenance/XML wiring) + {@code addExtraLoggable}.
+     * Builds one joint {@code CalibrationPrior} over all clades, one {@code CalibrationCladePrior}
+     * per (spec, taxon set) pair, preserving the nested/overlap structure {@code ConditionedMRCAPrior}
+     * encodes rather than reducing it to independent per-clade bounds.
      */
     public static void buildCalibrationPrior(
             BEASTInterface treeValue, List<TaxonSet> taxonSets, Calibration[] calibrationSpecs,

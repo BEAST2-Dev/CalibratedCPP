@@ -6,20 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Thin wrapper around {@link LPhyBeastMain} that adds two calibratedcpp-only flags to the
- * {@code convert} subcommand: {@code -MRCAPrior}/{@code --mrcaPrior} and
- * {@code -conditionOnCalibrations}/{@code --conditionOnCalibrations}. Neither flag is known to
- * lphybeast's own picocli parser (that CLI lives in a separate repo we don't own), so this class
- * strips them out of {@code args} before delegating, translating each into the matching System
- * property ({@code calibratedcppMRCAPrior}, {@code calibratedcppConditionOnCalibrations}) that
- * {@link calibratedcpp.lphybeast.tobeast.generators.MRCAPriorCalibrationUtils#isMrcaPriorMode()}
- * / {@code #getConditionOnCalibrationsOverride()} already read.
- *
- * <p>Usage (same {@code convert}/{@code run} subcommands as lphybeast itself, flags can appear
- * anywhere in the argument list):
+ * Wraps {@link LPhyBeastMain} to add two calibratedcpp-only flags that its picocli parser (a
+ * separate repo) does not know: they are stripped from {@code args} and translated into the
+ * system properties {@link calibratedcpp.lphybeast.tobeast.generators.MRCAPriorCalibrationUtils}
+ * reads. Flags may appear anywhere in the argument list:
  * <pre>
- *   convert -MRCAPrior -o out.xml script.lphy
- *   convert -conditionOnCalibrations false -o out.xml script.lphy
+ *   convert -MRCAPrior script.lphy
+ *   convert -conditionOnCalibrations false script.lphy
  * </pre>
  */
 public class CalibratedCPPLPhyBeastMain {

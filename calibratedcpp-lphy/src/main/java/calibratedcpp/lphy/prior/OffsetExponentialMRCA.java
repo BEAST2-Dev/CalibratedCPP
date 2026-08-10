@@ -10,15 +10,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A calibration whose MRCA age is offset-exponentially distributed: age = offset + Exp(mean),
- * i.e. a hard minimum bound (offset) with exponentially decaying probability further from it.
- * This is the de Vries &amp; Beck (2023)-recommended shape for a handful of deep, well-preserved
- * fossil calibrations (crown Euarchontoglires, Euarchonta, Primates, Cercopithecidae, Hominoidea,
- * Hominidae), as an alternative to {@link UniformMRCA}'s hard upper bound. Owns its age
- * distribution directly (offset is the generator's own parameter, not composed via script-level
- * arithmetic), so the BEAST converter ({@code OffsetExponentialMRCAToBEAST}) can build the
- * corresponding {@code MRCAPrior(distr=OffsetReal(offset=offset, distribution=Exponential(mean=mean)))}
- * without inspecting any other generator's graph -- mirrors {@link UniformMRCA}'s pattern exactly.
+ * A calibration whose MRCA age is offset-exponentially distributed: age = offset + Exp(mean), a hard
+ * minimum bound with exponential decay above it. Used for deep, well-preserved fossil calibrations,
+ * as an alternative to {@link UniformMRCA}'s hard upper bound. Declared as its own LPhy generator
+ * for the same reason as {@link UniformMRCA}.
  */
 public class OffsetExponentialMRCA implements GenerativeDistribution<Calibration> {
 

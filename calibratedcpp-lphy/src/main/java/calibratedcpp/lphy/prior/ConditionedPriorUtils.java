@@ -18,16 +18,14 @@ public class ConditionedPriorUtils {
 
     // methods copied from calibratedcpp-beast/calibrationprior/CalibrationPrior.java
     public static double computeLogTargetsMu(double tLo, double tHi, double p){
-        // Replaced NormalDistribution.inverseCumulativeProbability with Erf.erfInv
-        // This calculates the z-score for the given coverage probability
+        // z-score for the coverage probability via Erf.erfInv
         double z = Math.sqrt(2.0) * Erf.erfInv(p);
         double sigma = (Math.log(tHi) - Math.log(tLo)) / (2 * z);
         return Math.log(tLo) + z * sigma;
     }
 
     public static double computeLogTargetsSigma2(double tLo, double tHi, double p){
-        // Replaced NormalDistribution.inverseCumulativeProbability with Erf.erfInv
-        // This calculates the z-score for the given coverage probability
+        // z-score for the coverage probability via Erf.erfInv
         double z = Math.sqrt(2.0) * Erf.erfInv(p);
         double sigma = (Math.log(tHi) - Math.log(tLo)) / (2 * z);
         return sigma * sigma;
