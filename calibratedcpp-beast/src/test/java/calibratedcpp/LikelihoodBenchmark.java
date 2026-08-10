@@ -154,7 +154,7 @@ public class LikelihoodBenchmark {
                 // Pass the sequence 1..50 to the "nCalibrations" field
                 .param("nCalibrations", calibrationCounts)
                 .resultFormat(ResultFormatType.CSV)
-                .result("calibratedcpp-beast/validation/calibratedcpp/heled-and-drummond_validation_and_benchmark/benchmark_results.csv")
+                .result("validation/calibratedcpp/heled-and-drummond_validation_and_benchmark/benchmark_results.csv")
                 .build();
 
         new Runner(opt).run();

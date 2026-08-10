@@ -420,7 +420,7 @@ public class CalibratedCoalescentPointProcessTest {
         for (int i = 1; i <= 100; i++) {
             logNFactorial += Math.log(i);
         }
-        try (PrintWriter writer = new PrintWriter(new FileWriter("./validation/calibratedcpp/heled-and-drummond_validation_and_benchmark/validation_results.csv"))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("../validation/calibratedcpp/heled-and-drummond_validation_and_benchmark/validation_results.csv"))) {
 
             // Write the CSV Header
             writer.println("Iteration,BirthRate,CPP_LogLikelihood,HeledAndDrummond_LogLikelihood");

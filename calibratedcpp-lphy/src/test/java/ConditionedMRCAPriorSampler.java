@@ -14,7 +14,7 @@ import java.io.IOException;
  * Run this first, then run compare_distributions.R to visualise the overlap.
  *
  * Usage: run main() directly from IDE, or via maven exec:java.
- * Output: calibratedcpp-beast/validation/calibrationprior/java_wsim.csv
+ * Output: validation/calibrationprior/java_wsim.csv
  */
 public class ConditionedMRCAPriorSampler {
 

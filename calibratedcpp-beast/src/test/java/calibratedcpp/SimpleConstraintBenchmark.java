@@ -53,7 +53,7 @@ public class SimpleConstraintBenchmark {
         if (inputPath == null) {
             inputPath = Path.of(DEFAULT_CONSTRAINTS_DIR);
             if (!Files.exists(inputPath)) {
-                inputPath = Path.of("calibratedcpp-beast", DEFAULT_CONSTRAINTS_DIR);
+                inputPath = Path.of("..", DEFAULT_CONSTRAINTS_DIR);
             }
             System.out.println("Using default constraints directory: " + inputPath);
         }

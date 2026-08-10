@@ -9,7 +9,7 @@ import java.io.IOException;
 
 /**
  * Samples ConditionedMRCAPrior N_SIM times using the calibrations from
- * calibratedcpp-beast/validation/calibrationprior/test_calibration_prior.xml
+ * validation/calibrationprior/test_calibration_prior.xml
  * and writes output as a TSV whose columns match the BEAST MCMC log
  * (mrca.clade1 … mrca.clade10).
  *
@@ -50,7 +50,7 @@ public class CalibrationPriorValidationSampler {
         "mrca.clade3", "mrca.clade4"
     };
 
-    private static final String OUTPUT = "../calibratedcpp-beast/validation/calibrationprior/lphy_wsim.tsv";
+    private static final String OUTPUT = "../validation/calibrationprior/lphy_wsim.tsv";
 
     public static void main(String[] args) throws IOException {
         int N = TAXA.length;
