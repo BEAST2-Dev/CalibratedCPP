@@ -3,11 +3,9 @@ package calibratedcpp.beauti;
 import java.util.*;
 
 import beast.base.core.BEASTInterface;
-import beast.base.core.BEASTObject;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.TaxonSet;
 import beast.base.inference.CompoundDistribution;
-import beast.base.inference.Logger;
 import beast.base.spec.domain.NonNegativeReal;
 import beast.base.spec.domain.PositiveReal;
 import beast.base.spec.domain.Real;
@@ -292,7 +290,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
             if (ccp != null) cp.cladesInput.get().add(ccp);
         }
         if (!cd.pDistributions.get().contains(cp)) cd.pDistributions.get().add(cp);
-        addToTraceLog(cp);
         ensureWrapperConnected(cd);
     }
 
@@ -302,7 +299,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         CalibrationPrior cp = calibrationPriorOf(cd, partition);
         cp.cladesInput.get().clear();
         cd.pDistributions.get().remove(cp);
-        removeFromTraceLog(cp);
 
         DistDef uniform = findDef("Uniform");
         for (TaxonSet ts : clades) {
@@ -322,7 +318,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         for (String id : new ArrayList<>(doc.pluginmap.keySet())) {
             if (id.startsWith(pfx) && id.endsWith(sfx) && doc.pluginmap.get(id) instanceof MRCAPrior mrca) {
                 cd.pDistributions.get().remove(mrca);
-                removeFromTraceLog(mrca);
             }
         }
     }
@@ -377,7 +372,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
         if (doc.pluginmap.get(mrcaId) instanceof MRCAPrior old) {
             cd.pDistributions.get().remove(old);
-            removeFromTraceLog(old);
         }
         doc.pluginmap.remove(mrcaId);
         doc.pluginmap.remove(distId);
@@ -394,7 +388,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         mrca.setID(mrcaId);
         doc.addPlugin(mrca);
         if (!cd.pDistributions.get().contains(mrca)) cd.pDistributions.get().add(mrca);
-        addToTraceLog(mrca);
         ensureWrapperConnected(cd);
     }
 
@@ -519,20 +512,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
     private CompoundDistribution topLevelPrior() {
         return (doc.pluginmap.get("prior") instanceof CompoundDistribution c) ? c : null;
-    }
-
-    private Logger traceLog() {
-        return (doc.pluginmap.get("tracelog") instanceof Logger l) ? l : null;
-    }
-
-    private void addToTraceLog(BEASTObject o) {
-        Logger t = traceLog();
-        if (t != null && !t.loggersInput.get().contains(o)) t.loggersInput.get().add(o);
-    }
-
-    private void removeFromTraceLog(BEASTObject o) {
-        Logger t = traceLog();
-        if (t != null) t.loggersInput.get().remove(o);
     }
 
     private boolean hasMRCAPriors(CalibrationDistribution cd) {
