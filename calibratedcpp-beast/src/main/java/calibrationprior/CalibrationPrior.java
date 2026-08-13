@@ -36,7 +36,6 @@ public class CalibrationPrior extends Distribution {
                     + "Alternative to providing an explicit list of calibration clades.");
 
     private List<CalibrationNode> calibrationNodes = new ArrayList<>();
-    private Map<CalibrationNode, Double> cladeLogP = new LinkedHashMap<>();
 
     @Override
     public void initAndValidate() {
@@ -382,43 +381,44 @@ public class CalibrationPrior extends Distribution {
     public double calculateLogP() {
         TreeInterface tree = treeInput.get();
         double logP = 0;
-        cladeLogP.clear();
         for (CalibrationNode n : calibrationNodes) {
-
-            // Check for monophyly
-            Set<String> leafIDs = new HashSet<>();
-            Node mrca = n.getCommonAncestor(tree);
-
-            collectLeafTaxa(mrca, leafIDs);
-            if (!leafIDs.equals(n.taxa.getTaxaNames())) {
-                return Double.NEGATIVE_INFINITY; // clade is not monophyletic!
-            }
-
-            double t = mrca.getHeight();
-            double lp;
-            if (n.parent == null) {
-                // root lognormal
-                lp = logNormalLogPdf(t, n.getCalibrationCladePrior().mu, Math.sqrt(n.getCalibrationCladePrior().sigma2));
-            } else {
-                Node pNode = n.parent.getCommonAncestor(tree);
-                double tp = pNode.getHeight();
-                if (n.getCalibrationCladePrior().isOverlapEdge) {
-                    // overlapping → Beta
-                    double r = t / tp;
-                    if (r <= 0 || r >= 1) return Double.NEGATIVE_INFINITY;
-                    lp = betaLogPdf(r, n.getCalibrationCladePrior().alpha, n.getCalibrationCladePrior().beta) - Math.log(tp); // Jacobian for conversion of the joint density of tp and r to tp and t
-                } else {
-                    // non-overlapping → truncated lognormal
-                    lp = logNormalLogPdf(t, n.getCalibrationCladePrior().mu, Math.sqrt(n.getCalibrationCladePrior().sigma2));
-                    double lcdf = logNormalLogCdf(tp, n.getCalibrationCladePrior().mu, Math.sqrt(n.getCalibrationCladePrior().sigma2));
-                    if (Double.isInfinite(lcdf)) return Double.NEGATIVE_INFINITY;
-                    lp -= lcdf;
-                }
-            }
-            cladeLogP.put(n, lp);
+            double lp = cladeLogDensity(n, tree);
+            if (lp == Double.NEGATIVE_INFINITY) return this.logP = Double.NEGATIVE_INFINITY;
             logP += lp;
         }
         return this.logP = logP;
+    }
+
+    private double cladeLogDensity(CalibrationNode n, TreeInterface tree) {
+        // Check for monophyly
+        Set<String> leafIDs = new HashSet<>();
+        Node mrca = n.getCommonAncestor(tree);
+
+        collectLeafTaxa(mrca, leafIDs);
+        if (!leafIDs.equals(n.taxa.getTaxaNames())) {
+            return Double.NEGATIVE_INFINITY; // clade is not monophyletic!
+        }
+
+        double t = mrca.getHeight();
+        if (n.parent == null) {
+            // root lognormal
+            return logNormalLogPdf(t, n.getCalibrationCladePrior().mu, Math.sqrt(n.getCalibrationCladePrior().sigma2));
+        }
+
+        Node pNode = n.parent.getCommonAncestor(tree);
+        double tp = pNode.getHeight();
+        if (n.getCalibrationCladePrior().isOverlapEdge) {
+            // overlapping → Beta
+            double r = t / tp;
+            if (r <= 0 || r >= 1) return Double.NEGATIVE_INFINITY;
+            return betaLogPdf(r, n.getCalibrationCladePrior().alpha, n.getCalibrationCladePrior().beta) - Math.log(tp); // Jacobian for conversion of the joint density of tp and r to tp and t
+        } else {
+            // non-overlapping → truncated lognormal
+            double lp = logNormalLogPdf(t, n.getCalibrationCladePrior().mu, Math.sqrt(n.getCalibrationCladePrior().sigma2));
+            double lcdf = logNormalLogCdf(tp, n.getCalibrationCladePrior().mu, Math.sqrt(n.getCalibrationCladePrior().sigma2));
+            if (Double.isInfinite(lcdf)) return Double.NEGATIVE_INFINITY;
+            return lp - lcdf;
+        }
     }
 
     private double logNormalLogPdf(double x, double mu, double sigma) {
@@ -459,7 +459,9 @@ public class CalibrationPrior extends Distribution {
     public void log(final long sample, final PrintStream out) {
         TreeInterface tree = treeInput.get();
         for (CalibrationNode n : calibrationNodes) {
-            out.print(cladeLogP.getOrDefault(n, Double.NaN) + "\t");
+            // Recompute from the current tree rather than reading a cached side-effect map,
+            // so the logged value always matches the accepted state (see cladeLogDensity).
+            out.print(cladeLogDensity(n, tree) + "\t");
             out.print(n.getCommonAncestor(tree).getHeight() + "\t");
         }
     }
