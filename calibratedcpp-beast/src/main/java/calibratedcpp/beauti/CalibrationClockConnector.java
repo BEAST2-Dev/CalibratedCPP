@@ -12,45 +12,6 @@ import beast.base.spec.evolution.tree.MRCAPrior;
 import beastfx.app.inputeditor.BeautiDoc;
 import calibrationprior.CalibrationDistribution;
 
-/**
- * BEAUti "method connector" — invoked by the template via
- * {@code <connect method='calibratedcpp.beauti.CalibrationClockConnector.scrub'/>}. BEAUti calls the
- * named static method (with the {@link BeautiDoc}) on every {@code scrubAll}, as a side effect of
- * evaluating the connector; it has no srcID/targetID, so it connects nothing itself.
- *
- * <p>It does two jobs, both keyed off one condition — whether a partition's
- * {@link CalibrationDistribution} wrapper is currently in the top-level {@code prior} (i.e. a
- * calibrated tree prior is active):
- *
- * <p>It is registered at the {@code aux-partitiontemplate} merge point (see CalibratedCPP.xml), i.e.
- * inside the StandardPartitionTemplate whose {@code mainid='mcmc'} always exists — so it runs on
- * every {@code scrubAll}, first (before the tree-prior and clock-model subtemplates), regardless of
- * which tree prior is active.
- *
- * <ol>
- *   <li><b>Clock-rate flag (Remco's point 1).</b> When the wrapper <em>is</em> active, force the
- *       partition's clock rate to be estimated. Core {@code BeautiDoc.setClockRate} only recognises
- *       {@code MRCAPrior} as timing information, so in CalibrationPrior mode the flag would otherwise
- *       stay {@code false}. The flag alone is not enough: the clock rate is wired into {@code <state>}
- *       (plus operator and ClockPrior) by ClockModels.xml connectors gated on
- *       {@code clockRate.c:$(n)/estimate=true}. {@code setClockRate} resets the flag to false at the
- *       <em>top</em> of every scrub, so this method must set it true <em>before</em> those connectors
- *       run — which is why it lives in the partition template (processed before the clock subtemplate)
- *       rather than in a tree-prior subtemplate (processed after, leaving the flag set too late and
- *       the clock unwired). The rate input is {@code "clock.rate"} for both strict (clockRate) and
- *       Optimised Relaxed (ucldMean) clocks.</li>
- *   <li><b>Stale-logger side effect (Remco's point 3).</b> When the wrapper is <em>not</em> active
- *       (e.g. the user switched to Yule), detach every {@code MRCAPrior} that is no longer a live
- *       child of an active wrapper. They are created imperatively and no connector governs them, so
- *       they keep their {@code tree} reference and linger in {@code tree.getOutputs()} — exactly what
- *       {@code setClockRate} scans, wrongly keeping the flag set after a switch. Detaching discards
- *       only the derived MRCAPrior objects; the source of truth (TaxonSets + CalibrationCladePrior
- *       bounds) is untouched, so calibrations rebuild on demand when switching back.</li>
- * </ol>
- *
- * <p>Note the {@code instanceof} types must be the {@code beast.base.spec.*} classes core actually
- * instantiates ({@code spec…GenericTreeLikelihood}, {@code spec…MRCAPrior}), not their classic twins.
- */
 public class CalibrationClockConnector {
 
     /** Template entry point: {@code <connect method='calibratedcpp.beauti.CalibrationClockConnector.scrub'/>}. */
