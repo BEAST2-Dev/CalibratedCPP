@@ -27,6 +27,20 @@
 
     </mergewith>
 
+    <!-- Method connector merged into the StandardPartitionTemplate (mainid='mcmc', processed first on
+         every scrubAll, before the clock-model subtemplates). It runs calibratedcpp code that:
+           (1) sets the clock-rate estimate flag when a CalibrationDistribution is active — BEAUti's
+               core setClockRate only recognises MRCAPrior, so CalibrationPrior would otherwise leave
+               the clock fixed. Running here (before ClockModels' state/operator connectors, and after
+               core setClockRate which resets the flag at the top of scrub) is what lets those
+               connectors actually wire the clock rate into <state>; and
+           (2) detaches stale MRCAPriors after a tree-prior switch so they stop tripping setClockRate.
+         Placed at the partition template's merge point rather than in the tree-prior subtemplates so
+         it runs first, and always (mcmc always exists), independent of which tree prior is active. -->
+    <mergewith point='aux-partitiontemplate'>
+        <connect method='calibratedcpp.beauti.CalibrationClockConnector.scrub'/>
+    </mergewith>
+
     <mergewith point='treePriorTemplates'>
 
         <subtemplate id='CalibratedBirthDeathSkyline'
