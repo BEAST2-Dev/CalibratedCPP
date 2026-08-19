@@ -11,6 +11,7 @@ import beast.base.inference.StateNode;
 import beast.base.spec.evolution.tree.MRCAPrior;
 import beastfx.app.inputeditor.BeautiDoc;
 import calibrationprior.CalibrationDistribution;
+import calibrationprior.CalibrationPrior;
 
 public class CalibrationClockConnector {
 
@@ -21,9 +22,9 @@ public class CalibrationClockConnector {
 
         // Snapshot the pluginmap: detachFromTree mutates it via unregisterPlugin.
         for (BEASTInterface bi : new ArrayList<>(doc.pluginmap.values())) {
-            // Point 1: estimate the clock whenever a calibration wrapper is active for the partition.
-            if (bi instanceof CalibrationDistribution wrapper && isActive(prior, wrapper))
-                setClockEstimated(doc, partitionOf(wrapper));
+        // Point 1: estimate the clock only when an active wrapper carries a real calibration
+            // (a bound or distribution) — not an empty or monophyly-only wrapper.
+            if (bi instanceof CalibrationDistribution wrapper && hasCalibration(doc, prior, wrapper)) setClockEstimated(doc, partitionOf(wrapper));
 
             // Point 3: detach any MRCAPrior that is not a live child of an active wrapper, so core
             // setClockRate stops seeing it via tree.getOutputs().
@@ -32,9 +33,16 @@ public class CalibrationClockConnector {
         }
     }
 
-    /** True when the wrapper is a current child of the top-level prior (a calibrated prior is active). */
-    private static boolean isActive(CompoundDistribution prior, CalibrationDistribution wrapper) {
-        return prior != null && prior.pDistributions.get().contains(wrapper);
+    /** True when the wrapper is connected to the prior AND has a real (bounded) calibration for its
+     *  partition. Monophyly-only entries have no CalibrationCladePrior, so they do not estimate the clock. */
+    private static boolean hasCalibration(BeautiDoc doc, CompoundDistribution prior, CalibrationDistribution wrapper) {
+        if (prior == null || !prior.pDistributions.get().contains(wrapper)) return false;
+        String sfx = "." + partitionOf(wrapper);
+        for (String id : doc.pluginmap.keySet())
+            if (id.startsWith("CalibrationCladePrior.") && id.endsWith(sfx)) return true;
+        for (Distribution child : wrapper.pDistributions.get())
+            if (child instanceof MRCAPrior mrca && mrca.distInput.get() != null) return true;
+        return false;
     }
 
     /** An MRCAPrior is "live" iff it is a child of a wrapper that is itself active. */

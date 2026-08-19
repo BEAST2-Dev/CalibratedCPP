@@ -83,14 +83,16 @@ CalibratedCPPTreeRootScaler/index/=Operators/BactrianTreeScaler/
             <stateNode spec="beast.base.spec.inference.parameter.RealScalarParam"
                        id="originParam.t:$(n)" domain="PositiveReal" value="1.0" estimate="false"/>
 
-            <!-- CPP tree prior. SkylineParameters (diversificationRateSP, turnoverSP, etc.) are
-                 NOT declared here — they are created dynamically by CalibratedCPPInputEditor on
-                 first init() and persist in the pluginmap. Declaring them in CDATA would cause
-                 BEAUti to re-create them (resetting multi-epoch config) on every sync(). -->
+            <!-- CPP tree prior. The default-pair SkylineParameters (diversificationRateSP, turnoverSP)
+                 are declared here. The other pairs' SPs (birthRateSP, deathRateSP, …) are created on demand. -->
             <distribution spec="calibratedcpp.CalibratedBirthDeathSkylineModel" id="CalibratedCPP.t:$(n)"
                           conditionOnRoot="true">
                 <tree idref="Tree.t:$(n)"/>
                 <rho idref="samplingProportion.t:$(n)"/>
+                <diversificationRate id="diversificationRateSP.t:$(n)" spec="calibratedcpp.SkylineParameter"
+                                     values="@CBDS_diversificationRate.t:$(n)"/>
+                <turnover id="turnoverSP.t:$(n)" spec="calibratedcpp.SkylineParameter"
+                          values="@CBDS_turnover.t:$(n)"/>
             </distribution>
 
             <!-- Calibration prior wrapper: holds either the CalibrationPrior (clade bounds) or a set
