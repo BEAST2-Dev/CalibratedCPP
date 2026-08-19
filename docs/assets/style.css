@@ -187,6 +187,33 @@ h3 { margin-top: 1.6rem; }
   margin-top: -0.5rem;
 }
 
+/* Green banner across the top of the content area; the logo's own green
+   background (--accent) blends into it so the artwork reads as white-on-green. */
+.banner {
+  background: var(--accent);
+  /* Cancel main's top/side padding so the banner spans the full content area. */
+  margin: -2.5rem -2rem 2.5rem;
+  padding: 2.25rem 2rem;
+  display: flex;
+  justify-content: center;
+}
+.banner .hero-logo {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0;
+}
+.hero-logo img {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+
+@media (max-width: 800px) {
+  /* Keep the banner clear of the fixed (green) nav toggle at the very top. */
+  .banner { margin-top: 0; }
+}
+
 .btn {
   display: inline-block;
   padding: 0.6rem 1.1rem;
