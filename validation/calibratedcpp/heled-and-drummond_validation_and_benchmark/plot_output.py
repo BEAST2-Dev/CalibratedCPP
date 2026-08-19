@@ -12,6 +12,7 @@ README_PATH = SCRIPT_DIR / "README.md"
 # Define separate output paths as PDFs
 PLOT_BENCH_PATH = SCRIPT_DIR / "benchmark_plot.pdf"
 PLOT_COMP_PATH = SCRIPT_DIR / "validation_plot.pdf"
+PLOT_COMBINED_PATH = SCRIPT_DIR / "combined_plot.pdf"
 
 # Style configuration
 COLORS = {"Calibrated CPP": "black", "Heled & Drummond": "red"}
@@ -58,6 +59,33 @@ def update_readme(df):
         README_PATH.write_text(new_content, encoding='utf-8')
         print("README.md table updated with integer calibrations.")
 
+def draw_benchmark(ax, df_bench):
+    """Plot 1: Benchmark (Time) onto the given axis."""
+    for label, group in df_bench.groupby('Benchmark'):
+        name = "Calibrated CPP" if "measureCPP" in label else "Heled & Drummond"
+        ax.plot(group['Param: nCalibrations'], group['Score'],
+                label=name, color=COLORS[name], marker='o', linewidth=1.5)
+
+    ax.set_yscale('log')
+    ax.set_xlabel('Number of non-nested calibrations (k)')
+    ax.set_ylabel('Time (μs)')
+    # ax.set_title('Likelihood Calculation Time')
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best', frameon=True)
+
+def draw_validation(ax, df_comp):
+    """Plot 2: Likelihood (Validation) onto the given axis."""
+    ax.plot(df_comp['BirthRate'], df_comp['HeledAndDrummond_LogLikelihood'],
+            color=COLORS["Heled & Drummond"], label="Heled & Drummond", linewidth=1.5)
+    ax.scatter(df_comp['BirthRate'], df_comp['CPP_LogLikelihood'],
+               color=COLORS["Calibrated CPP"], label="Calibrated CPP", s=20, zorder=3)
+
+    ax.set_xlabel('Birth-rate')
+    ax.set_ylabel('Log-likelihood')
+    ax.set_title('Likelihood Validation')
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best', frameon=True)
+
 def main():
     if not BENCH_CSV.exists() or not COMP_CSV.exists():
         print("Error: Required CSV files are missing.")
@@ -68,22 +96,10 @@ def main():
     df_comp = pd.read_csv(COMP_CSV)
 
     # ==========================================
-    # Plot 1: Benchmark (Time)
+    # Plot 1: Benchmark (Time) — individual
     # ==========================================
     fig1, ax1 = plt.subplots(figsize=(6, 5))
-
-    for label, group in df_bench.groupby('Benchmark'):
-        name = "Calibrated CPP" if "measureCPP" in label else "Heled & Drummond"
-        ax1.plot(group['Param: nCalibrations'], group['Score'], 
-                 label=name, color=COLORS[name], marker='o', linewidth=1.5)
-    
-    ax1.set_yscale('log')
-    ax1.set_xlabel('Number of calibrations (k)')
-    ax1.set_ylabel('Time (μs)')
-    ax1.set_title('Likelihood Calculation Time')
-    ax1.grid(True, alpha=0.3)
-    ax1.legend(loc='best', frameon=True)
-
+    draw_benchmark(ax1, df_bench)
     fig1.tight_layout()
     # Save as PDF (dpi is ignored for vector graphics like PDFs, but safe to leave)
     fig1.savefig(PLOT_BENCH_PATH)
@@ -91,25 +107,25 @@ def main():
     print(f"Benchmark plot saved to {PLOT_BENCH_PATH}")
 
     # ==========================================
-    # Plot 2: Likelihood (Validation)
+    # Plot 2: Likelihood (Validation) — individual
     # ==========================================
     fig2, ax2 = plt.subplots(figsize=(6, 5))
-
-    ax2.plot(df_comp['BirthRate'], df_comp['HeledAndDrummond_LogLikelihood'], 
-             color=COLORS["Heled & Drummond"], label="Heled & Drummond", linewidth=1.5)
-    ax2.scatter(df_comp['BirthRate'], df_comp['CPP_LogLikelihood'], 
-                color=COLORS["Calibrated CPP"], label="Calibrated CPP", s=20, zorder=3)
-    
-    ax2.set_xlabel('Birth-rate')
-    ax2.set_ylabel('Log-likelihood')
-    ax2.set_title('Likelihood Validation')
-    ax2.grid(True, alpha=0.3)
-    ax2.legend(loc='best', frameon=True)
-
+    draw_validation(ax2, df_comp)
     fig2.tight_layout()
     fig2.savefig(PLOT_COMP_PATH)
     plt.close(fig2)
     print(f"Validation plot saved to {PLOT_COMP_PATH}")
+
+    # ==========================================
+    # Combined: both plots side by side
+    # ==========================================
+    fig3, (ax3a, ax3b) = plt.subplots(1, 2, figsize=(12, 5))
+    draw_benchmark(ax3a, df_bench)
+    draw_validation(ax3b, df_comp)
+    fig3.tight_layout()
+    fig3.savefig(PLOT_COMBINED_PATH)
+    plt.close(fig3)
+    print(f"Combined plot saved to {PLOT_COMBINED_PATH}")
 
     # Update Readme
     update_readme(df_bench)

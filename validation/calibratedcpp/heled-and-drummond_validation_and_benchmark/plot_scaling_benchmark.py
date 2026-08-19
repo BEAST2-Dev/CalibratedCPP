@@ -68,7 +68,7 @@ MARKERS = {
 # ---------------------------------------------------------------------------
 # Figure 1 – log-log overview (all four series)
 # ---------------------------------------------------------------------------
-fig1, ax1 = plt.subplots(figsize=(7, 5))
+fig1, ax1 = plt.subplots(figsize=(6, 5))
 
 for name in ["bd", "erlang", "erlang10", "gammaCold"]:
     if name not in series:

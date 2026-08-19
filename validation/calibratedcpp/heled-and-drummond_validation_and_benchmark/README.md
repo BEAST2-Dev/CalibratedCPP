@@ -21,7 +21,7 @@ We also validate the likelihood computation by comparing log-likelihood values f
 <!-- end table -->
 
 **Benchmark and Validation Plot**
-![](./combined_benchmark_validation.svg)
+![](./combined_plot.png)
 
 ## Usage
 
