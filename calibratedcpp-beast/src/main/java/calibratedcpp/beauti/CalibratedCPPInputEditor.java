@@ -27,6 +27,7 @@ import beastfx.app.util.FXUtils;
 import calibratedcpp.CalibratedCoalescentPointProcess;
 import calibratedcpp.operators.ChangeTimeOperator;
 import calibrationprior.CalibrationCladePrior;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -60,6 +61,8 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
     protected RadioButton rootRb;
     protected RadioButton originRb;
 
+    private boolean createdDuringInit;
+
     protected CalibratedCPPInputEditor(BeautiDoc doc) { super(doc); }
     protected CalibratedCPPInputEditor() { super(); }
 
@@ -90,6 +93,8 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
                      ExpandOption isExpandOption, boolean addButtons) {
         super.init(input, beastObject, listItemNr, isExpandOption, addButtons);
 
+        createdDuringInit = false;
+
         CalibratedCoalescentPointProcess model = (CalibratedCoalescentPointProcess) m_beastObject;
         try { taxa = model.treeInput.get().getTaxonset().asStringList(); } catch (Exception ignored) {}
 
@@ -104,6 +109,11 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
 
         buildModelUI(pane, model);
         addConditionOnRootRow(pane, model);
+
+        if (createdDuringInit) {
+            createdDuringInit = false;
+            Platform.runLater(this::sync);
+        }
     }
 
     // ── Model initialization ──────────────────────────────────────────────────────
@@ -367,6 +377,7 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
     protected void pluginPut(String id, BEASTInterface plugin) {
         plugin.setID(id);
         doc.addPlugin(plugin);
+        createdDuringInit = true;
     }
 
     protected static void setEstimated(Object node, boolean estimated) {
