@@ -46,7 +46,13 @@
         <subtemplate id='CalibratedBirthDeathSkyline'
                      class='calibratedcpp.CalibratedBirthDeathSkylineModel'
                      mainid='CalibratedCPP.t:$(n)'
-                     suppressInputs='calibratedcpp.CalibratedBirthDeathSkylineModel.calibrations,calibratedcpp.CalibratedBirthDeathSkylineModel.calibrationForest,calibratedcpp.CalibratedBirthDeathSkylineModel.birthRate,calibratedcpp.CalibratedBirthDeathSkylineModel.deathRate,calibratedcpp.CalibratedBirthDeathSkylineModel.diversificationRate,calibratedcpp.CalibratedBirthDeathSkylineModel.reproductiveNumber,calibratedcpp.CalibratedBirthDeathSkylineModel.turnover,calibratedcpp.CalibratedBirthDeathSkylineModel.rho,calibratedcpp.CalibratedBirthDeathSkylineModel.conditionOnRoot,calibratedcpp.CalibratedBirthDeathSkylineModel.origin,calibratedcpp.CalibratedBirthDeathSkylineModel.conditionOnCalibrations,calibrationprior.CalibrationPrior.calibration,calibrationprior.CalibrationPrior.calibrationForest'
+                     suppressInputs='calibratedcpp.CalibratedBirthDeathSkylineModel.calibrations,calibratedcpp.CalibratedBirthDeathSkylineModel.calibrationForest,calibratedcpp.CalibratedBirthDeathSkylineModel.birthRate,calibratedcpp.CalibratedBirthDeathSkylineModel.deathRate,calibratedcpp.CalibratedBirthDeathSkylineModel.diversificationRate,calibratedcpp.CalibratedBirthDeathSkylineModel.reproductiveNumber,calibratedcpp.CalibratedBirthDeathSkylineModel.turnover,calibratedcpp.CalibratedBirthDeathSkylineModel.rho,calibratedcpp.CalibratedBirthDeathSkylineModel.conditionOnRoot,calibratedcpp.CalibratedBirthDeathSkylineModel.origin,calibratedcpp.CalibratedBirthDeathSkylineModel.conditionOnCalibrations,calibrationprior.CalibrationPrior.calibration,calibrationprior.CalibrationPrior.calibrationForest,
+                     calibrationprior.CalibrationDistribution.ignore,
+                     calibrationprior.CalibrationDistribution.threads,
+                     calibrationprior.CalibrationDistribution.useThreads,
+                     calibrationprior.CalibrationDistribution.distribution,
+                     calibratedcpp.CalibratedBirthDeathSkylineModel.treeIntervals,
+                     calibratedcpp.CalibratedBirthDeathSkylineModel.tree'
                      hmc='
 CalibratedCPPOperator/index/=Operators/BactrianNodeOperator/,
 CalibratedCPPSubtreeSlide/index/=Operators/SubtreeSlide/,
@@ -76,6 +82,7 @@ CalibratedCPPTreeRootScaler/index/=Operators/BactrianTreeScaler/
                        id="CBDS_deathRate.t:$(n)" domain="NonNegativeReal" value="0.5" estimate="false"/>
             <stateNode spec="beast.base.spec.inference.parameter.RealVectorParam"
                        id="CBDS_reproductiveNumber.t:$(n)" domain="PositiveReal" value="2.0" estimate="false"/>
+
 
             <!-- Origin parameter: declared so BEAUti tracks it, but NOT connected to the model
                  here. CalibratedCPPInputEditor connects it dynamically when the user selects
@@ -219,7 +226,14 @@ CalibratedCPPTreeRootScaler/index/=Operators/BactrianTreeScaler/
         <subtemplate id='CalibratedAgeDependentExtinction'
                      class='calibratedcpp.CalibratedAgeDependentExtinctionModel'
                      mainid='CalibratedAgeDependentExtinction.t:$(n)'
-                     suppressInputs='calibratedcpp.CalibratedAgeDependentExtinctionModel.calibrations,calibratedcpp.CalibratedAgeDependentExtinctionModel.calibrationForest,calibratedcpp.CalibratedAgeDependentExtinctionModel.conditionOnCalibrations,calibratedcpp.CalibratedAgeDependentExtinctionModel.conditionOnRoot,calibratedcpp.CalibratedAgeDependentExtinctionModel.origin,calibratedcpp.CalibratedAgeDependentExtinctionModel.lifetimeDistribution,calibratedcpp.CalibratedAgeDependentExtinctionModel.rho,calibratedcpp.CalibratedAgeDependentExtinctionModel.birthRate,calibrationprior.CalibrationPrior.calibration,calibrationprior.CalibrationPrior.calibrationForest'
+                     suppressInputs='calibratedcpp.CalibratedAgeDependentExtinctionModel.calibrations,calibratedcpp.CalibratedAgeDependentExtinctionModel.calibrationForest,calibratedcpp.CalibratedAgeDependentExtinctionModel.conditionOnCalibrations,calibratedcpp.CalibratedAgeDependentExtinctionModel.conditionOnRoot,calibratedcpp.CalibratedAgeDependentExtinctionModel.origin,calibratedcpp.CalibratedAgeDependentExtinctionModel.lifetimeDistribution,calibratedcpp.CalibratedAgeDependentExtinctionModel.rho,calibratedcpp.CalibratedAgeDependentExtinctionModel.birthRate,calibrationprior.CalibrationPrior.calibration,calibrationprior.CalibrationPrior.calibrationForest,
+                     calibrationprior.CalibrationDistribution.ignore,
+                     calibrationprior.CalibrationDistribution.threads,
+                     calibrationprior.CalibrationDistribution.useThreads,
+                     calibrationprior.CalibrationDistribution.distribution,
+                     calibratedcpp.CalibratedAgeDependentExtinctionModel.reproductiveNumber,
+                     calibratedcpp.CalibratedAgeDependentExtinctionModel.treeIntervals,
+                     calibratedcpp.CalibratedAgeDependentExtinctionModel.tree'
                      hmc='
 CalibratedAgeDependentExtinctionOperator/index/=Operators/BactrianNodeOperator/,
 CalibratedAgeDependentExtinctionSubtreeSlide/index/=Operators/SubtreeSlide/,

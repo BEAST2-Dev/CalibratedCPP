@@ -24,7 +24,12 @@ public class CalibrationClockConnector {
         for (BEASTInterface bi : new ArrayList<>(doc.pluginmap.values())) {
         // Point 1: estimate the clock only when an active wrapper carries a real calibration
             // (a bound or distribution) — not an empty or monophyly-only wrapper.
-            if (bi instanceof CalibrationDistribution wrapper && hasCalibration(doc, prior, wrapper)) setClockEstimated(doc, partitionOf(wrapper));
+        	// and only if autoSetClockRate is set
+            if (bi instanceof CalibrationDistribution wrapper && 
+            		doc.autoSetClockRate) {
+            	setClockEstimated(doc, partitionOf(wrapper), hasCalibration(doc, prior, wrapper));
+            }
+            		 
 
             // Point 3: detach any MRCAPrior that is not a live child of an active wrapper, so core
             // setClockRate stops seeing it via tree.getOutputs().
@@ -37,11 +42,21 @@ public class CalibrationClockConnector {
      *  partition. Monophyly-only entries have no CalibrationCladePrior, so they do not estimate the clock. */
     private static boolean hasCalibration(BeautiDoc doc, CompoundDistribution prior, CalibrationDistribution wrapper) {
         if (prior == null || !prior.pDistributions.get().contains(wrapper)) return false;
-        String sfx = "." + partitionOf(wrapper);
-        for (String id : doc.pluginmap.keySet())
-            if (id.startsWith("CalibrationCladePrior.") && id.endsWith(sfx)) return true;
-        for (Distribution child : wrapper.pDistributions.get())
+
+// fragile because sfx can be in pluginmap but not connected        
+//        String sfx = "." + partitionOf(wrapper);
+//        for (String id : doc.pluginmap.keySet())
+//            if (id.startsWith("CalibrationCladePrior.") && id.endsWith(sfx)) return true;
+        for (Distribution child : wrapper.pDistributions.get()) {
+        	if (child instanceof CalibrationPrior cp) {
+        		// we can assume cp is in same partition as wrapper, so we don't need to test for this here
+        		// this is enforced by the way cp is created by CalibrationDistributionInputEditor
+        		if (cp.getCalibrationCladePriors().size() > 0) {
+        			return true;
+        		}
+        	}
             if (child instanceof MRCAPrior mrca && mrca.distInput.get() != null) return true;
+        }
         return false;
     }
 
@@ -62,7 +77,7 @@ public class CalibrationClockConnector {
     }
 
     /** Sets the partition's clock-rate StateNode to estimated, mirroring BeautiDoc.setClockRate's traversal. */
-    private static void setClockEstimated(BeautiDoc doc, String partition) {
+    private static void setClockEstimated(BeautiDoc doc, String partition, boolean estimateClock) {
         if (!(doc.pluginmap.get("likelihood") instanceof CompoundDistribution likelihood)) return;
         // 'partition' already carries the "t:" prefix (e.g. "t:align"), so the tree id is "Tree." + it.
         Object tree = doc.pluginmap.get("Tree." + partition);
@@ -71,7 +86,7 @@ public class CalibrationClockConnector {
             if (tree != null && tl.treeInput.get() != tree) continue;
             BEASTInterface clock = tl.branchRateModelInput.get();
             if (clock != null && inputValue(clock, "clock.rate") instanceof StateNode rate)
-                rate.isEstimatedInput.setValue(true, rate);
+                rate.isEstimatedInput.setValue(estimateClock, rate);
         }
     }
 
