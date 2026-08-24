@@ -82,10 +82,6 @@
                         <lowerAge id="RealScalarParam8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="5.3"/>
                     </calibration>
                 </distribution>
-                <distribution id="monophyletic.troot.prior" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet" tree="@tree"/>
-                <distribution id="monophyletic.t2.prior" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet2" tree="@tree"/>
-                <distribution id="monophyletic.t3.prior" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet3" tree="@tree"/>
-                <distribution id="monophyletic.t1.prior" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet1" tree="@tree"/>
                 <distribution id="mu.prior" spec="beast.base.spec.inference.distribution.Beta" param="@mu">
                     <alpha id="RealParameter" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.05"/>
                     <beta id="RealParameter1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
@@ -239,6 +235,7 @@
             <log id="TreeStatLogger" spec="beast.base.evolution.tree.TreeStatLogger" tree="@tree"/>
             <log id="RatesStat.branchRates" spec="beast.base.evolution.RateStatistic" branchratemodel="@branchRates.model" tree="@tree"/>
             <log idref="D.treeLikelihood"/>
+            <log idref="CalibrationPrior"/>
         </logger>
         <logger id="TreeWithMetaDataLogger.tree" spec="Logger" fileName="$(filebase).trees" logEvery="50" mode="tree">
             <log id="TreeWithMetaDataLogger" spec="beast.base.spec.evolution.TreeWithMetaDataLogger" branchratemodel="@branchRates.model" tree="@tree"/>

@@ -227,7 +227,7 @@ model {
             <log idref="mRate"/>
             <log idref="gamma"/>
         </logger>
-        <logger id="Logger" spec="Logger" fileName="cats_halfAlignment_ADB.log" logEvery="500">
+        <logger id="Logger" spec="Logger" fileName="$(filebase).log" logEvery="500">
             <log idref="posterior"/>
             <log idref="prior"/>
             <log idref="pi"/>
@@ -241,7 +241,7 @@ model {
             <log idref="gamma"/>
             <log id="TreeStatLogger" spec="beast.base.evolution.tree.TreeStatLogger" tree="@tree"/>
         </logger>
-        <logger id="TreeWithMetaDataLogger.tree" spec="Logger" fileName="cats_halfAlignment_ADB_with_rates.trees" logEvery="500" mode="tree">
+        <logger id="TreeWithMetaDataLogger.tree" spec="Logger" fileName="$(filebase).trees" logEvery="500" mode="tree">
             <log idref="tree"/>
         </logger>
     </run>
