@@ -356,11 +356,16 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
             model.calibrationsInput.get().add(ts);
 
             if (entry.lower != null && entry.upper != null) {
+                // Owner-derived IDs on the bound params so a re-save reuses the same pluginmap slot
+                // instead of drawing fresh anonymous RealScalarParam.N indices each time.
+                String ccpId = "CalibrationCladePrior." + entry.label + "." + partition;
+                RealScalarParam<NonNegativeReal> lowerAge = new RealScalarParam<>(entry.lower, NonNegativeReal.INSTANCE);
+                lowerAge.setID(ccpId + ".lowerAge");
+                RealScalarParam<NonNegativeReal> upperAge = new RealScalarParam<>(entry.upper, NonNegativeReal.INSTANCE);
+                upperAge.setID(ccpId + ".upperAge");
                 CalibrationCladePrior ccp = new CalibrationCladePrior();
-                ccp.initByName("taxa", ts,
-                    "lowerAge", new RealScalarParam<>(entry.lower, NonNegativeReal.INSTANCE),
-                    "upperAge", new RealScalarParam<>(entry.upper, NonNegativeReal.INSTANCE));
-                ccp.setID("CalibrationCladePrior." + entry.label + "." + partition);
+                ccp.initByName("taxa", ts, "lowerAge", lowerAge, "upperAge", upperAge);
+                ccp.setID(ccpId);
                 doc.addPlugin(ccp);
             } else if (entry.lower != null || entry.upper != null) {
                 // Only one bound given: a CalibrationCladePrior needs both, so keep the lone bound in

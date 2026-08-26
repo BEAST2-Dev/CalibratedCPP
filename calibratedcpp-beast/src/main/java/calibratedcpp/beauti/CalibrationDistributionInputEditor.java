@@ -410,16 +410,16 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
             CalibrationCladePrior ccp;
             if (existing != null) {
                 ccp = existing;
-                ccp.lowerAgeInput.setValue(new RealScalarParam<>(lo, NonNegativeReal.INSTANCE), ccp);
-                ccp.upperAgeInput.setValue(new RealScalarParam<>(hi, NonNegativeReal.INSTANCE), ccp);
-                ccp.pCoverageInput.setValue(new RealScalarParam<>(pcov, UnitInterval.INSTANCE), ccp);
+                ccp.lowerAgeInput.setValue(param(ccpId + ".lowerAge", lo, NonNegativeReal.INSTANCE), ccp);
+                ccp.upperAgeInput.setValue(param(ccpId + ".upperAge", hi, NonNegativeReal.INSTANCE), ccp);
+                ccp.pCoverageInput.setValue(param(ccpId + ".confidenceLevel", pcov, UnitInterval.INSTANCE), ccp);
                 try { ccp.initAndValidate(); } catch (Exception ignored) {}
             } else {
                 ccp = new CalibrationCladePrior();
                 ccp.initByName("taxa", ts,
-                    "lowerAge", new RealScalarParam<>(lo, NonNegativeReal.INSTANCE),
-                    "upperAge", new RealScalarParam<>(hi, NonNegativeReal.INSTANCE),
-                        "confidenceLevel", new RealScalarParam<UnitInterval>(pcov, UnitInterval.INSTANCE));
+                    "lowerAge", param(ccpId + ".lowerAge", lo, NonNegativeReal.INSTANCE),
+                    "upperAge", param(ccpId + ".upperAge", hi, NonNegativeReal.INSTANCE),
+                    "confidenceLevel", param(ccpId + ".confidenceLevel", pcov, UnitInterval.INSTANCE));
                 ccp.setID(ccpId);
                 doc.addPlugin(ccp);
             }
@@ -442,8 +442,8 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         doc.pluginmap.remove(mrcaId);
         doc.pluginmap.remove(distId);
 
-        ScalarDistribution dist = buildDistribution(def, params);
-        if (dist != null) { dist.setID(distId); doc.addPlugin(dist); }
+        ScalarDistribution dist = buildDistribution(def, params, distId);
+        if (dist != null) doc.addPlugin(dist);
 
         MRCAPrior mrca = new MRCAPrior();
         mrca.setInputValue("tree",        cpp.treeInput.get());
@@ -459,66 +459,70 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
     // ── Distribution builder ──────────────────────────────────────────────────────
 
-    private ScalarDistribution buildDistribution(DistDef def, Map<String, Double> params) {
+    private ScalarDistribution buildDistribution(DistDef def, Map<String, Double> params, String distId) {
         try {
             // The spec distributions have NO "offset" input (unlike the legacy BEAST ones); an offset
             // is applied by wrapping the distribution in an OffsetReal. Build the base distribution
             // here (never setting a non-existent "offset" input, which would throw and silently drop
             // the whole distribution), then wrap it below if an offset was requested.
+            //
+            // Every parameter gets a deterministic, owner-derived ID ({distId}.{key}) so that a
+            // rebuild on the next edit reuses the same pluginmap slot instead of drawing a fresh
+            // anonymous RealScalarParam.N index (which would otherwise ratchet upward all session).
             ScalarDistribution base = switch (def.name()) {
                 case "Log-Normal" -> {
                     LogNormal d = new LogNormal();
-                    d.setInputValue("M", new RealScalarParam<>(params.getOrDefault("M", 1.0), Real.INSTANCE));
-                    d.setInputValue("S", new RealScalarParam<>(params.getOrDefault("S", 0.5), PositiveReal.INSTANCE));
+                    d.setInputValue("M", param(distId + ".M", params.getOrDefault("M", 1.0), Real.INSTANCE));
+                    d.setInputValue("S", param(distId + ".S", params.getOrDefault("S", 0.5), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Normal" -> {
                     Normal d = new Normal();
-                    d.setInputValue("mean",  new RealScalarParam<>(params.getOrDefault("mean",  5.0), Real.INSTANCE));
-                    d.setInputValue("sigma", new RealScalarParam<>(params.getOrDefault("sigma", 1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("mean",  param(distId + ".mean",  params.getOrDefault("mean",  5.0), Real.INSTANCE));
+                    d.setInputValue("sigma", param(distId + ".sigma", params.getOrDefault("sigma", 1.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Exponential" -> {
                     Exponential d = new Exponential();
-                    d.setInputValue("mean", new RealScalarParam<>(params.getOrDefault("mean", 2.0), PositiveReal.INSTANCE));
+                    d.setInputValue("mean", param(distId + ".mean", params.getOrDefault("mean", 2.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Gamma" -> {
                     Gamma d = new Gamma();
                     // Gamma's rate parameter is "lambda" (Shape–Rate form); it has no "beta" input.
-                    d.setInputValue("alpha",  new RealScalarParam<>(params.getOrDefault("alpha",  2.0), PositiveReal.INSTANCE));
-                    d.setInputValue("lambda", new RealScalarParam<>(params.getOrDefault("lambda", 0.5), PositiveReal.INSTANCE));
+                    d.setInputValue("alpha",  param(distId + ".alpha",  params.getOrDefault("alpha",  2.0), PositiveReal.INSTANCE));
+                    d.setInputValue("lambda", param(distId + ".lambda", params.getOrDefault("lambda", 0.5), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Inverse Gamma" -> {
                     InverseGamma d = new InverseGamma();
-                    d.setInputValue("alpha", new RealScalarParam<>(params.getOrDefault("alpha", 3.0), PositiveReal.INSTANCE));
-                    d.setInputValue("beta",  new RealScalarParam<>(params.getOrDefault("beta",  2.0), PositiveReal.INSTANCE));
+                    d.setInputValue("alpha", param(distId + ".alpha", params.getOrDefault("alpha", 3.0), PositiveReal.INSTANCE));
+                    d.setInputValue("beta",  param(distId + ".beta",  params.getOrDefault("beta",  2.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Beta" -> {
                     Beta d = new Beta();
-                    d.setInputValue("alpha", new RealScalarParam<>(params.getOrDefault("alpha", 1.0), PositiveReal.INSTANCE));
-                    d.setInputValue("beta",  new RealScalarParam<>(params.getOrDefault("beta",  1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("alpha", param(distId + ".alpha", params.getOrDefault("alpha", 1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("beta",  param(distId + ".beta",  params.getOrDefault("beta",  1.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Uniform" -> {
                     Uniform d = new Uniform();
-                    d.setInputValue("lower", new RealScalarParam<>(params.getOrDefault("lower",  0.0), Real.INSTANCE));
-                    d.setInputValue("upper", new RealScalarParam<>(params.getOrDefault("upper", 10.0), Real.INSTANCE));
+                    d.setInputValue("lower", param(distId + ".lower", params.getOrDefault("lower",  0.0), Real.INSTANCE));
+                    d.setInputValue("upper", param(distId + ".upper", params.getOrDefault("upper", 10.0), Real.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Laplace" -> {
                     Laplace d = new Laplace();
-                    d.setInputValue("mu",    new RealScalarParam<>(params.getOrDefault("mu",    5.0), Real.INSTANCE));
-                    d.setInputValue("scale", new RealScalarParam<>(params.getOrDefault("scale", 1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("mu",    param(distId + ".mu",    params.getOrDefault("mu",    5.0), Real.INSTANCE));
+                    d.setInputValue("scale", param(distId + ".scale", params.getOrDefault("scale", 1.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
@@ -528,14 +532,29 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
             double offset = params.getOrDefault("offset", 0.0);
             if (offset != 0.0 && defHasOffset(def)) {
+                base.setID(distId + ".base");
                 OffsetReal wrapped = new OffsetReal();
                 wrapped.setInputValue("distribution", base);
-                wrapped.setInputValue("offset", new RealScalarParam<>(offset, Real.INSTANCE));
+                wrapped.setInputValue("offset", param(distId + ".offset", offset, Real.INSTANCE));
                 wrapped.initAndValidate();
+                wrapped.setID(distId);
                 return wrapped;
             }
+            base.setID(distId);
             return base;
         } catch (Exception e) { e.printStackTrace(); return null; }
+    }
+
+    /**
+     * Creates a RealScalarParam with a deterministic, owner-derived ID. Reusing the same ID on each
+     * rebuild makes {@code registerPlugin} overwrite one pluginmap slot rather than allocate a fresh
+     * anonymous {@code RealScalarParam.N} index — which is what caused the numbering to climb past the
+     * number of params actually in the XML.
+     */
+    private static <D extends Real> RealScalarParam<D> param(String id, double value, D domain) {
+        RealScalarParam<D> p = new RealScalarParam<>(value, domain);
+        p.setID(id);
+        return p;
     }
 
     private static boolean defHasOffset(DistDef def) {
