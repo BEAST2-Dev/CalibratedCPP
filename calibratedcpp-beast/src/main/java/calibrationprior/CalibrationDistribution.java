@@ -1,7 +1,10 @@
 package calibrationprior;
 
+import java.io.PrintStream;
+
 import beast.base.core.Description;
 import beast.base.inference.CompoundDistribution;
+import beast.base.inference.Distribution;
 
 /**
  * Wrapper prior for a calibrated tree that holds <em>either</em> a topology-consistent
@@ -17,4 +20,22 @@ import beast.base.inference.CompoundDistribution;
 @Description("Container for a calibrated tree's clade-age prior: holds either a CalibrationPrior "
         + "(topology-consistent) or a set of independent MRCAPriors, and sums its children.")
 public class CalibrationDistribution extends CompoundDistribution {
+
+    @Override
+    public void init(PrintStream out) {
+        super.init(out);
+        for (Distribution d : pDistributions.get()) d.init(out);
+    }
+
+    @Override
+    public void log(long sample, PrintStream out) {
+        super.log(sample, out);
+        for (Distribution d : pDistributions.get()) d.log(sample, out);
+    }
+
+    @Override
+    public void close(PrintStream out) {
+        super.close(out);
+        for (Distribution d : pDistributions.get()) d.close(out);
+    }
 }

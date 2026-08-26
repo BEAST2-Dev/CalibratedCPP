@@ -269,7 +269,7 @@ class CalibrationManagerPanel {
         HBox boundsRow = FXUtils.newHBox();
         boundsRow.setSpacing(8);
         boundsRow.setAlignment(Pos.CENTER_LEFT);
-        boundsRow.getChildren().add(new Label("Lower:"));
+        boundsRow.getChildren().add(new Label("Lower/Offset:"));
         TextField lowerTf = boundsField(entry.lower);
         lowerTf.textProperty().addListener((obs, o, n) -> {
             try { entry.lower = n.trim().isEmpty() ? null : Double.parseDouble(n); }

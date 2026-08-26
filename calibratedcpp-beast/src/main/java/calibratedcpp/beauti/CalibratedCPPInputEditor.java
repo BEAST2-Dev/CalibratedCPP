@@ -27,6 +27,7 @@ import beastfx.app.util.FXUtils;
 import calibratedcpp.CalibratedCoalescentPointProcess;
 import calibratedcpp.operators.ChangeTimeOperator;
 import calibrationprior.CalibrationCladePrior;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -60,6 +61,8 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
     protected RadioButton rootRb;
     protected RadioButton originRb;
 
+    private boolean createdDuringInit;
+
     protected CalibratedCPPInputEditor(BeautiDoc doc) { super(doc); }
     protected CalibratedCPPInputEditor() { super(); }
 
@@ -90,6 +93,8 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
                      ExpandOption isExpandOption, boolean addButtons) {
         super.init(input, beastObject, listItemNr, isExpandOption, addButtons);
 
+        createdDuringInit = false;
+
         CalibratedCoalescentPointProcess model = (CalibratedCoalescentPointProcess) m_beastObject;
         try { taxa = model.treeInput.get().getTaxonset().asStringList(); } catch (Exception ignored) {}
 
@@ -104,6 +109,11 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
 
         buildModelUI(pane, model);
         addConditionOnRootRow(pane, model);
+
+        if (createdDuringInit) {
+            createdDuringInit = false;
+            Platform.runLater(this::sync);
+        }
     }
 
     // ── Model initialization ──────────────────────────────────────────────────────
@@ -156,12 +166,16 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
             CalibrationEntry entry = new CalibrationEntry(label, COLORS[colorIndex % COLORS.length]);
             colorIndex++;
 
-            // Look up bounds from the corresponding CCP (may not exist if no bounds were set)
+            // Look up bounds from the corresponding CCP (present only when both bounds were set),
+            // else from a CladeBounds holder that keeps a partially specified bound alive.
             String ccpId = "CalibrationCladePrior." + label + "." + partition;
             BEASTInterface bi = doc.pluginmap.get(ccpId);
             if (bi instanceof CalibrationCladePrior ccp) {
                 entry.lower = ccp.getLower();
                 entry.upper = ccp.getUpper();
+            } else {
+                entry.lower = CladeBounds.lowerOf(doc, label, partition);
+                entry.upper = CladeBounds.upperOf(doc, label, partition);
             }
 
             // directTaxa = this entry's leaf taxa minus those covered by immediate children
@@ -315,7 +329,8 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
         model.calibrationsInput.get().clear();
 
         List<String> staleKeys = doc.pluginmap.keySet().stream()
-            .filter(k -> (k.startsWith("CalibrationCladePrior.") || k.startsWith("TaxonSet."))
+            .filter(k -> (k.startsWith("CalibrationCladePrior.") || k.startsWith("TaxonSet.")
+                      || k.startsWith("CladeBounds."))
                       && k.endsWith("." + partition))
             .toList();
         staleKeys.forEach(doc.pluginmap::remove);
@@ -341,12 +356,21 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
             model.calibrationsInput.get().add(ts);
 
             if (entry.lower != null && entry.upper != null) {
+                // Owner-derived IDs on the bound params so a re-save reuses the same pluginmap slot
+                // instead of drawing fresh anonymous RealScalarParam.N indices each time.
+                String ccpId = "CalibrationCladePrior." + entry.label + "." + partition;
+                RealScalarParam<NonNegativeReal> lowerAge = new RealScalarParam<>(entry.lower, NonNegativeReal.INSTANCE);
+                lowerAge.setID(ccpId + ".lowerAge");
+                RealScalarParam<NonNegativeReal> upperAge = new RealScalarParam<>(entry.upper, NonNegativeReal.INSTANCE);
+                upperAge.setID(ccpId + ".upperAge");
                 CalibrationCladePrior ccp = new CalibrationCladePrior();
-                ccp.initByName("taxa", ts,
-                    "lowerAge", new RealScalarParam<>(entry.lower, NonNegativeReal.INSTANCE),
-                    "upperAge", new RealScalarParam<>(entry.upper, NonNegativeReal.INSTANCE));
-                ccp.setID("CalibrationCladePrior." + entry.label + "." + partition);
+                ccp.initByName("taxa", ts, "lowerAge", lowerAge, "upperAge", upperAge);
+                ccp.setID(ccpId);
                 doc.addPlugin(ccp);
+            } else if (entry.lower != null || entry.upper != null) {
+                // Only one bound given: a CalibrationCladePrior needs both, so keep the lone bound in
+                // a lightweight holder. It still feeds the MRCAPrior offset and pre-fills the editor.
+                CladeBounds.store(doc, entry.label, partition, entry.lower, entry.upper);
             }
         }
         if (originRb != null) originRb.setDisable(hasFullTreeCalibration());
@@ -367,6 +391,7 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
     protected void pluginPut(String id, BEASTInterface plugin) {
         plugin.setID(id);
         doc.addPlugin(plugin);
+        createdDuringInit = true;
     }
 
     protected static void setEstimated(Object node, boolean estimated) {

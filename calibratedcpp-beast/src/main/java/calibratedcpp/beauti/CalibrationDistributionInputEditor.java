@@ -3,11 +3,9 @@ package calibratedcpp.beauti;
 import java.util.*;
 
 import beast.base.core.BEASTInterface;
-import beast.base.core.BEASTObject;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.TaxonSet;
 import beast.base.inference.CompoundDistribution;
-import beast.base.inference.Logger;
 import beast.base.spec.domain.NonNegativeReal;
 import beast.base.spec.domain.PositiveReal;
 import beast.base.spec.domain.Real;
@@ -151,6 +149,27 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
                              String partition, boolean calMode) {
         box.getChildren().clear();
 
+        // CalibrationPrior is a pure clade-density prior: every clade must have both a lower and an
+        // upper bound. Flag any clade still missing one so the requirement is visible rather than a
+        // clade silently contributing nothing to the density.
+        if (calMode) {
+            List<String> missing = new ArrayList<>();
+            for (TaxonSet ts : clades) {
+                String label = labelOf(ts);
+                if (CladeBounds.lowerOf(doc, label, partition) == null
+                        || CladeBounds.upperOf(doc, label, partition) == null)
+                    missing.add(label);
+            }
+            if (!missing.isEmpty()) {
+                Label warn = new Label("⚠ CalibrationPrior requires a lower and an upper bound for "
+                    + "every clade. Missing bounds: " + String.join(", ", missing) + ".");
+                warn.setWrapText(true);
+                warn.setStyle("-fx-text-fill: #b00020; -fx-font-size: 11px; -fx-font-weight: bold;");
+                warn.setPadding(new Insets(0, 0, 4, 0));
+                box.getChildren().add(warn);
+            }
+        }
+
         HBox hdr = new HBox(8);
         hdr.getChildren().add(fixedLabel("Clade", 160, true));
         if (calMode) {
@@ -165,31 +184,62 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         box.getChildren().add(hdr);
         box.getChildren().add(new Separator());
 
+        // Re-render after a cal-mode edit so the missing-bounds banner and the per-field required
+        // highlighting reflect the value just entered.
+        Runnable rerender = () -> renderRows(box, cd, clades, partition, calMode);
+
         for (TaxonSet ts : clades) {
             HBox row = new HBox(8);
             row.setPadding(new Insets(3, 0, 3, 0));
             row.setAlignment(Pos.CENTER_LEFT);
             row.getChildren().add(fixedLabel(labelOf(ts), 160, false));
-            if (calMode) buildCalRow(row, cd, ts, partition);
+            if (calMode) buildCalRow(row, cd, ts, partition, rerender);
             else         buildMRCARow(row, cd, ts, partition);
             box.getChildren().add(row);
         }
     }
 
-    private void buildCalRow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition) {
+    private void buildCalRow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition,
+                             Runnable rerender) {
+        String label = labelOf(ts);
         CalibrationCladePrior ccp = findCladePrior(ts, partition);
-        TextField loTf = numField(ccp != null ? fmt(ccp.getLower()) : "");
-        TextField hiTf = numField(ccp != null ? fmt(ccp.getUpper()) : "");
+        Double lo = CladeBounds.lowerOf(doc, label, partition);
+        Double hi = CladeBounds.upperOf(doc, label, partition);
+        TextField loTf = numField(lo != null ? fmt(lo) : "");
+        TextField hiTf = numField(hi != null ? fmt(hi) : "");
         TextField clTf = numField(ccp != null ? fmt(ccp.getCoverage()) : "0.9");
-        loTf.setPrefWidth(100); loTf.setPromptText("optional");
-        hiTf.setPrefWidth(100); hiTf.setPromptText("optional");
+        loTf.setPrefWidth(100);
+        hiTf.setPrefWidth(100);
         clTf.setPrefWidth(100); clTf.setPromptText("0–1");
+        // Both bounds are required for a CalibrationPrior; mark the ones still empty.
+        markRequired(loTf, lo == null);
+        markRequired(hiTf, hi == null);
         clTf.setTooltip(new Tooltip("Probability mass within the bounds (between 0 and 1). Default 0.9."));
-        Runnable apply = () -> applyCladePrior(cd, ts, partition, loTf.getText(), hiTf.getText(), clTf.getText());
+        boolean loWasEmpty = lo == null;
+        boolean hiWasEmpty = hi == null;
+        Runnable apply = () -> {
+            applyCladePrior(cd, ts, partition, loTf.getText(), hiTf.getText(), clTf.getText());
+            // Only rebuild when a bound has appeared or disappeared — that is when the banner and the
+            // required-field highlighting change. Skipping it otherwise avoids stealing focus on blur.
+            if (loTf.getText().trim().isEmpty() != loWasEmpty
+                    || hiTf.getText().trim().isEmpty() != hiWasEmpty)
+                rerender.run();
+        };
         loTf.focusedProperty().addListener((obs, o, n) -> { if (!n) apply.run(); });
         hiTf.focusedProperty().addListener((obs, o, n) -> { if (!n) apply.run(); });
         clTf.focusedProperty().addListener((obs, o, n) -> { if (!n) apply.run(); });
         row.getChildren().addAll(loTf, hiTf, clTf);
+    }
+
+    /** Marks a bound field as required (empty) or satisfied, restyling its border and prompt. */
+    private static void markRequired(TextField tf, boolean required) {
+        if (required) {
+            tf.setPromptText("required");
+            tf.setStyle("-fx-font-size: 12px; -fx-border-color: #d9534f; -fx-border-width: 1;");
+        } else {
+            tf.setPromptText("");
+            tf.setStyle("-fx-font-size: 12px;");
+        }
     }
 
     private void buildMRCARow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition) {
@@ -269,12 +319,14 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         return m;
     }
 
-    /** The clade's lower-bound age from its CalibrationCladePrior, or null if none is provided. */
+    /**
+     * The clade's lower-bound age — from its CalibrationCladePrior when both bounds are set, else
+     * from a partial CladeBounds holder (a lone lower bound), or null if none is provided. Used to
+     * seed the MRCAPrior offset.
+     */
     private Double cladeLowerBound(TaxonSet ts, String partition) {
-        CalibrationCladePrior ccp = findCladePrior(ts, partition);
-        if (ccp == null) return null;
-        double lo = ccp.getLower();
-        return Double.isNaN(lo) ? null : lo;
+        Double lo = CladeBounds.lowerOf(doc, labelOf(ts), partition);
+        return (lo == null || Double.isNaN(lo)) ? null : lo;
     }
 
     // ── Mode switching ────────────────────────────────────────────────────────────
@@ -292,7 +344,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
             if (ccp != null) cp.cladesInput.get().add(ccp);
         }
         if (!cd.pDistributions.get().contains(cp)) cd.pDistributions.get().add(cp);
-        addToTraceLog(cp);
         ensureWrapperConnected(cd);
     }
 
@@ -302,16 +353,17 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         CalibrationPrior cp = calibrationPriorOf(cd, partition);
         cp.cladesInput.get().clear();
         cd.pDistributions.get().remove(cp);
-        removeFromTraceLog(cp);
 
         DistDef uniform = findDef("Uniform");
         for (TaxonSet ts : clades) {
             Map<String, Double> params = defaultParams(uniform);
-            CalibrationCladePrior ccp = findCladePrior(ts, partition);
-            if (ccp != null) {
-                params.put("lower", ccp.getLower());
-                params.put("upper", ccp.getUpper());
-            }
+            // Seed the Uniform from whichever bounds the clade has (full CCP or a partial holder);
+            // a missing side keeps the Uniform default rather than being dropped.
+            String label = labelOf(ts);
+            Double lo = CladeBounds.lowerOf(doc, label, partition);
+            Double hi = CladeBounds.upperOf(doc, label, partition);
+            if (lo != null) params.put("lower", lo);
+            if (hi != null) params.put("upper", hi);
             applyMRCAPrior(cd, ts, partition, uniform, params, true);
         }
         ensureWrapperConnected(cd);
@@ -322,7 +374,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         for (String id : new ArrayList<>(doc.pluginmap.keySet())) {
             if (id.startsWith(pfx) && id.endsWith(sfx) && doc.pluginmap.get(id) instanceof MRCAPrior mrca) {
                 cd.pDistributions.get().remove(mrca);
-                removeFromTraceLog(mrca);
             }
         }
     }
@@ -331,17 +382,27 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
     private void applyCladePrior(CalibrationDistribution cd, TaxonSet ts, String partition,
                                   String loStr, String hiStr, String pcovStr) {
+        String label = labelOf(ts);
         CalibrationPrior cp = calibrationPriorOf(cd, partition);
-        String ccpId = "CalibrationCladePrior." + labelOf(ts) + "." + partition;
+        String ccpId = "CalibrationCladePrior." + label + "." + partition;
         CalibrationCladePrior existing = (doc.pluginmap.get(ccpId) instanceof CalibrationCladePrior c) ? c : null;
         cp.cladesInput.get().remove(existing);
 
         loStr = loStr.trim(); hiStr = hiStr.trim();
         pcovStr = pcovStr.trim();
         if (loStr.isEmpty() || hiStr.isEmpty()) {
+            // A CalibrationCladePrior needs both bounds; keep a lone bound in a CladeBounds holder so
+            // it is not lost (it still feeds the MRCAPrior offset and pre-fills these fields).
             if (existing != null) doc.pluginmap.remove(ccpId);
+            Double lone = null;
+            try { if (!loStr.isEmpty()) lone = Double.parseDouble(loStr); } catch (NumberFormatException ignored) {}
+            Double loneHi = null;
+            try { if (!hiStr.isEmpty()) loneHi = Double.parseDouble(hiStr); } catch (NumberFormatException ignored) {}
+            CladeBounds.store(doc, label, partition, lone, loneHi);
             return;
         }
+        // Both bounds given: a full CCP supersedes any partial holder.
+        CladeBounds.remove(doc, label, partition);
         try {
             double lo = Double.parseDouble(loStr);
             double hi = Double.parseDouble(hiStr);
@@ -349,16 +410,16 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
             CalibrationCladePrior ccp;
             if (existing != null) {
                 ccp = existing;
-                ccp.lowerAgeInput.setValue(new RealScalarParam<>(lo, NonNegativeReal.INSTANCE), ccp);
-                ccp.upperAgeInput.setValue(new RealScalarParam<>(hi, NonNegativeReal.INSTANCE), ccp);
-                ccp.pCoverageInput.setValue(new RealScalarParam<>(pcov, UnitInterval.INSTANCE), ccp);
+                ccp.lowerAgeInput.setValue(param(ccpId + ".lowerAge", lo, NonNegativeReal.INSTANCE), ccp);
+                ccp.upperAgeInput.setValue(param(ccpId + ".upperAge", hi, NonNegativeReal.INSTANCE), ccp);
+                ccp.pCoverageInput.setValue(param(ccpId + ".confidenceLevel", pcov, UnitInterval.INSTANCE), ccp);
                 try { ccp.initAndValidate(); } catch (Exception ignored) {}
             } else {
                 ccp = new CalibrationCladePrior();
                 ccp.initByName("taxa", ts,
-                    "lowerAge", new RealScalarParam<>(lo, NonNegativeReal.INSTANCE),
-                    "upperAge", new RealScalarParam<>(hi, NonNegativeReal.INSTANCE),
-                        "confidenceLevel", new RealScalarParam<UnitInterval>(pcov, UnitInterval.INSTANCE));
+                    "lowerAge", param(ccpId + ".lowerAge", lo, NonNegativeReal.INSTANCE),
+                    "upperAge", param(ccpId + ".upperAge", hi, NonNegativeReal.INSTANCE),
+                    "confidenceLevel", param(ccpId + ".confidenceLevel", pcov, UnitInterval.INSTANCE));
                 ccp.setID(ccpId);
                 doc.addPlugin(ccp);
             }
@@ -377,13 +438,12 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
         if (doc.pluginmap.get(mrcaId) instanceof MRCAPrior old) {
             cd.pDistributions.get().remove(old);
-            removeFromTraceLog(old);
         }
         doc.pluginmap.remove(mrcaId);
         doc.pluginmap.remove(distId);
 
-        ScalarDistribution dist = buildDistribution(def, params);
-        if (dist != null) { dist.setID(distId); doc.addPlugin(dist); }
+        ScalarDistribution dist = buildDistribution(def, params, distId);
+        if (dist != null) doc.addPlugin(dist);
 
         MRCAPrior mrca = new MRCAPrior();
         mrca.setInputValue("tree",        cpp.treeInput.get());
@@ -394,72 +454,75 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         mrca.setID(mrcaId);
         doc.addPlugin(mrca);
         if (!cd.pDistributions.get().contains(mrca)) cd.pDistributions.get().add(mrca);
-        addToTraceLog(mrca);
         ensureWrapperConnected(cd);
     }
 
     // ── Distribution builder ──────────────────────────────────────────────────────
 
-    private ScalarDistribution buildDistribution(DistDef def, Map<String, Double> params) {
+    private ScalarDistribution buildDistribution(DistDef def, Map<String, Double> params, String distId) {
         try {
             // The spec distributions have NO "offset" input (unlike the legacy BEAST ones); an offset
             // is applied by wrapping the distribution in an OffsetReal. Build the base distribution
             // here (never setting a non-existent "offset" input, which would throw and silently drop
             // the whole distribution), then wrap it below if an offset was requested.
+            //
+            // Every parameter gets a deterministic, owner-derived ID ({distId}.{key}) so that a
+            // rebuild on the next edit reuses the same pluginmap slot instead of drawing a fresh
+            // anonymous RealScalarParam.N index (which would otherwise ratchet upward all session).
             ScalarDistribution base = switch (def.name()) {
                 case "Log-Normal" -> {
                     LogNormal d = new LogNormal();
-                    d.setInputValue("M", new RealScalarParam<>(params.getOrDefault("M", 1.0), Real.INSTANCE));
-                    d.setInputValue("S", new RealScalarParam<>(params.getOrDefault("S", 0.5), PositiveReal.INSTANCE));
+                    d.setInputValue("M", param(distId + ".M", params.getOrDefault("M", 1.0), Real.INSTANCE));
+                    d.setInputValue("S", param(distId + ".S", params.getOrDefault("S", 0.5), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Normal" -> {
                     Normal d = new Normal();
-                    d.setInputValue("mean",  new RealScalarParam<>(params.getOrDefault("mean",  5.0), Real.INSTANCE));
-                    d.setInputValue("sigma", new RealScalarParam<>(params.getOrDefault("sigma", 1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("mean",  param(distId + ".mean",  params.getOrDefault("mean",  5.0), Real.INSTANCE));
+                    d.setInputValue("sigma", param(distId + ".sigma", params.getOrDefault("sigma", 1.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Exponential" -> {
                     Exponential d = new Exponential();
-                    d.setInputValue("mean", new RealScalarParam<>(params.getOrDefault("mean", 2.0), PositiveReal.INSTANCE));
+                    d.setInputValue("mean", param(distId + ".mean", params.getOrDefault("mean", 2.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Gamma" -> {
                     Gamma d = new Gamma();
                     // Gamma's rate parameter is "lambda" (Shape–Rate form); it has no "beta" input.
-                    d.setInputValue("alpha",  new RealScalarParam<>(params.getOrDefault("alpha",  2.0), PositiveReal.INSTANCE));
-                    d.setInputValue("lambda", new RealScalarParam<>(params.getOrDefault("lambda", 0.5), PositiveReal.INSTANCE));
+                    d.setInputValue("alpha",  param(distId + ".alpha",  params.getOrDefault("alpha",  2.0), PositiveReal.INSTANCE));
+                    d.setInputValue("lambda", param(distId + ".lambda", params.getOrDefault("lambda", 0.5), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Inverse Gamma" -> {
                     InverseGamma d = new InverseGamma();
-                    d.setInputValue("alpha", new RealScalarParam<>(params.getOrDefault("alpha", 3.0), PositiveReal.INSTANCE));
-                    d.setInputValue("beta",  new RealScalarParam<>(params.getOrDefault("beta",  2.0), PositiveReal.INSTANCE));
+                    d.setInputValue("alpha", param(distId + ".alpha", params.getOrDefault("alpha", 3.0), PositiveReal.INSTANCE));
+                    d.setInputValue("beta",  param(distId + ".beta",  params.getOrDefault("beta",  2.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Beta" -> {
                     Beta d = new Beta();
-                    d.setInputValue("alpha", new RealScalarParam<>(params.getOrDefault("alpha", 1.0), PositiveReal.INSTANCE));
-                    d.setInputValue("beta",  new RealScalarParam<>(params.getOrDefault("beta",  1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("alpha", param(distId + ".alpha", params.getOrDefault("alpha", 1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("beta",  param(distId + ".beta",  params.getOrDefault("beta",  1.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Uniform" -> {
                     Uniform d = new Uniform();
-                    d.setInputValue("lower", new RealScalarParam<>(params.getOrDefault("lower",  0.0), Real.INSTANCE));
-                    d.setInputValue("upper", new RealScalarParam<>(params.getOrDefault("upper", 10.0), Real.INSTANCE));
+                    d.setInputValue("lower", param(distId + ".lower", params.getOrDefault("lower",  0.0), Real.INSTANCE));
+                    d.setInputValue("upper", param(distId + ".upper", params.getOrDefault("upper", 10.0), Real.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
                 case "Laplace" -> {
                     Laplace d = new Laplace();
-                    d.setInputValue("mu",    new RealScalarParam<>(params.getOrDefault("mu",    5.0), Real.INSTANCE));
-                    d.setInputValue("scale", new RealScalarParam<>(params.getOrDefault("scale", 1.0), PositiveReal.INSTANCE));
+                    d.setInputValue("mu",    param(distId + ".mu",    params.getOrDefault("mu",    5.0), Real.INSTANCE));
+                    d.setInputValue("scale", param(distId + ".scale", params.getOrDefault("scale", 1.0), PositiveReal.INSTANCE));
                     d.initAndValidate();
                     yield d;
                 }
@@ -469,14 +532,29 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
             double offset = params.getOrDefault("offset", 0.0);
             if (offset != 0.0 && defHasOffset(def)) {
+                base.setID(distId + ".base");
                 OffsetReal wrapped = new OffsetReal();
                 wrapped.setInputValue("distribution", base);
-                wrapped.setInputValue("offset", new RealScalarParam<>(offset, Real.INSTANCE));
+                wrapped.setInputValue("offset", param(distId + ".offset", offset, Real.INSTANCE));
                 wrapped.initAndValidate();
+                wrapped.setID(distId);
                 return wrapped;
             }
+            base.setID(distId);
             return base;
         } catch (Exception e) { e.printStackTrace(); return null; }
+    }
+
+    /**
+     * Creates a RealScalarParam with a deterministic, owner-derived ID. Reusing the same ID on each
+     * rebuild makes {@code registerPlugin} overwrite one pluginmap slot rather than allocate a fresh
+     * anonymous {@code RealScalarParam.N} index — which is what caused the numbering to climb past the
+     * number of params actually in the XML.
+     */
+    private static <D extends Real> RealScalarParam<D> param(String id, double value, D domain) {
+        RealScalarParam<D> p = new RealScalarParam<>(value, domain);
+        p.setID(id);
+        return p;
     }
 
     private static boolean defHasOffset(DistDef def) {
@@ -519,20 +597,6 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
     private CompoundDistribution topLevelPrior() {
         return (doc.pluginmap.get("prior") instanceof CompoundDistribution c) ? c : null;
-    }
-
-    private Logger traceLog() {
-        return (doc.pluginmap.get("tracelog") instanceof Logger l) ? l : null;
-    }
-
-    private void addToTraceLog(BEASTObject o) {
-        Logger t = traceLog();
-        if (t != null && !t.loggersInput.get().contains(o)) t.loggersInput.get().add(o);
-    }
-
-    private void removeFromTraceLog(BEASTObject o) {
-        Logger t = traceLog();
-        if (t != null) t.loggersInput.get().remove(o);
     }
 
     private boolean hasMRCAPriors(CalibrationDistribution cd) {
