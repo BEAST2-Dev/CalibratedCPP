@@ -13,8 +13,8 @@ os.chdir(SCRIPT_DIR)
 
 # --- 2. CONFIGURATION ---
 target_columns = [
-    'mrca.age(TaxonSet1)', 
-    'mrca.age(TaxonSet2)', 
+    'mrca.age(TaxonSet1)',
+    'mrca.age(TaxonSet2)',
     'mrca.age(TaxonSet3)'
 ]
 
@@ -22,12 +22,12 @@ file_map = [
     # PRIOR FILES
     ('cats-sample_from_prior.log', 'Prior', 'Conditioned'),
     ('cats-sample_from_prior_not_conditioned.log', 'Prior', 'Not Conditioned'),
-    
+
     # HALF FILES
     ('cats-half.log', 'Half Alignment', 'Conditioned'),
     ('cats-half_not_conditioned.log', 'Half Alignment', 'Not Conditioned'),
-    
-    # FULL FILES 
+
+    # FULL FILES
     ('cats-full.log', 'Full Alignment', 'Conditioned'),
     ('cats-full_not_conditioned.log', 'Full Alignment', 'Not Conditioned')
 ]
@@ -37,7 +37,7 @@ burnin_fraction = 0.1
 # --- 3. HELPER FUNCTION ---
 def load_all_data(file_map):
     all_data = []
-    
+
     for filename, analysis_type, condition_type in file_map:
         if os.path.exists(filename):
             try:
@@ -46,11 +46,11 @@ def load_all_data(file_map):
                 if cols:
                     drop_n = int(len(df) * burnin_fraction)
                     df = df.iloc[drop_n:].copy()
-                    
+
                     melted = df[cols].melt(var_name='TaxonSet', value_name='Age')
                     melted['Analysis'] = analysis_type
                     melted['Condition'] = condition_type
-                    
+
                     melted['TaxonSet'] = melted['TaxonSet'].str.replace('mrca.age(', '', regex=False).str.replace(')', '', regex=False)
                     all_data.append(melted)
                     print(f"Loaded: {filename}")
@@ -74,12 +74,12 @@ if df.empty:
 
 # --- 5. PLOTTING THE HISTOGRAMS ---
 plt.rcParams.update({
-    'axes.labelsize': 18,   
-    'xtick.labelsize': 14,  
-    'ytick.labelsize': 14,  
-    'legend.fontsize': 16,  
+    'axes.labelsize': 18,
+    'xtick.labelsize': 14,
+    'ytick.labelsize': 14,
+    'legend.fontsize': 16,
     'pdf.fonttype': 42,      # Ensures fonts embed correctly in the PDF
-    'ps.fonttype': 42        
+    'ps.fonttype': 42
 })
 
 fig, axes = plt.subplots(3, 3, figsize=(18, 14), constrained_layout=True)
@@ -96,11 +96,11 @@ title_map = {
 
 for row_idx, analysis in enumerate(analysis_types):
     subset_analysis = df[df['Analysis'] == analysis]
-    
+
     for col_idx, taxon in enumerate(taxon_sets):
         ax = axes[row_idx, col_idx]
         data_to_plot = subset_analysis[subset_analysis['TaxonSet'] == taxon]
-        
+
         if not data_to_plot.empty:
             sns.histplot(
                 data=data_to_plot,
@@ -110,16 +110,16 @@ for row_idx, analysis in enumerate(analysis_types):
                 palette=colors,
                 alpha=0.4,
                 ax=ax,
-                common_norm=False, 
-                element="step",    
-                stat="density",    
+                common_norm=False,
+                element="step",
+                stat="density",
                 linewidth=0.5
             )
-            
+
             display_name = title_map.get(taxon, taxon)
             ax.set_title(f"{display_name} ({analysis})", fontsize=20, fontweight='bold')
             ax.set_xlabel("Age" if row_idx == 2 else "")
-            
+
             if (row_idx == 0 and col_idx == 2):
                 sns.move_legend(ax, "upper right", title=None)
             else:
@@ -134,28 +134,28 @@ jsd_records = []
 
 for analysis in analysis_types:
     subset_analysis = df[df['Analysis'] == analysis]
-    
+
     for taxon in taxon_sets:
         display_name = title_map.get(taxon, taxon)
         data_taxon = subset_analysis[subset_analysis['TaxonSet'] == taxon]
-        
+
         cond_data = data_taxon[data_taxon['Condition'] == 'Conditioned']['Age'].values
         not_cond_data = data_taxon[data_taxon['Condition'] == 'Not Conditioned']['Age'].values
-        
+
         if len(cond_data) > 1 and len(not_cond_data) > 1:
             min_val = min(cond_data.min(), not_cond_data.min())
             max_val = max(cond_data.max(), not_cond_data.max())
             grid = np.linspace(min_val, max_val, 1000)
-            
+
             kde_cond = gaussian_kde(cond_data)(grid)
             kde_not_cond = gaussian_kde(not_cond_data)(grid)
-            
+
             p = kde_cond / np.sum(kde_cond)
             q = kde_not_cond / np.sum(kde_not_cond)
-            
-            js_dist = jensenshannon(p, q, base=2.0) 
+
+            js_dist = jensenshannon(p, q, base=2.0)
             js_div = js_dist ** 2
-            
+
             jsd_records.append({
                 'Analysis': analysis,
                 'Clade': display_name,
@@ -169,8 +169,8 @@ fig2, ax2 = plt.subplots(figsize=(12, 8))
 
 # Define distinct colors for the Analysis Types
 analysis_colors = {
-    'Prior': 'tab:gray', 
-    'Half Alignment': 'tab:blue', 
+    'Prior': 'tab:gray',
+    'Half Alignment': 'tab:blue',
     'Full Alignment': 'tab:green'
 }
 

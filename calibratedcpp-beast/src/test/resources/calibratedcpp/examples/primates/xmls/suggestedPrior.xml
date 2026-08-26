@@ -114,79 +114,7 @@ spec="Alignment">
             <taxon idref="Theropithecus_gelada"/>
             <taxon idref="Tupaia_chinensis"/>
           </calibrations>
-          <calibrations id="TaxonSet2" spec="TaxonSet">
-            <taxon idref="Tupaia_chinensis"/>
-            <taxon idref="Galeopterus_variegatus"/>
-            <taxon idref="Otolemur_garnettii"/>
-            <taxon idref="Microcebus_murinus"/>
-            <taxon idref="Propithecus_coquereli"/>
-            <taxon idref="Carlito_syrichta"/>
-            <taxon idref="Cebus_capucinus_imitator"/>
-            <taxon idref="Saimiri_boliviensis"/>
-            <taxon idref="Aotus_nancymaae"/>
-            <taxon idref="Callithrix_jacchus"/>
-            <taxon idref="Nomascus_leucogenys"/>
-            <taxon idref="Pongo_abelii"/>
-            <taxon idref="Gorilla_gorilla"/>
-            <taxon idref="Homo_sapiens"/>
-            <taxon idref="Pan_paniscus"/>
-            <taxon idref="Pan_troglodytes"/>
-            <taxon idref="Colobus_angolensis_palliatus"/>
-            <taxon idref="Piliocolobus_tephrosceles"/>
-            <taxon idref="Rhinopithecus_bieti"/>
-            <taxon idref="Rhinopithecus_roxellana"/>
-            <taxon idref="Chlorocebus_sabaeus"/>
-            <taxon idref="Macaca_nemestrina"/>
-            <taxon idref="Macaca_fascicularis"/>
-            <taxon idref="Macaca_mulatta"/>
-            <taxon idref="Cercocebus_atys"/>
-            <taxon idref="Mandrillus_leucophaeus"/>
-            <taxon idref="Papio_anubis"/>
-            <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
-          <calibrations id="TaxonSet3" spec="TaxonSet">
-            <taxon idref="Otolemur_garnettii"/>
-            <taxon idref="Microcebus_murinus"/>
-            <taxon idref="Propithecus_coquereli"/>
-            <taxon idref="Carlito_syrichta"/>
-            <taxon idref="Cebus_capucinus_imitator"/>
-            <taxon idref="Saimiri_boliviensis"/>
-            <taxon idref="Aotus_nancymaae"/>
-            <taxon idref="Callithrix_jacchus"/>
-            <taxon idref="Nomascus_leucogenys"/>
-            <taxon idref="Pongo_abelii"/>
-            <taxon idref="Gorilla_gorilla"/>
-            <taxon idref="Homo_sapiens"/>
-            <taxon idref="Pan_paniscus"/>
-            <taxon idref="Pan_troglodytes"/>
-            <taxon idref="Colobus_angolensis_palliatus"/>
-            <taxon idref="Piliocolobus_tephrosceles"/>
-            <taxon idref="Rhinopithecus_bieti"/>
-            <taxon idref="Rhinopithecus_roxellana"/>
-            <taxon idref="Chlorocebus_sabaeus"/>
-            <taxon idref="Macaca_nemestrina"/>
-            <taxon idref="Macaca_fascicularis"/>
-            <taxon idref="Macaca_mulatta"/>
-            <taxon idref="Cercocebus_atys"/>
-            <taxon idref="Mandrillus_leucophaeus"/>
-            <taxon idref="Papio_anubis"/>
-            <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
         
-          <calibrations id="TaxonSet5" spec="TaxonSet">
-            <taxon idref="Colobus_angolensis_palliatus"/>
-            <taxon idref="Piliocolobus_tephrosceles"/>
-            <taxon idref="Rhinopithecus_bieti"/>
-            <taxon idref="Rhinopithecus_roxellana"/>
-            <taxon idref="Chlorocebus_sabaeus"/>
-            <taxon idref="Macaca_nemestrina"/>
-            <taxon idref="Macaca_fascicularis"/>
-            <taxon idref="Macaca_mulatta"/>
-            <taxon idref="Cercocebus_atys"/>
-            <taxon idref="Mandrillus_leucophaeus"/>
-            <taxon idref="Papio_anubis"/>
-            <taxon idref="Theropithecus_gelada"/>
-          </calibrations>
           <calibrations id="TaxonSet6" spec="TaxonSet">
             <taxon idref="Colobus_angolensis_palliatus"/>
             <taxon idref="Piliocolobus_tephrosceles"/>
@@ -232,12 +160,6 @@ spec="Alignment">
             <taxon idref="Pan_paniscus"/>
             <taxon idref="Pan_troglodytes"/>
           </calibrations>
-          <calibrations id="TaxonSet12" spec="TaxonSet">
-            <taxon idref="Cebus_capucinus_imitator"/>
-            <taxon idref="Saimiri_boliviensis"/>
-            <taxon idref="Aotus_nancymaae"/>
-            <taxon idref="Callithrix_jacchus"/>
-          </calibrations>
           <calibrations id="TaxonSet13" spec="TaxonSet">
             <taxon idref="Cebus_capucinus_imitator"/>
             <taxon idref="Saimiri_boliviensis"/>
@@ -278,31 +200,7 @@ spec="Alignment">
             </distribution>
           </distr>
         </distribution>
-        <distribution id="MRCAPrior1" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet2" tree="@tree">
-          <distr id="OffsetExp1" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="65.79"/>
-            <distribution id="Exponential1" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="20.037171"/>
-            </distribution>
-          </distr>
-        </distribution>
-        <distribution id="MRCAPrior2" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet3" tree="@tree">
-          <distr id="OffsetExp2" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="55.935"/>
-            <distribution id="Exponential2" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="3.391491"/>
-            </distribution>
-          </distr>
-        </distribution>
     
-        <distribution id="MRCAPrior4" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet5" tree="@tree">
-          <distr id="OffsetExp4" spec="beast.base.spec.inference.distribution.OffsetReal">
-            <offset id="RealScalarParamOffset4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="12.47"/>
-            <distribution id="Exponential4" spec="beast.base.spec.inference.distribution.Exponential">
-              <mean id="RealScalarParamExpMean4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="4.261062"/>
-            </distribution>
-          </distr>
-        </distribution>
         <distribution id="MRCAPrior5" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet6" tree="@tree">
           <distr id="Uniform5" spec="beast.base.spec.inference.distribution.Uniform" lower="8.125" upper="15.0"/>
         </distribution>
@@ -330,9 +228,6 @@ spec="Alignment">
         </distribution>
         <distribution id="MRCAPrior10" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet11" tree="@tree">
           <distr id="Uniform10" spec="beast.base.spec.inference.distribution.Uniform" lower="4.631" upper="15.0"/>
-        </distribution>
-        <distribution id="MRCAPrior11" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet12" tree="@tree">
-          <distr id="Uniform11" spec="beast.base.spec.inference.distribution.Uniform" lower="13.183" upper="34.5"/>
         </distribution>
         <distribution id="MRCAPrior12" spec="beast.base.spec.evolution.tree.MRCAPrior" monophyletic="true" taxonset="@TaxonSet13" tree="@tree">
           <distr id="Uniform12" spec="beast.base.spec.inference.distribution.Uniform" lower="13.032" upper="34.5"/>
@@ -405,16 +300,12 @@ spec="Alignment">
       <log id="RatesStat.branchRates" spec="beast.base.evolution.RateStatistic" branchratemodel="@branchRates.model" tree="@tree"/>
       <log idref="D.treeLikelihood"/>
       <log idref="MRCAPrior0"/>
-      <log idref="MRCAPrior1"/>
-      <log idref="MRCAPrior2"/>
-      <log idref="MRCAPrior4"/>
       <log idref="MRCAPrior5"/>
       <log idref="MRCAPrior6"/>
       <log idref="MRCAPrior7"/>
       <log idref="MRCAPrior8"/>
       <log idref="MRCAPrior9"/>
       <log idref="MRCAPrior10"/>
-      <log idref="MRCAPrior11"/>
       <log idref="MRCAPrior12"/>
     </logger>
     <logger id="TreeWithMetaDataLogger.tree" spec="Logger" fileName="$(filebase).trees" logEvery="5000" mode="tree">
