@@ -166,12 +166,16 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
             CalibrationEntry entry = new CalibrationEntry(label, COLORS[colorIndex % COLORS.length]);
             colorIndex++;
 
-            // Look up bounds from the corresponding CCP (may not exist if no bounds were set)
+            // Look up bounds from the corresponding CCP (present only when both bounds were set),
+            // else from a CladeBounds holder that keeps a partially specified bound alive.
             String ccpId = "CalibrationCladePrior." + label + "." + partition;
             BEASTInterface bi = doc.pluginmap.get(ccpId);
             if (bi instanceof CalibrationCladePrior ccp) {
                 entry.lower = ccp.getLower();
                 entry.upper = ccp.getUpper();
+            } else {
+                entry.lower = CladeBounds.lowerOf(doc, label, partition);
+                entry.upper = CladeBounds.upperOf(doc, label, partition);
             }
 
             // directTaxa = this entry's leaf taxa minus those covered by immediate children
@@ -325,7 +329,8 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
         model.calibrationsInput.get().clear();
 
         List<String> staleKeys = doc.pluginmap.keySet().stream()
-            .filter(k -> (k.startsWith("CalibrationCladePrior.") || k.startsWith("TaxonSet."))
+            .filter(k -> (k.startsWith("CalibrationCladePrior.") || k.startsWith("TaxonSet.")
+                      || k.startsWith("CladeBounds."))
                       && k.endsWith("." + partition))
             .toList();
         staleKeys.forEach(doc.pluginmap::remove);
@@ -357,6 +362,10 @@ public abstract class CalibratedCPPInputEditor extends TreeDistributionInputEdit
                     "upperAge", new RealScalarParam<>(entry.upper, NonNegativeReal.INSTANCE));
                 ccp.setID("CalibrationCladePrior." + entry.label + "." + partition);
                 doc.addPlugin(ccp);
+            } else if (entry.lower != null || entry.upper != null) {
+                // Only one bound given: a CalibrationCladePrior needs both, so keep the lone bound in
+                // a lightweight holder. It still feeds the MRCAPrior offset and pre-fills the editor.
+                CladeBounds.store(doc, entry.label, partition, entry.lower, entry.upper);
             }
         }
         if (originRb != null) originRb.setDisable(hasFullTreeCalibration());

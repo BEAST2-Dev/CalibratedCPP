@@ -149,6 +149,27 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
                              String partition, boolean calMode) {
         box.getChildren().clear();
 
+        // CalibrationPrior is a pure clade-density prior: every clade must have both a lower and an
+        // upper bound. Flag any clade still missing one so the requirement is visible rather than a
+        // clade silently contributing nothing to the density.
+        if (calMode) {
+            List<String> missing = new ArrayList<>();
+            for (TaxonSet ts : clades) {
+                String label = labelOf(ts);
+                if (CladeBounds.lowerOf(doc, label, partition) == null
+                        || CladeBounds.upperOf(doc, label, partition) == null)
+                    missing.add(label);
+            }
+            if (!missing.isEmpty()) {
+                Label warn = new Label("⚠ CalibrationPrior requires a lower and an upper bound for "
+                    + "every clade. Missing bounds: " + String.join(", ", missing) + ".");
+                warn.setWrapText(true);
+                warn.setStyle("-fx-text-fill: #b00020; -fx-font-size: 11px; -fx-font-weight: bold;");
+                warn.setPadding(new Insets(0, 0, 4, 0));
+                box.getChildren().add(warn);
+            }
+        }
+
         HBox hdr = new HBox(8);
         hdr.getChildren().add(fixedLabel("Clade", 160, true));
         if (calMode) {
@@ -163,31 +184,62 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         box.getChildren().add(hdr);
         box.getChildren().add(new Separator());
 
+        // Re-render after a cal-mode edit so the missing-bounds banner and the per-field required
+        // highlighting reflect the value just entered.
+        Runnable rerender = () -> renderRows(box, cd, clades, partition, calMode);
+
         for (TaxonSet ts : clades) {
             HBox row = new HBox(8);
             row.setPadding(new Insets(3, 0, 3, 0));
             row.setAlignment(Pos.CENTER_LEFT);
             row.getChildren().add(fixedLabel(labelOf(ts), 160, false));
-            if (calMode) buildCalRow(row, cd, ts, partition);
+            if (calMode) buildCalRow(row, cd, ts, partition, rerender);
             else         buildMRCARow(row, cd, ts, partition);
             box.getChildren().add(row);
         }
     }
 
-    private void buildCalRow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition) {
+    private void buildCalRow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition,
+                             Runnable rerender) {
+        String label = labelOf(ts);
         CalibrationCladePrior ccp = findCladePrior(ts, partition);
-        TextField loTf = numField(ccp != null ? fmt(ccp.getLower()) : "");
-        TextField hiTf = numField(ccp != null ? fmt(ccp.getUpper()) : "");
+        Double lo = CladeBounds.lowerOf(doc, label, partition);
+        Double hi = CladeBounds.upperOf(doc, label, partition);
+        TextField loTf = numField(lo != null ? fmt(lo) : "");
+        TextField hiTf = numField(hi != null ? fmt(hi) : "");
         TextField clTf = numField(ccp != null ? fmt(ccp.getCoverage()) : "0.9");
-        loTf.setPrefWidth(100); loTf.setPromptText("optional");
-        hiTf.setPrefWidth(100); hiTf.setPromptText("optional");
+        loTf.setPrefWidth(100);
+        hiTf.setPrefWidth(100);
         clTf.setPrefWidth(100); clTf.setPromptText("0–1");
+        // Both bounds are required for a CalibrationPrior; mark the ones still empty.
+        markRequired(loTf, lo == null);
+        markRequired(hiTf, hi == null);
         clTf.setTooltip(new Tooltip("Probability mass within the bounds (between 0 and 1). Default 0.9."));
-        Runnable apply = () -> applyCladePrior(cd, ts, partition, loTf.getText(), hiTf.getText(), clTf.getText());
+        boolean loWasEmpty = lo == null;
+        boolean hiWasEmpty = hi == null;
+        Runnable apply = () -> {
+            applyCladePrior(cd, ts, partition, loTf.getText(), hiTf.getText(), clTf.getText());
+            // Only rebuild when a bound has appeared or disappeared — that is when the banner and the
+            // required-field highlighting change. Skipping it otherwise avoids stealing focus on blur.
+            if (loTf.getText().trim().isEmpty() != loWasEmpty
+                    || hiTf.getText().trim().isEmpty() != hiWasEmpty)
+                rerender.run();
+        };
         loTf.focusedProperty().addListener((obs, o, n) -> { if (!n) apply.run(); });
         hiTf.focusedProperty().addListener((obs, o, n) -> { if (!n) apply.run(); });
         clTf.focusedProperty().addListener((obs, o, n) -> { if (!n) apply.run(); });
         row.getChildren().addAll(loTf, hiTf, clTf);
+    }
+
+    /** Marks a bound field as required (empty) or satisfied, restyling its border and prompt. */
+    private static void markRequired(TextField tf, boolean required) {
+        if (required) {
+            tf.setPromptText("required");
+            tf.setStyle("-fx-font-size: 12px; -fx-border-color: #d9534f; -fx-border-width: 1;");
+        } else {
+            tf.setPromptText("");
+            tf.setStyle("-fx-font-size: 12px;");
+        }
     }
 
     private void buildMRCARow(HBox row, CalibrationDistribution cd, TaxonSet ts, String partition) {
@@ -267,12 +319,14 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         return m;
     }
 
-    /** The clade's lower-bound age from its CalibrationCladePrior, or null if none is provided. */
+    /**
+     * The clade's lower-bound age — from its CalibrationCladePrior when both bounds are set, else
+     * from a partial CladeBounds holder (a lone lower bound), or null if none is provided. Used to
+     * seed the MRCAPrior offset.
+     */
     private Double cladeLowerBound(TaxonSet ts, String partition) {
-        CalibrationCladePrior ccp = findCladePrior(ts, partition);
-        if (ccp == null) return null;
-        double lo = ccp.getLower();
-        return Double.isNaN(lo) ? null : lo;
+        Double lo = CladeBounds.lowerOf(doc, labelOf(ts), partition);
+        return (lo == null || Double.isNaN(lo)) ? null : lo;
     }
 
     // ── Mode switching ────────────────────────────────────────────────────────────
@@ -303,11 +357,13 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
         DistDef uniform = findDef("Uniform");
         for (TaxonSet ts : clades) {
             Map<String, Double> params = defaultParams(uniform);
-            CalibrationCladePrior ccp = findCladePrior(ts, partition);
-            if (ccp != null) {
-                params.put("lower", ccp.getLower());
-                params.put("upper", ccp.getUpper());
-            }
+            // Seed the Uniform from whichever bounds the clade has (full CCP or a partial holder);
+            // a missing side keeps the Uniform default rather than being dropped.
+            String label = labelOf(ts);
+            Double lo = CladeBounds.lowerOf(doc, label, partition);
+            Double hi = CladeBounds.upperOf(doc, label, partition);
+            if (lo != null) params.put("lower", lo);
+            if (hi != null) params.put("upper", hi);
             applyMRCAPrior(cd, ts, partition, uniform, params, true);
         }
         ensureWrapperConnected(cd);
@@ -326,17 +382,27 @@ public class CalibrationDistributionInputEditor extends InputEditor.Base {
 
     private void applyCladePrior(CalibrationDistribution cd, TaxonSet ts, String partition,
                                   String loStr, String hiStr, String pcovStr) {
+        String label = labelOf(ts);
         CalibrationPrior cp = calibrationPriorOf(cd, partition);
-        String ccpId = "CalibrationCladePrior." + labelOf(ts) + "." + partition;
+        String ccpId = "CalibrationCladePrior." + label + "." + partition;
         CalibrationCladePrior existing = (doc.pluginmap.get(ccpId) instanceof CalibrationCladePrior c) ? c : null;
         cp.cladesInput.get().remove(existing);
 
         loStr = loStr.trim(); hiStr = hiStr.trim();
         pcovStr = pcovStr.trim();
         if (loStr.isEmpty() || hiStr.isEmpty()) {
+            // A CalibrationCladePrior needs both bounds; keep a lone bound in a CladeBounds holder so
+            // it is not lost (it still feeds the MRCAPrior offset and pre-fills these fields).
             if (existing != null) doc.pluginmap.remove(ccpId);
+            Double lone = null;
+            try { if (!loStr.isEmpty()) lone = Double.parseDouble(loStr); } catch (NumberFormatException ignored) {}
+            Double loneHi = null;
+            try { if (!hiStr.isEmpty()) loneHi = Double.parseDouble(hiStr); } catch (NumberFormatException ignored) {}
+            CladeBounds.store(doc, label, partition, lone, loneHi);
             return;
         }
+        // Both bounds given: a full CCP supersedes any partial holder.
+        CladeBounds.remove(doc, label, partition);
         try {
             double lo = Double.parseDouble(loStr);
             double hi = Double.parseDouble(hiStr);
