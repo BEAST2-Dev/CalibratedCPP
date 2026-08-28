@@ -60,8 +60,8 @@ def panel(ax, model, names):
     ax.set_xlim(lo, hi)
     ax.set_ylim(lo, hi)
     ax.set_aspect("equal")
-    ax.set_title("%s  (%d clades)" % (pc.MODEL_LABELS[model], len(shared)), fontsize=10)
-    ax.set_xlabel("median age, conditioning off (Ma)")
+    ax.set_title(pc.MODEL_LABELS[model], fontsize=10)
+    ax.set_xlabel("median age, regular tree prior (Ma)")
     ax.legend(fontsize=8, loc="upper left", frameon=False)
 
     for c in shared:
@@ -78,9 +78,8 @@ def main():
     fig, axes = plt.subplots(1, len(pc.MODELS), figsize=(5 * len(pc.MODELS), 5.8))
     for ax, model in zip(axes, pc.MODELS):
         panel(ax, model, names)
-    axes[0].set_ylabel("median age, conditioning on (Ma)")
-    fig.suptitle("Effect of conditioning the tree prior on calibrations, per clade", fontsize=12)
-    fig.tight_layout(rect=[0, 0.02, 1, 0.95])
+    axes[0].set_ylabel("median age, calibrated tree prior (Ma)")
+    fig.tight_layout()
     fig.savefig(out, dpi=200)
     print("wrote", out)
 
