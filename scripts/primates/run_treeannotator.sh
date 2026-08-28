@@ -5,7 +5,7 @@
 # Usage: ./run_treeannotator.sh [-f] [-b BURNIN] [DIR ...]
 #   -f          re-annotate even if the summary is newer than the .trees file
 #   -b BURNIN   burn-in percentage (default 10)
-#   DIR         folders to scan (default: data-wait)
+#   DIR         folders to scan (default: data)
 
 set -euo pipefail
 
@@ -29,7 +29,7 @@ if [ ! -x "$TREEANNOTATOR" ]; then
 fi
 
 cd "$(dirname "$0")"
-DIRS=("${@:-data-wait}")
+DIRS=("${@:-data}")
 
 for dir in "${DIRS[@]}"; do
     [ -d "$dir" ] || { echo "skipping $dir: not a directory" >&2; continue; }
