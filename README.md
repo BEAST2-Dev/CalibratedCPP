@@ -1,5 +1,5 @@
 # The Calibrated Coalescent Point Process
-[![Docker CI](https://github.com/BEAST2-Dev/CalibratedCPP/actions/workflows/maven-tests.yml/badge.svg)](https://github.com/BEAST2-Dev/CalibratedCPP/actions/workflows/maven-tests.yml)
+[![CI](https://github.com/BEAST2-Dev/CalibratedCPP/actions/workflows/ci-publish.yml/badge.svg)](https://github.com/BEAST2-Dev/CalibratedCPP/actions/workflows/ci-publish.yml)
 
 This is an implementation of the Calibrated Coalescent Point Process (Calibrated CPP) in BEAST3.
 
