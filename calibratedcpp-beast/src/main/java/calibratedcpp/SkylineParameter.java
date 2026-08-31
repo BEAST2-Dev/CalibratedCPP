@@ -30,12 +30,6 @@ public class SkylineParameter extends CalculationNode {
         isReverse = timesAreAgesInput.get();
         isRelative = timesAreRelativeInput.get();
 
-        if (valuesInput.get() != null) {
-            Tensor<?, ?> vals = valuesInput.get();
-            for (int i = 0; i < vals.size(); i++) {
-                if ((Double) vals.get(i) < 0.0) throw new IllegalArgumentException("The rate " + getID() + " must be a non-negative number.");
-            }
-        }
         if (changeTimesInput.get() != null) {
             if (changeTimesInput.get().size() != valuesInput.get().size() - 1) {
                 throw new IllegalArgumentException("Change times of " + this.getID() + " should have dimension equal to the number of rates minus one.");

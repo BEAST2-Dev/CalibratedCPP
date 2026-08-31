@@ -85,18 +85,18 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
         if (specifiedRates != 2)
             throw new IllegalArgumentException("Exactly TWO rates must be specified. Found " + specifiedRates + " (" + whichSpecified + ")");
 
-        updateIntervals();
+        updateIntervals(true);
     }
 
     @Override
     public double calculateTreeLogLikelihood(TreeInterface tree) {
-        if (!updateIntervals()) {
+        if (!updateIntervals(false)) {
             return Double.NEGATIVE_INFINITY;
         }
         return super.calculateTreeLogLikelihood(tree);
     }
 
-    private boolean updateIntervals() {
+    private boolean updateIntervals(boolean strict) {
         super.updateModel();
 
         rho = samplingProbabilityInput.get().get();
@@ -157,7 +157,14 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
             else if (diversificationRateInput.get() != null && reproductiveNumberInput.get() != null) { m = vD / (vR - 1.0); l = m * vR; }
             else if (diversificationRateInput.get() != null && turnoverInput.get() != null) { l = vD / (1.0 - vT); m = l * vT; }
 
-            if (l < 0.0 || m < 0.0) return false;
+            if (l < 0.0 || m < 0.0) {
+                if (strict) throw new IllegalArgumentException(String.format(
+                        "%s: the supplied parameterisation (%s) yields a negative rate in interval %d "
+                                + "(age %.6g): birth λ = %.6g, death µ = %.6g. Adjust the starting values or priors "
+                                + "so both birth and death rates stay non-negative.",
+                        getID(), activeParameterisation(), j, t, l, m));
+                return false;
+            }
 
             lambda[j] = l;
             r[j] = l - m;
@@ -255,6 +262,16 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
         return (Double) p.get(Math.max(0, Math.min(pIdx, p.size() - 1)));
     }
 
+    private String activeParameterisation() {
+        List<String> set = new ArrayList<>();
+        if (birthRateInput.get()          != null) set.add("birthRate");
+        if (deathRateInput.get()          != null) set.add("deathRate");
+        if (diversificationRateInput.get()!= null) set.add("diversificationRate");
+        if (reproductiveNumberInput.get() != null) set.add("reproductiveNumber");
+        if (turnoverInput.get()           != null) set.add("turnover");
+        return String.join(" + ", set);
+    }
+
     // Helper to extract times without crashing on null inputs
     private List<Double> processSafe(Input<SkylineParameter> input, double maxT) {
         SkylineParameter sp = input.get();
@@ -304,11 +321,6 @@ public class CalibratedBirthDeathSkylineModel extends CalibratedCoalescentPointP
 
     /**
      * Computes log(1 - Q(time)) directly rather than via the CDF.
-     *
-     * <p>Since Q = I / (1 + I) for the accumulated integral I, the survival is exactly
-     * 1 - Q = 1 / (1 + I), so log(1 - Q) = -logSumExp(0, log I). As I grows this decays
-     * linearly with no cancellation, whereas deriving it from the CDF loses all precision
-     * once Q rounds to 1.0.</p>
      */
     @Override
     public double calculateLogNodeAgeSurvival(double time) {
