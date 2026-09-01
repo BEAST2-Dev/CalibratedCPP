@@ -239,11 +239,13 @@
           <tr><td><code>timesAreRelative</code></td><td>Boolean</td><td><code>true</code> if <code>changeTimes</code> are relative to the tree's age. Default <code>false</code>.</td></tr>
         </tbody>
       </table>
-      <p>If multiuple values are supplied but no change times then the change times are evenly distributed along the length of the process (root age or origin age depending on the conditioning).</p>
+      <p>If multiple values are supplied but no change times are specified, then the change times are evenly distributed along the length of the process (root age or origin age depending on the conditioning).
+      Priors are put on <code>values</code> of a <code>SkylineParameter</code> these can be <code>IID</code> (the value in each time bin are independent and identically distributed)
+          OR <code>MarkovChainDistribution</code> (the values through time follow a Markov Chain, like an OU of Brownian motion prior).</p>
       <h3>Worked example</h3>
       <p>
-        Conditioned on the root, parameterised by a two-epoch diversification rate and a
-        constant turnover:
+        Conditioned on the root, parameterised by a two-epoch diversification rate with a change time at age 30.0 and a
+        constant turnover. There is a IID LogNormal(0.0,1.0) prior on the diversificaiton rate in each Epoch.
       </p>
       <pre><code>&lt;state id="state" spec="State" storeEvery="5000"&gt;
     &lt;!-- rate values: a two-epoch diversification rate (vector), a constant turnover --&gt;
@@ -252,13 +254,22 @@
     &lt;stateNode id="turnoverValue" spec="beast.base.spec.inference.parameter.RealScalarParam"
            domain="UnitInterval" value="0.5"/&gt;
 &lt;/state&gt;
-&lt;distribution id="treePrior" spec="calibratedcpp.CalibratedBirthDeathSkylineModel"
-              tree="@tree" conditionOnRoot="true" rho="0.1"&gt;
-    &lt;!-- two-epoch diversification rate; one change time (as an age) splits it in two --&gt;
-    &lt;diversificationRate spec="calibratedcpp.SkylineParameter"
-        values="@diversificationValues" changeTimes="30.0" timesAreAges="true"/&gt;
-    &lt;!-- constant turnover: a single value, no change times --&gt;
-    &lt;turnover spec="calibratedcpp.SkylineParameter" values="@turnoverValue"/&gt;
+&lt;distribution id="posterior" spec="beast.base.inference.CompoundDistribution"&gt;
+    &lt;distribution id="treePrior" spec="calibratedcpp.CalibratedBirthDeathSkylineModel"
+                tree="@tree" conditionOnRoot="true" rho="0.1"&gt;
+        &lt;!-- two-epoch diversification rate; one change time (as an age) splits it in two --&gt;
+        &lt;diversificationRate spec="calibratedcpp.SkylineParameter"
+            values="@diversificationValues" changeTimes="30.0" timesAreAges="true"/&gt;
+        &lt;!-- constant turnover: a single value, no change times --&gt;
+        &lt;turnover spec="calibratedcpp.SkylineParameter" values="@turnoverValue"/&gt;
+    &lt;/distribution&gt;
+    &lt;distribution id="diversificationRatePrior" spec="beast.base.spec.inference.distribution.IID"
+            param="@diversificationValues"&gt;
+        &lt;distr id="LogNormal" spec="beast.base.spec.inference.distribution.LogNormal"&gt;
+             &lt;M id="RealScalarParam.1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/&gt;
+             &lt;S id="RealScalarParam.2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" value="1.0"/&gt;
+        &lt;/distr&gt;
+    &lt;/distribution&gt;
 &lt;/distribution&gt;</code></pre>
       <p>
         Each <code>SkylineParameter</code>'s <code>values</code> reference a
@@ -289,14 +300,17 @@
     &lt;stateNode id="lifetimeScale" spec="beast.base.spec.inference.parameter.RealScalarParam"
            domain="PositiveReal" value="1.5"/&gt;
 &lt;/state&gt;
-&lt;distribution id="treePrior" spec="calibratedcpp.CalibratedAgeDependentExtinctionModel"
+&lt;distribution id="posterior" spec="beast.base.inference.CompoundDistribution"&gt;
+    &lt;distribution id="treePrior" spec="calibratedcpp.CalibratedAgeDependentExtinctionModel"
               tree="@tree" conditionOnRoot="true" birthRate="@birthRate" rho="0.1"&gt;
-    &lt;!-- Gamma lifetimes (shape alpha, scale theta); an integer shape gives the fast Erlang case --&gt;
-    &lt;lifetimeDistribution id="lifetime" spec="beast.base.spec.inference.distribution.Gamma"&gt;
-        &lt;alpha idref="lifetimeShape"/&gt;
-        &lt;theta idref="lifetimeScale"/&gt;
-    &lt;/lifetimeDistribution&gt;
-&lt;/distribution&gt;</code></pre>
+        &lt;!-- Gamma lifetimes (shape alpha, scale theta); an integer shape gives the fast Erlang case --&gt;
+        &lt;lifetimeDistribution id="lifetime" spec="beast.base.spec.inference.distribution.Gamma"&gt;
+            &lt;alpha idref="lifetimeShape"/&gt;
+            &lt;theta idref="lifetimeScale"/&gt;
+        &lt;/lifetimeDistribution&gt;
+    &lt;/distribution&gt;
+&lt;/distribution</code></pre>
+
 
       <h2 id="specifying-calibrations">Specifying Calibrations</h2>
       <p>
