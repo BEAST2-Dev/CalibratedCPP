@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
 Build a comparison table of estimated MRCA node ages (mean + 95% HPD interval) across every
-BEAST log file in data/ (and this script's own directory), so different runs -- different
+BEAST log file in data/, so different runs -- different
 calibration schemes, priors, alignments, starting trees -- can be compared side by side for
 the same node.
 
-Self-contained (no imports from other scripts in this folder).
+Clade labels are resolved from each run's own XML (via primates_common): the TaxonSetN
+numbering is not shared between the nogapN and codon XML families, nor between models.
 
 Usage:
-    python compare_mrca_ages.py
+    python compare_mrca_ages.py [DIR ...]     # default: data/ and this folder
 
 Output:
     mrca_age_comparison.csv          -- long format: one row per (run, node)
@@ -20,40 +21,47 @@ pointed at a directory containing non-BEAST-log files without erroring).
 import csv
 import glob
 import os
+import sys
 
 import numpy as np
 
+import primates_common as pc
+
 BASE = os.path.dirname(os.path.abspath(__file__))
-SEARCH_DIRS = [os.path.join(BASE, "data"), BASE]
+SEARCH_DIRS = [os.path.join(BASE, "data")]
 BURNIN_FRACTION = 0.1
 OUT_CSV = os.path.join(BASE, "mrca_age_comparison.csv")
 
-# TaxonSetN -> (fossil-paper node number, short clade label), for labelling only. Covers all
-# 13 de Vries & Beck calibrations used across this project's XML family (including
-# TaxonSet4/Lorisiformes). A TaxonSetN not in this map is still included in the table, just
-# labelled by its raw id.
-TAXONSET_INFO = {
-    "TaxonSet1":  (1,  "Euarchontoglires"),
-    "TaxonSet2":  (3,  "Euarchonta"),
-    "TaxonSet3":  (5,  "Primates"),
-    "TaxonSet4":  (6,  "Lorisiformes"),
-    "TaxonSet5":  (13, "Cercopithecidae"),
-    "TaxonSet6":  (14, "Colobinae"),
-    "TaxonSet7":  (15, "Cercopithecinae"),
-    "TaxonSet8":  (16, "Papionini"),
-    "TaxonSet9":  (18, "Hominoidea"),
-    "TaxonSet10": (19, "Hominidae"),
-    "TaxonSet11": (20, "Homo+Pan"),
-    "TaxonSet12": (23, "Callitrichidae+Cebidae"),
-    "TaxonSet13": (24, "Cebidae"),
+# Fossil-paper node numbers, keyed by clade name (stable, unlike the TaxonSetN ids).
+NODE_NUMBERS = {
+    "Euarchontoglires": 1, "Euarchonta": 3, "Primates": 5, "Lorisiformes": 6,
+    "Cercopithecidae": 13, "Colobinae": 14, "Cercopithecinae": 15, "Papionini": 16,
+    "Hominoidea": 18, "Hominidae": 19, "Homo_Pan": 20,
+    "Callitrichidae_Cebidae": 23, "Cebidae": 24,
 }
 
+_LABELS = {}
 
-def label_for(taxonset_id):
-    info = TAXONSET_INFO.get(taxonset_id)
-    if info is None:
-        return None, taxonset_id
-    return info
+
+def labels_for_run(run_name):
+    """{TaxonSetId: (node_number, clade_name)} resolved from this run's own XML."""
+    if run_name in _LABELS:
+        return _LABELS[run_name]
+    out = {}
+    for dataset in pc.DATASETS:
+        pc.use(dataset)
+        for model in pc.MODELS:
+            if any(pc.stem(model, c, p) == run_name
+                   for c in ("true", "false") for p in (False, True)):
+                names = pc.clade_names()
+                for tid, taxa in pc.taxon_sets(model).items():
+                    if names.get(taxa):
+                        out[tid] = (NODE_NUMBERS.get(names[taxa]), names[taxa])
+                break
+        if out:
+            break
+    _LABELS[run_name] = out
+    return out
 
 
 def hpd_interval(samples, mass=0.95):
@@ -120,7 +128,13 @@ def read_mrca_columns(path):
     return out
 
 
-def main():
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv:
+        global SEARCH_DIRS, OUT_CSV
+        SEARCH_DIRS = [d if os.path.isabs(d) else os.path.join(BASE, d) for d in argv]
+        OUT_CSV = os.path.join(BASE, "mrca_age_comparison_%s.csv"
+                               % "_".join(os.path.basename(d.rstrip("/")) for d in SEARCH_DIRS))
     log_files = discover_log_files()
     print(f"Found {len(log_files)} candidate log file(s) in {', '.join(SEARCH_DIRS)}\n")
 
@@ -129,8 +143,9 @@ def main():
         cols = read_mrca_columns(path)
         if cols is None:
             continue
+        labels = labels_for_run(run_name)
         for taxonset_id, samples in cols.items():
-            node_number, label = label_for(taxonset_id)
+            node_number, label = labels.get(taxonset_id, (None, taxonset_id))
             mean = float(np.mean(samples))
             hpd_lo, hpd_hi = hpd_interval(samples)
             rows.append((node_number, label, taxonset_id, run_name, len(samples), mean, hpd_lo, hpd_hi))
@@ -140,7 +155,7 @@ def main():
         return
 
     # Write long-format CSV.
-    rows.sort(key=lambda r: (r[0] is None, r[0] if r[0] is not None else 0, r[2], r[3]))
+    rows.sort(key=lambda r: (r[0] is None, r[0] if r[0] is not None else 0, r[1], r[3]))
     with open(OUT_CSV, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["node_number", "clade", "taxonset", "run", "n_samples", "mean", "hpd95_lower", "hpd95_upper"])
@@ -152,12 +167,12 @@ def main():
     # Print grouped by node, one mini-table per node, for quick visual comparison across runs.
     current_key = None
     for node_number, label, taxonset_id, run_name, n, mean, hpd_lo, hpd_hi in rows:
-        key = (node_number, taxonset_id)
+        key = (node_number, label)
         if key != current_key:
             if current_key is not None:
                 print()
             tag = f"Node {node_number}" if node_number is not None else "Node ?"
-            print(f"=== {tag}: {label} ({taxonset_id}) ===")
+            print(f"=== {tag}: {label} ===")
             print(f"  {'run':<45} {'n':>7} {'mean':>10} {'95% HPD':>22}")
             current_key = key
         print(f"  {run_name:<45} {n:>7} {mean:>10.2f}   [{hpd_lo:>8.2f}, {hpd_hi:>8.2f}]")

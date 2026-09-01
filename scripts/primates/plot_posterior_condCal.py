@@ -50,7 +50,7 @@ DATASETS = {
                "cond": {"true": "", "false": "-condFalse"}},
     "codon": {"post": "codons", "prior": "codons", "xmls": "codons", "suffix": "_codon",
               "cond": {"true": "", "false": "_condFalse"}},
-    "codon-nogapN": {"post": "codons-nogapN", "prior": "codons-nogapN",
+    "codon-nogapN": {"post": "codons", "prior": "codons",
                      "xmls": "noGapNCodon", "suffix": "_codon_nogapN",
                      "cond": {"true": "", "false": "_condFalse"}},
 }

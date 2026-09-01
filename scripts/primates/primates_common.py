@@ -42,8 +42,8 @@ DATASETS = {
         "cond": {"true": "", "false": "_condFalse"},
     },
     "codon-nogapN": {
-        "post": "codons-nogapN",
-        "prior": "codons-nogapN",
+        "post": "codons",
+        "prior": "codons",
         "xmls": "noGapNCodon",
         "suffix": "_codon_nogapN",
         "cond": {"true": "", "false": "_condFalse"},

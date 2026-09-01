@@ -16,8 +16,10 @@ A `-condFalse` suffix marks the regular (unconditioned) tree prior, and
 
 ## Folders
 
-- `data/` — BEAST output: `.txt` traces, `.trees` posteriors, and the
-  `*_summary.tree` files written by TreeAnnotator.
+- `data/` — BEAST output for the nogapN alignment: `.txt` traces, `.trees` posteriors,
+  and the `*_summary.tree` files written by TreeAnnotator. `data/superseded/` holds
+  chains replaced by later runs.
+- `codons/` — the same, for the codon-partitioned analyses.
 - `iqtree/` — ML reference trees (`primates.treefile` for the full alignment,
   `primates_nogapN.treefile` for the filtered one) and their `.iqtree` reports. These
 trees are generated under the same models as BEAST3 runs.
@@ -34,10 +36,19 @@ python3 plot_posterior_condCal.py Colobinae  # any named clade
 python3 plot_clade_condCal.py                # nogapN_cladeCondCal.png
 ```
 
-`plot_posterior_condCal.py` is self-contained. `plot_clade_condCal.py` and
-`compare_rf.py` share `primates_common.py`, which holds the file naming, the
-XML/TaxonSet parsing and the summary-tree reader. Both take `--dataset=NAME`
-(`nogapN`, `codon`, `codon-nogapN`) to switch alignments.
+Every script defaults to the `nogapN` dataset in `data/`; no arguments needed.
+
+`plot_posterior_condCal.py` is self-contained. `plot_clade_condCal.py`,
+`compare_rf.py` and `compare_mrca_ages.py` share `primates_common.py`, which holds the
+file naming, the XML/TaxonSet parsing and the summary-tree reader. The two plotting
+scripts and `compare_rf.py` take `--dataset=NAME` (`nogapN`, `codon`, `codon-nogapN`)
+to switch alignments; the codon sets read `codons/`. `compare_mrca_ages.py` instead
+takes folder arguments (`python3 compare_mrca_ages.py codons`), since it labels each
+log from whichever XML matches its filename.
+
+Note the `codon`/`codon-nogapN` runs currently in `codons/` were built on alignments
+that are not in reading frame, so their codon partitions carry no positional signal
+(r1 ~ r2 ~ r3). The in-frame XMLs are in `xmls/newRun/`.
 
 Clade ages are read from the `.trees` files rather than the traces, because
 BEAST only logs `mrca.age()` for calibrated clades. They are cached in
@@ -47,7 +58,7 @@ BEAST only logs `mrca.age()` for calibrated clades. They are cached in
 
 ```bash
 python3 compare_rf.py [--unrooted]   # RF distances, summary trees vs references
-python3 compare_mrca_ages.py         # node ages (mean + 95% HPD) across all runs
+python3 compare_mrca_ages.py [DIR]   # node ages (mean + 95% HPD); default data/
 ```
 
 ## Preparing inputs
