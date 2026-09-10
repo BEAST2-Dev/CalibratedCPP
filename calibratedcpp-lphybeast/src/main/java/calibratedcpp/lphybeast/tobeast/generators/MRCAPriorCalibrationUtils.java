@@ -90,36 +90,8 @@ public class MRCAPriorCalibrationUtils {
         }
     }
 
-    /**
-     * Builds a plain BEAST {@code MRCAPrior(monophyletic=true, distr=Uniform(lower,upper))} from
-     * raw double bounds, for calibration sources (e.g. {@code ConditionedMRCAPrior}) that only
-     * expose bounds as plain numbers rather than as LPhy {@code Value}s.
-     */
-    public static MRCAPrior buildBoundedMRCAPrior(BEASTInterface treeValue, TaxonSet taxonSet, double lower, double upper) {
-        Uniform uniform = new Uniform();
-        uniform.setInputValue("lower", new RealScalarParam<>(lower, Real.INSTANCE));
-        uniform.setInputValue("upper", new RealScalarParam<>(upper, Real.INSTANCE));
-        uniform.initAndValidate();
-
-        MRCAPrior mrcaPrior = new MRCAPrior();
-        mrcaPrior.setInputValue("tree", treeValue);
-        mrcaPrior.setInputValue("taxonset", taxonSet);
-        mrcaPrior.setInputValue("monophyletic", true);
-        mrcaPrior.setInputValue("distr", uniform);
-        mrcaPrior.initAndValidate();
-        return mrcaPrior;
-    }
-
-    // Converter switches, set from the -MRCAPrior / -conditionOnCalibrations flags parsed by
+    // Converter switch, set from the -conditionOnCalibrations flag parsed by
     // CalibratedCPPLPhyBeastMain. Read here so all converters share one parsing path.
-
-    /**
-     * True if {@code ConditionedMRCAPrior} calibrations should become independent per-clade
-     * {@code MRCAPrior(Uniform)}s instead of one joint {@code CalibrationPrior}.
-     */
-    public static boolean isMrcaPriorMode() {
-        return Boolean.parseBoolean(System.getProperty("calibratedcppMRCAPrior", "false"));
-    }
 
     /** The {@code conditionOnCalibrations} override, or null if unset so the caller's default applies. */
     public static Boolean getConditionOnCalibrationsOverride() {

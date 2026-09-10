@@ -89,14 +89,14 @@ public class CalibratedAgeDependentExtinctionCPPToBEAST
             return model;
         }
 
+        // As in CalibratedCPPToBEAST: one joint CalibrationPrior, matching the LPhy
+        // ConditionedMRCAPrior that generated the ages.
         ConditionedMRCAPrior conditionedMRCAPrior = (ConditionedMRCAPrior) calibrationsValue.getInputs().get(0);
         Calibration[] calibrationSpecs = conditionedMRCAPrior.getCalibrations().value();
-        for (int i = 0; i < calibrationSpecs.length; i++) {
-            beast.base.spec.evolution.tree.MRCAPrior mrcaPrior = MRCAPriorCalibrationUtils.buildBoundedMRCAPrior(
-                    value, taxonSets.get(i), calibrationSpecs[i].getLower(), calibrationSpecs[i].getUpper());
-            context.addBEASTObject(mrcaPrior, conditionedMRCAPrior);
-            context.addExtraLoggable(mrcaPrior);
-        }
+        double coverage = conditionedMRCAPrior.getCoverage() != null
+                ? conditionedMRCAPrior.getCoverage().value().doubleValue() : 0.9;
+        MRCAPriorCalibrationUtils.buildCalibrationPrior(
+                value, taxonSets, calibrationSpecs, coverage, context, conditionedMRCAPrior);
 
         return model;
     }

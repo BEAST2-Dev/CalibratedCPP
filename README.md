@@ -102,21 +102,19 @@ mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert ../
 mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="run -l 30000000 ../calibratedcpp-lphy/examples/example.lphy"
 ```
 
-Two calibratedcpp-only flags are available on `convert`/`run`, in addition to lphybeast's own
+One calibratedcpp-only flag is available on `convert`/`run`, in addition to lphybeast's own
 options (paths inside `-Dlphybeast.args="..."` should be absolute, since the forked process's
 working directory is `calibratedcpp-lphybeast-launcher/`, not the repo root):
 ```bash
-# Default: joint CalibrationPrior for ConditionedMRCAPrior-sourced calibrations
+# ConditionedMRCAPrior calibrations always become one joint CalibrationPrior; for independent
+# per-clade MRCAPriors, declare the calibrations with UniformMRCA / OffsetExponentialMRCA
 mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert ../calibratedcpp-lphy/examples/example.lphy"
-
-# -MRCAPrior: independent per-clade MRCAPrior(Uniform) instead of the joint CalibrationPrior
-mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert -MRCAPrior ../calibratedcpp-lphy/examples/example.lphy"
 
 # -conditionOnCalibrations: specify conditionOnCalibrations (true/false)
 mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="convert -conditionOnCalibrations false ../calibratedcpp-lphy/examples/example.lphy"
 
-# flags combine freely, and work with 'run' (convert + launch BEAST) the same way
-mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="run -MRCAPrior -conditionOnCalibrations false ../calibratedcpp-lphy/examples/example.lphy"
+# it works with 'run' (convert + launch BEAST) the same way
+mvn -pl calibratedcpp-lphybeast-launcher exec:exec -Dlphybeast.args="run -conditionOnCalibrations false ../calibratedcpp-lphy/examples/example.lphy"
 ```
 
 ## Well-Calibrated Study

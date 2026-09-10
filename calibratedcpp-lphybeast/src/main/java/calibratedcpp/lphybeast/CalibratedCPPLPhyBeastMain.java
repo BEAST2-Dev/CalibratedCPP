@@ -6,12 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wraps {@link LPhyBeastMain} to add two calibratedcpp-only flags that its picocli parser (a
- * separate repo) does not know: they are stripped from {@code args} and translated into the
- * system properties {@link calibratedcpp.lphybeast.tobeast.generators.MRCAPriorCalibrationUtils}
- * reads. Flags may appear anywhere in the argument list:
+ * Wraps {@link LPhyBeastMain} to add a calibratedcpp-only flag that its picocli parser (a
+ * separate repo) does not know: it is stripped from {@code args} and translated into the
+ * system property {@link calibratedcpp.lphybeast.tobeast.generators.MRCAPriorCalibrationUtils}
+ * reads. The flag may appear anywhere in the argument list:
  * <pre>
- *   convert -MRCAPrior script.lphy
  *   convert -conditionOnCalibrations false script.lphy
  * </pre>
  */
@@ -22,9 +21,7 @@ public class CalibratedCPPLPhyBeastMain {
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            if (arg.equals("-MRCAPrior") || arg.equals("--mrcaPrior")) {
-                System.setProperty("calibratedcppMRCAPrior", "true");
-            } else if (arg.equals("-conditionOnCalibrations") || arg.equals("--conditionOnCalibrations")) {
+            if (arg.equals("-conditionOnCalibrations") || arg.equals("--conditionOnCalibrations")) {
                 if (i + 1 >= args.length) {
                     throw new IllegalArgumentException(arg + " requires a value (true/false)");
                 }

@@ -97,23 +97,15 @@ public class CalibratedCPPToBEAST implements GeneratorToBEAST<CalibratedCPPTree,
             return model;
         }
 
-        // default keeps the joint density as one CalibrationPrior
-        // -MRCAPrior splits it per clade and build Uniform distributed node age for each clade
+        // The joint density is one CalibrationPrior, the same soft prior (and coverage) that
+        // ConditionedMRCAPrior used to draw the ages. For independent per-clade priors, declare
+        // the calibrations with UniformMRCA / OffsetExponentialMRCA instead.
         ConditionedMRCAPrior conditionedMRCAPrior = (ConditionedMRCAPrior) calibrationsValue.getInputs().get(0);
         Calibration[] calibrationSpecs = conditionedMRCAPrior.getCalibrations().value();
-        if (MRCAPriorCalibrationUtils.isMrcaPriorMode()) {
-            for (int i = 0; i < calibrationSpecs.length; i++) {
-                beast.base.spec.evolution.tree.MRCAPrior mrcaPrior = MRCAPriorCalibrationUtils.buildBoundedMRCAPrior(
-                        value, taxonSets.get(i), calibrationSpecs[i].getLower(), calibrationSpecs[i].getUpper());
-                context.addBEASTObject(mrcaPrior, conditionedMRCAPrior);
-                context.addExtraLoggable(mrcaPrior);
-            }
-        } else {
-            double coverage = conditionedMRCAPrior.getCoverage() != null
-                    ? conditionedMRCAPrior.getCoverage().value().doubleValue() : 0.9;
-            MRCAPriorCalibrationUtils.buildCalibrationPrior(
-                    value, taxonSets, calibrationSpecs, coverage, context, conditionedMRCAPrior);
-        }
+        double coverage = conditionedMRCAPrior.getCoverage() != null
+                ? conditionedMRCAPrior.getCoverage().value().doubleValue() : 0.9;
+        MRCAPriorCalibrationUtils.buildCalibrationPrior(
+                value, taxonSets, calibrationSpecs, coverage, context, conditionedMRCAPrior);
 
         return model;
     }
