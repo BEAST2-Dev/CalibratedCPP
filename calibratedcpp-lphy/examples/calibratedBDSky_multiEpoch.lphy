@@ -1,0 +1,32 @@
+data {
+  taxa = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"];
+  clade1 = ["1", "2", "3", "4", "5"];
+  clade2 = ["1", "2"];
+  clade3 = ["3", "4"];
+  L = 200;
+  // epoch boundaries as ages before the present: epochs are [0,1), [1,2.5) and [2.5, root]
+  changeTimes = [1.0, 2.5];
+}
+model {
+  // one birth and one death rate per epoch, ordered present-to-past, each rate follows a Markov chain
+  // the value in an older epoch is Exponential with mean equal to the younger one
+  lambda ~ ExpMarkovChain(initialMean=1.5, n=3);
+  mu ~ ExpMarkovChain(initialMean=0.5, n=3);
+  rho = 0.5;
+
+  // the root calibration conditions the process so that an epoch with lambda <= mu is still simulable
+  cRoot = calibration(taxa=taxa, upper=5.0, lower=4.0);
+  c1 = calibration(taxa=clade1, upper=3.5, lower=2.5);
+  c2 = calibration(taxa=clade2, upper=2.0, lower=1.0);
+  c3 = calibration(taxa=clade3, upper=1.5, lower=0.5);
+  calibrations ~ ConditionedMRCAPrior(calibrations=[cRoot, c1, c2, c3]);
+
+  tree ~ CalibratedBirthDeathSkylineTree(calibrations=calibrations, lambda=lambda, mu=mu,
+      changeTimes=changeTimes, n=20, rho=rho);
+
+  π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
+  kappa ~ LogNormal(meanlog=1.0, sdlog=0.5);
+  Q = hky(kappa=kappa, freq=π);
+
+  D ~ PhyloCTMC(L=L, Q=Q, mu=0.1, tree=tree);
+}

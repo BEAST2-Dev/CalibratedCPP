@@ -92,6 +92,7 @@ This subproject is converting Lphy simulators to XMLs for BEAST3 running:
 - Construct BirthDeathSkylineModel with birth death parameters and conditions on the origin of the tree. The birth and death rates are SkylineParameter, which allow users to specify how times varies. Default false as BEAST3 model, users can manually change the XML to turn them on.
 - For calibrations sourced from `ConditionedMRCAPrior`, the default is to build a single joint `CalibrationPrior` (preserving the nested/overlap calibration structure — LogNormal at each disjoint root, Beta on overlapping child/parent ratios, truncated LogNormal on nested non-overlapping children). Pass `-MRCAPrior` to `convert`/`run` to instead build one independent, per-clade `MRCAPrior(Uniform(lower,upper))` (no joint structure).
 - `conditionOnCalibrations` on `CalibratedBirthDeathSkylineModel`/`CalibratedAgeDependentBirthDeathModel` defaults to `true` iff calibrations are provided. Pass `-conditionOnCalibrations true|false` to `convert`/`run` to override it, instead of hand-editing the output XML.
+- Priors on multi-epoch skyline rates are converted as written in the LPhy script. For a Markov chain prior across epochs (each epoch Gamma-distributed with mean equal to the previous one), draw the rate from `ExpMarkovChain`, e.g. `lambda ~ ExpMarkovChain(initialMean=1.5, n=3);` as in `calibratedBDSky_multiEpoch.lphy`, which lphybeast maps to a `MarkovChainDistribution`; `replicates=n` draws from LogNormal etc. stay IID.
 
 ### calibratedcpp-lphybeast-launcher
 

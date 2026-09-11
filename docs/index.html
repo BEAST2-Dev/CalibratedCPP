@@ -241,7 +241,13 @@
       </table>
       <p>If multiple values are supplied but no change times are specified, then the change times are evenly distributed along the length of the process (root age or origin age depending on the conditioning).
       Priors are put on <code>values</code> of a <code>SkylineParameter</code> these can be <code>IID</code> (the value in each time bin are independent and identically distributed)
-          OR <code>MarkovChainDistribution</code> (the values through time follow a Markov Chain, like an OU of Brownian motion prior).</p>
+          OR <code>MarkovChainDistribution</code> (the values through time follow a Markov Chain, like an OU of Brownian motion prior).
+      With a <code>MarkovChainDistribution</code> the value in each epoch is Gamma-distributed with mean equal to the value in
+      the previous epoch (root &rarr; present); <code>initialMean</code> sets the mean of the first epoch. For example:</p>
+      <pre><code>&lt;distribution id="diversificationRatePrior" spec="beast.base.spec.inference.distribution.MarkovChainDistribution"
+        param="@diversificationValues" shape="1.0"&gt;
+    &lt;initialMean spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" value="0.1"/&gt;
+&lt;/distribution&gt;</code></pre>
       <h3>Worked example</h3>
       <p>
         Conditioned on the root, parameterised by a two-epoch diversification rate with a change time at age 30.0 and a
@@ -458,7 +464,13 @@
         between them. Change times can be entered as ages or as fractions of the process length
         (check <strong>Times are ages</strong> / <strong>Relative to process length</strong>
         accordingly), or spread evenly with <strong>Distribute evenly</strong>. A single epoch
-        gives constant rates. The following image shows an example where the diversificaton rate has a change time 66 million 
+        gives constant rates. <strong>Prior on epoch values</strong> chooses how the epoch values are tied together:
+        with more than one epoch the default is a <strong>Markov chain</strong>
+        (<code>MarkovChainDistribution</code>: each epoch is Gamma-distributed around the previous one, giving smooth
+        variation through time), or <strong>Independent</strong> puts an IID LogNormal(0,1) on every epoch. A single epoch
+        always uses the independent LogNormal, and so does turnover at any epoch count: the model needs turnover strictly
+        below 1, which an unbounded Gamma chain cannot guarantee. The same convention applies to LPhy scripts: draw
+        unbounded rates from <code>ExpMarkovChain</code> and turnover from a bounded distribution such as <code>Beta</code>. The following image shows an example where the diversificaton rate has a change time 66 million 
         years before the present at the time of the K-Pg mass extinction. Optionally, you can choose to estimate the change times
           by clicking <strong>Estimate change times</strong>.
       </p>
@@ -792,12 +804,11 @@ tree ~ CalibratedCPP(lambda=2, mu=1, rho=0.1, n=100, calibrations=calibrationsAr
       <p>
         <code>conditionOnRoot</code> and <code>conditionOnCalibrations</code> are set from the command:
           conditioning on calibrations is switched on by default when calibrations are present. Two
-        flags overwrite the default BEAST3 XML mapping at conversion time:
+        flag overwrites the default BEAST3 XML mapping at conversion time:
       </p>
       <table>
         <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
         <tbody>
-          <tr><td><code>-MRCAPrior</code><br>(<code>--mrcaPrior</code>)</td><td>emit an independent per-clade <code>MRCAPrior(Uniform(lower, upper))</code> instead of the joint <code>CalibrationPrior</code></td></tr>
           <tr><td><code>-conditionOnCalibrations true|false</code></td><td>override whether the tree prior is conditioned on the calibrations</td></tr>
         </tbody>
       </table>
