@@ -27,6 +27,33 @@
 
     </mergewith>
 
+    <!-- Registers MarkovChainDistribution as a selectable alternative to IID for a
+         PositiveReal-domain skyline rate vector (birthRate, deathRate, turnover,
+         reproductiveNumber), the standard BEAUti way: as a BeautiSubTemplate that
+         TensorDistributionInputEditor/IIDInputEditor discover and offer in the Priors panel's
+         own distribution-family ComboBox — not built into CalibratedBirthDeathSkylineInputEditor.
+         Domain is PositiveReal, not Real, so it is never offered for diversificationRate, whose
+         values can go negative: MarkovChainDistribution chains Gamma-distributed epochs, which
+         has zero density at zero or below. Note BEAUti's own domain compatibility check in that
+         ComboBox (TensorDistributionInputEditor.isCompatible) is not strict enough to actually keep
+         this option out of a broader-domain row (it still gets offered for diversificationRate too)
+         — that check lives in the beast-fx dependency and isn't ours to fix.
+
+         Must merge into 'parametricDistributions' (inside <beauticonfig> in the base Standard.xml),
+         not 'misc' (which sits outside it) — a <subtemplate> merged into 'misc' ends up a top-level
+         sibling of BeautiConfig after merging, which BeautiDoc.loadTemplate silently discards with
+         "template item ... is ignored" since it is neither the Runnable nor the BeautiConfig object. -->
+    <mergewith point='parametricDistributions'>
+        <subtemplate id='MarkovChainDistribution' class='beast.base.spec.inference.distribution.MarkovChainDistribution'
+                     mainid='[top]' suppressInputs='beast.base.spec.inference.distribution.MarkovChainDistribution.param'>
+            <![CDATA[
+            <distr spec="beast.base.spec.inference.distribution.MarkovChainDistribution">
+                <param spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="2" domain="PositiveReal">1.0</param>
+            </distr>
+]]>
+        </subtemplate>
+    </mergewith>
+
     <!-- Method connector merged into the StandardPartitionTemplate (mainid='mcmc', processed first on
          every scrubAll, before the clock-model subtemplates). It runs calibratedcpp code that:
            (1) sets the clock-rate estimate flag when a CalibrationDistribution is active — BEAUti's

@@ -6,15 +6,12 @@ import java.util.List;
 
 import beast.base.core.BEASTInterface;
 import beast.base.core.Input;
-import beast.base.inference.CompoundDistribution;
-import beast.base.inference.Distribution;
 import beast.base.inference.StateNode;
 import beast.base.spec.domain.NonNegativeReal;
 import beast.base.spec.domain.PositiveReal;
 import beast.base.spec.domain.Real;
 import beast.base.spec.inference.distribution.IID;
 import beast.base.spec.inference.distribution.LogNormal;
-import beast.base.spec.inference.distribution.MarkovChainDistribution;
 import beast.base.spec.inference.distribution.Uniform;
 import beast.base.spec.inference.operator.ScaleOperator;
 import beast.base.spec.inference.parameter.RealScalarParam;
@@ -261,9 +258,22 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
             getSkylineInput(cpp, paramName).setValue(sp, cpp);
 
         // Create prior and operator if not already present (only needed for non-default-pair params).
-        // A single epoch gets an IID LogNormal; several epochs default to a Markov chain prior.
-        if (!doc.pluginmap.containsKey(priorId))
-            setValuesPrior(paramName, partition, values, values.size() > 1);
+        // The prior is an IID of a LogNormal so it applies to every epoch value in the vector,
+        // regardless of how many epochs the user later configures.
+        if (!doc.pluginmap.containsKey(priorId)) {
+            try {
+                LogNormal base = new LogNormal();
+                base.setInputValue("M", new RealScalarParam<>(0.0, Real.INSTANCE));
+                base.setInputValue("S", new RealScalarParam<>(1.0, PositiveReal.INSTANCE));
+                base.initAndValidate();
+
+                IID prior = new IID();
+                prior.setInputValue("distr", base);
+                prior.setInputValue("param", values);
+                prior.initAndValidate();
+                pluginPut(priorId, prior);
+            } catch (Exception e) { e.printStackTrace(); }
+        }
         if (!doc.pluginmap.containsKey(scalerId)) {
             try {
                 ScaleOperator scaler = new ScaleOperator();
@@ -273,62 +283,6 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
                 pluginPut(scalerId, scaler);
             } catch (Exception e) { e.printStackTrace(); }
         }
-    }
-
-    /**
-     * Installs the prior on a rate's per-epoch values, replacing whatever is registered under
-     * {@code <rate>.prior.<partition>}. With {@code markov} the values follow a
-     * {@link MarkovChainDistribution}: each epoch is Gamma-distributed with mean equal to the
-     * previous epoch (root to present), and the first epoch has mean {@link #defaultValueFor}.
-     * Otherwise every epoch gets an independent LogNormal(0, 1) via {@link IID}. Chaining only
-     * means something across epochs, so single-epoch rates always use the IID form, and the
-     * unbounded Gamma chain never applies to turnover, which the model needs strictly below 1.
-     */
-    private boolean setValuesPrior(String paramName, String partition, RealVectorParam<?> values, boolean markov) {
-        String priorId = paramName + ".prior." + partition;
-        if (values.size() <= 1 || !canChain(paramName)) markov = false;
-        BEASTInterface old = doc.pluginmap.get(priorId);
-        if (markov ? old instanceof MarkovChainDistribution : old instanceof IID) return false;
-        if (old instanceof Distribution d) {
-            // Drop the stale object from the posterior explicitly: the template connectors only
-            // (dis)connect whatever the pluginmap currently maps the id to.
-            if (doc.pluginmap.get("prior") instanceof CompoundDistribution prior)
-                prior.pDistributions.get().remove(d);
-            doc.unregisterPlugin(old);
-        }
-        try {
-            Distribution prior;
-            if (markov) {
-                MarkovChainDistribution mcd = new MarkovChainDistribution();
-                mcd.setInputValue("shape", 1.0);
-                mcd.setInputValue("initialMean", new RealScalarParam<>(defaultValueFor(paramName), PositiveReal.INSTANCE));
-                mcd.setInputValue("param", values);
-                mcd.initAndValidate();
-                prior = mcd;
-            } else {
-                LogNormal base = new LogNormal();
-                base.setInputValue("M", new RealScalarParam<>(0.0, Real.INSTANCE));
-                base.setInputValue("S", new RealScalarParam<>(1.0, PositiveReal.INSTANCE));
-                base.initAndValidate();
-
-                IID iid = new IID();
-                iid.setInputValue("distr", base);
-                iid.setInputValue("param", values);
-                iid.initAndValidate();
-                prior = iid;
-            }
-            pluginPut(priorId, prior);
-        } catch (Exception e) { e.printStackTrace(); }
-        return true;
-    }
-
-    /** Turnover is bounded in (0,1) (λ = d/(1-τ)), so a Gamma chain is not a valid prior on it. */
-    private static boolean canChain(String paramName) {
-        return !"turnover".equals(paramName);
-    }
-
-    private boolean hasMarkovPrior(String paramName, String partition) {
-        return doc.pluginmap.get(paramName + ".prior." + partition) instanceof MarkovChainDistribution;
     }
 
     @SuppressWarnings("unchecked")
@@ -423,14 +377,11 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
         skylineEditorsBox.getChildren().clear();
         for (String name : ALL_RATE_NAMES) {
             SkylineParameter sp = getSkylineInput(cpp, name).get();
-            if (sp != null) skylineEditorsBox.getChildren().add(buildSkylineEditor(sp, name, partitionOf(cpp)));
+            if (sp != null) skylineEditorsBox.getChildren().add(buildSkylineEditor(sp, name));
         }
     }
 
-    private static final String PRIOR_MARKOV = "Markov chain (Gamma, mean = previous epoch)";
-    private static final String PRIOR_IID    = "Independent (IID LogNormal)";
-
-    private VBox buildSkylineEditor(SkylineParameter sp, String paramName, String partition) {
+    private VBox buildSkylineEditor(SkylineParameter sp, String paramName) {
         VBox box = FXUtils.newVBox();
         box.setSpacing(4);
         box.setPadding(new Insets(6));
@@ -480,28 +431,6 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
         epochRow.getChildren().add(epochSpinner);
         box.getChildren().add(epochRow);
 
-        // Prior on the epoch values. Only meaningful with several epochs: a single epoch is
-        // always IID, and adding epochs switches to the Markov chain unless the user picks IID.
-        HBox priorRow = FXUtils.newHBox();
-        priorRow.setSpacing(6);
-        priorRow.getChildren().add(new Label("Prior on epoch values:"));
-        ChoiceBox<String> priorChoice = new ChoiceBox<>();
-        priorChoice.getItems().addAll(PRIOR_MARKOV, PRIOR_IID);
-        priorChoice.getSelectionModel().select(hasMarkovPrior(paramName, partition) ? PRIOR_MARKOV : PRIOR_IID);
-        priorChoice.setDisable(nChanges == 0 || !canChain(paramName));
-        priorChoice.setTooltip(new Tooltip(canChain(paramName)
-                ? "Markov chain: each epoch's value is Gamma-distributed around the previous epoch "
-                  + "(root to present), giving smooth variation through time. "
-                  + "IID: every epoch gets an independent LogNormal(0, 1)."
-                : "Turnover must stay below 1, so its epochs always get independent priors."));
-        priorRow.getChildren().add(priorChoice);
-        box.getChildren().add(priorRow);
-        boolean[] priorChoiceSyncing = {false};
-        priorChoice.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
-            if (priorChoiceSyncing[0] || n == null || !(sp.valuesInput.get() instanceof RealVectorParam<?> vp)) return;
-            if (setValuesPrior(paramName, partition, vp, PRIOR_MARKOV.equals(n))) sync();
-        });
-
         HBox flagsRow = FXUtils.newHBox();
         flagsRow.setSpacing(12);
         CheckBox agesCb = new CheckBox("Times are ages");
@@ -545,17 +474,6 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
             if (nc == 0 && estTimesCb.isSelected()) estTimesCb.setSelected(false);
             ensureChangeTimes(sp, nc);
             ensureValues(sp, nv);
-            // Follow the epoch count: one epoch forces IID; growing from one epoch adopts the
-            // Markov chain default, while a deliberate IID choice over several epochs is kept.
-            boolean priorChanged = false;
-            if (sp.valuesInput.get() instanceof RealVectorParam<?> vp) {
-                boolean markov = nc > 0 && canChain(paramName) && (o == 1 || hasMarkovPrior(paramName, partition));
-                priorChanged = setValuesPrior(paramName, partition, vp, markov);
-                priorChoiceSyncing[0] = true;
-                priorChoice.getSelectionModel().select(markov ? PRIOR_MARKOV : PRIOR_IID);
-                priorChoiceSyncing[0] = false;
-            }
-            priorChoice.setDisable(nc == 0 || !canChain(paramName));
             ctBox.setVisible(nc > 0);
             ctBox.setManaged(nc > 0);
             estTimesCb.setDisable(nc == 0);
@@ -563,8 +481,6 @@ public class CalibratedBirthDeathSkylineInputEditor extends CalibratedCPPInputEd
             // opposite of what will be written to the XML.
             estTimesCb.setSelected(changeTimesParam(sp) instanceof StateNode sn && sn.isEstimatedInput.get());
             rebuildSkylineRows(sp, nc, ctRow, valRow, agesCb, relCb);
-            // The replaced prior object must be reconnected to the posterior.
-            if (priorChanged) sync();
         });
         estTimesCb.selectedProperty().addListener((obs, o, n) -> {
             // sync() re-parses the model, which runs SkylineParameter.initAndValidate() and its
