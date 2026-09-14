@@ -9,6 +9,7 @@ from scipy.spatial.distance import jensenshannon
 
 # --- 1. SETUP ---
 SCRIPT_DIR = Path(__file__).parent
+DATA_DIR = SCRIPT_DIR / "data"
 os.chdir(SCRIPT_DIR)
 
 # --- 2. CONFIGURATION ---
@@ -20,16 +21,16 @@ target_columns = [
 
 file_map = [
     # PRIOR FILES
-    ('cats-sample_from_prior.log', 'Prior', 'Conditioned'),
-    ('cats-sample_from_prior_not_conditioned.log', 'Prior', 'Not Conditioned'),
+    ('cats-sample_from_prior_uniform_mrca_b3.log', 'Prior', 'Calibrated Tree Prior'),
+    ('cats-sample_from_prior_uniform_mrca_not_conditioned_b3.log', 'Prior', 'Regular Tree Prior'),
 
     # HALF FILES
-    ('cats-half.log', 'Half Alignment', 'Conditioned'),
-    ('cats-half_not_conditioned.log', 'Half Alignment', 'Not Conditioned'),
+    ('cats-half_uniform_mrca_b3.log', 'Half Alignment', 'Calibrated Tree Prior'),
+    ('cats-half_uniform_mrca_not_conditioned_b3.log', 'Half Alignment', 'Regular Tree Prior'),
 
     # FULL FILES
-    ('cats-full.log', 'Full Alignment', 'Conditioned'),
-    ('cats-full_not_conditioned.log', 'Full Alignment', 'Not Conditioned')
+    ('cats-full_uniform_mrca_b3.log', 'Full Alignment', 'Calibrated Tree Prior'),
+    ('cats-full_uniform_mrca_not_conditioned_b3.log', 'Full Alignment', 'Regular Tree Prior')
 ]
 
 burnin_fraction = 0.1
@@ -39,9 +40,10 @@ def load_all_data(file_map):
     all_data = []
 
     for filename, analysis_type, condition_type in file_map:
-        if os.path.exists(filename):
+        path = DATA_DIR / filename
+        if os.path.exists(path):
             try:
-                df = pd.read_csv(filename, sep='\t', comment='#')
+                df = pd.read_csv(path, sep='\t', comment='#')
                 cols = [c for c in target_columns if c in df.columns]
                 if cols:
                     drop_n = int(len(df) * burnin_fraction)
@@ -86,7 +88,7 @@ fig, axes = plt.subplots(3, 3, figsize=(18, 14), constrained_layout=True)
 
 taxon_sets = [c.replace('mrca.age(', '').replace(')', '') for c in target_columns]
 analysis_types = ['Prior', 'Half Alignment', 'Full Alignment']
-colors = {'Conditioned': 'tab:blue', 'Not Conditioned': 'tab:orange'}
+colors = {'Calibrated Tree Prior': 'tab:blue', 'Regular Tree Prior': 'tab:orange'}
 
 title_map = {
     'TaxonSet1': 'Clade 1',
@@ -139,8 +141,8 @@ for analysis in analysis_types:
         display_name = title_map.get(taxon, taxon)
         data_taxon = subset_analysis[subset_analysis['TaxonSet'] == taxon]
 
-        cond_data = data_taxon[data_taxon['Condition'] == 'Conditioned']['Age'].values
-        not_cond_data = data_taxon[data_taxon['Condition'] == 'Not Conditioned']['Age'].values
+        cond_data = data_taxon[data_taxon['Condition'] == 'Calibrated Tree Prior']['Age'].values
+        not_cond_data = data_taxon[data_taxon['Condition'] == 'Regular Tree Prior']['Age'].values
 
         if len(cond_data) > 1 and len(not_cond_data) > 1:
             min_val = min(cond_data.min(), not_cond_data.min())
@@ -187,7 +189,7 @@ sns.barplot(
 )
 
 # Formatting the plot
-ax2.set_title('Jensen-Shannon Divergence:\nConditioned vs. Not Conditioned', fontsize=20, fontweight='bold', pad=15)
+ax2.set_title('Jensen-Shannon Divergence:\nCalibrated Tree Prior vs. Regular Tree Prior', fontsize=20, fontweight='bold', pad=15)
 ax2.set_ylabel('JS Divergence', fontsize=18)
 ax2.set_xlabel('Clade', fontsize=18)
 
