@@ -4,7 +4,7 @@
 # calibratedcpp-lphy/examples/primates_conditionedMRCAPrior.lphy).
 #
 # Results land in iqtree/; iqtree/<alignment>.treefile is the ML tree,
-# rooted on Mus musculus so it can be compared with compare_rf.py.
+# rooted on Mus musculus so it can be compared with the BEAST summary trees.
 #
 # Usage: ./run_iqtree.sh [ALIGNMENT] [extra iqtree args...]
 #   ALIGNMENT   basename in calibratedcpp-lphy/examples/data (default primates_nogapN)

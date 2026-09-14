@@ -11,9 +11,9 @@ for calibrated clades, and crown Primates is not calibrated in these runs.
 Self-contained: everything it needs is in this file.
 
 Usage:
-    python3 plot_posterior_condCal.py                     # nogapN, Primates
+    python3 plot_posterior_condCal.py                     # grid-codon-nogapN, Primates
     python3 plot_posterior_condCal.py Colobinae
-    python3 plot_posterior_condCal.py --dataset=codon Primates
+    python3 plot_posterior_condCal.py [--dataset=NAME] [--format=pdf] [CLADE]
 """
 
 import hashlib
@@ -45,16 +45,26 @@ ROWS = [("sample from prior", True), ("with data", False)]
 # One entry per alignment analysed. "suffix" is appended to the model name in every
 # file stem, "cond" gives the conditionOnCalibrations=false marker, and "prior" is the
 # folder of sample-from-prior runs (None when that dataset has none).
+# The grid runs name the calibration scheme as an infix instead of a prefix, and their
+# posterior chains carry a "-combined" tag that the sample-from-prior ones do not.
+GRID_MODELS = {"calibrationPrior": "", "suggestedPrior": "_suggested",
+               "uniformPrior": "_uniform"}
+
+
+def _grid(alignment):
+    return {"post": "grid/data", "prior": "grid/data",
+            "xmls": "primatesGrid", "suffix": alignment,
+            "pattern": "primates{suffix}{model}{cond}", "models": GRID_MODELS,
+            "post_suffix": "-combined", "xml_suffix": "-rep1",
+            "cond": {"true": "", "false": "_condFalse"}}
+
+
 DATASETS = {
-    "nogapN": {"post": "data", "prior": "data", "xmls": "", "suffix": "",
-               "cond": {"true": "", "false": "-condFalse"}},
-    "codon": {"post": "codons", "prior": "codons", "xmls": "codons", "suffix": "_codon",
-              "cond": {"true": "", "false": "_condFalse"}},
-    "codon-nogapN": {"post": "codons", "prior": "codons",
-                     "xmls": "noGapNCodon", "suffix": "_codon_nogapN",
-                     "cond": {"true": "", "false": "_condFalse"}},
+    "grid-unpartition": _grid("_unpartition"),
+    "grid-codon": _grid("_codon"),
+    "grid-codon-nogapN": _grid("_codon_noGapN"),
 }
-DATASET = os.environ.get("PRIMATES_DATASET", "nogapN")
+DATASET = os.environ.get("PRIMATES_DATASET", "grid-codon-nogapN")
 
 
 def use(name):
@@ -73,8 +83,16 @@ def has_prior_runs():
     return D["prior"] is not None
 
 
+def base_stem(model, cond):
+    """The run name without the tag that distinguishes prior/posterior/combined files."""
+    return D.get("pattern", "{model}{suffix}{cond}").format(
+        model=D.get("models", {}).get(model, model), suffix=D["suffix"],
+        cond=D["cond"][cond])
+
+
 def stem(model, cond, prior_only=False):
-    return (model + D["suffix"] + D["cond"][cond] + ("-fromPrior" if prior_only else ""))
+    return base_stem(model, cond) + (
+        "-fromPrior" if prior_only else D.get("post_suffix", ""))
 
 
 def trees_path(model, cond, prior_only=False):
@@ -93,10 +111,11 @@ def clade_names():
     """{frozenset(taxa): clade name} from the LPhy headers of the calibrationPrior XMLs.
 
     Names for uncalibrated clades (Primates, Colobinae, ...) only appear in the
-    nogapN XML, so both it and the current dataset's XML are read.
+    original calibrationPrior.xml, so both it and the current dataset's XML are read.
     """
     names = {}
-    own = os.path.join(XMLS, stem("calibrationPrior", "true") + ".xml")
+    own = os.path.join(XMLS, base_stem("calibrationPrior", "true")
+                       + D.get("xml_suffix", "") + ".xml")
     for path in dict.fromkeys([os.path.join(XML_ROOT, "calibrationPrior.xml"), own]):
         if not os.path.exists(path):
             continue
@@ -250,6 +269,11 @@ def panel(ax, model, prior_only, taxa, clade):
 
 
 def main():
+    fmt = "png"
+    for i, a in enumerate(sys.argv):
+        if a.startswith("--format="):
+            fmt = sys.argv.pop(i).split("=", 1)[1]
+            break
     if len(sys.argv) > 1 and sys.argv[1].startswith("--dataset="):
         use(sys.argv.pop(1).split("=", 1)[1])
     clade = sys.argv[1] if len(sys.argv) > 1 else "Primates"
@@ -272,7 +296,7 @@ def main():
 
     set_shared_xlim(axes, drawn)
 
-    out = os.path.join(BASE, "%s_condCal_%s.png" % (DATASET, clade))
+    out = os.path.join(BASE, "%s_%s_age.%s" % (DATASET, clade, fmt))
     fig.tight_layout()
     fig.savefig(out, dpi=180)
     print("wrote", out)

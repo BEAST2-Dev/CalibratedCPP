@@ -9,7 +9,7 @@ question is really about.
 Summary trees come from "treeannotator -height CA -topology CCD0".
 
 Usage:
-    python3 plot_clade_condCal.py
+    python3 plot_clade_condCal.py [--dataset=NAME] [--format=pdf]
 """
 
 import os
@@ -71,9 +71,14 @@ def panel(ax, model, names):
 
 
 def main():
+    fmt = "png"
+    for i, a in enumerate(sys.argv):
+        if a.startswith("--format="):
+            fmt = sys.argv.pop(i).split("=", 1)[1]
+            break
     if len(sys.argv) > 1 and sys.argv[1].startswith("--dataset="):
         pc.use(sys.argv.pop(1).split("=", 1)[1])
-    out = os.path.join(pc.BASE, "%s_cladeCondCal.png" % pc.DATASET)
+    out = os.path.join(pc.BASE, "%s_clade_ages.%s" % (pc.DATASET, fmt))
     names = pc.clade_names()
     fig, axes = plt.subplots(1, len(pc.MODELS), figsize=(5 * len(pc.MODELS), 5.8))
     for ax, model in zip(axes, pc.MODELS):

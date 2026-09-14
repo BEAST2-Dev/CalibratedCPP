@@ -1,0 +1,238 @@
+IQ-TREE 3.1.3 built Jun 19 2026
+
+Partition file name: iqtree/primates_400loci_codon_nogapN_codon.nex
+Input file name: ../../calibratedcpp-lphy/examples/data/primates_400loci_codon_nogapN.nex
+Type of analysis: tree reconstruction + ultrafast bootstrap (1000 replicates)
+Random seed number: 129225
+
+REFERENCES
+----------
+
+To cite IQ-TREE 3 please use:
+
+Thomas K.F. Wong, Nhan Ly-Trong, Huaiyan Ren, Piyumal Demotte, Hector Banos,
+Andrew J. Roger, Edward Susko, Chris Bielow, Nicola De Maio, Nick Goldman,
+Matthew W. Hahn, Mario dos Reis, Le Sy Vinh, Gavin Huttley, Robert Lanfear, Bui Quang Minh (2026)
+IQ-TREE 3: Phylogenomic Inference Software using Complex Evolutionary Models.
+Molecular Biology and Evolution, msag117.
+https://doi.org/10.1093/molbev/msag117
+
+Since you used ultrafast bootstrap (UFBoot) please also cite: 
+
+Diep Thi Hoang, Olga Chernomor, Arndt von Haeseler, Bui Quang Minh,
+and Le Sy Vinh (2018) UFBoot2: Improving the ultrafast bootstrap
+approximation. Mol. Biol. Evol., 35:518–522.
+https://doi.org/10.1093/molbev/msx281
+
+Since you used partition models please also cite:
+
+Olga Chernomor, Arndt von Haeseler, and Bui Quang Minh (2016)
+Terrace aware data structure for phylogenomic inference from
+supermatrices. Syst. Biol., 65:997-1008.
+https://doi.org/10.1093/sysbio/syw037
+
+SEQUENCE ALIGNMENT
+------------------
+
+NOTE: Alignment sequence type is auto-detected. If in doubt, specify it via -st option.
+Input data: 29 taxa with 3 partitions and 222786 total sites (0% missing data)
+
+  ID	Type	Seq	Site	Unique	Infor	Invar	Const	Name
+   1	DNA	29	74262	5531	8184	55439	55439	pos1
+   2	DNA	29	74262	4406	6094	60239	60239	pos2
+   3	DNA	29	74262	14867	25610	26924	26924	pos3
+
+Column meanings:
+  Unique: Number of unique site patterns
+  Infor:  Number of parsimony-informative sites
+  Invar:  Number of invariant sites
+  Const:  Number of constant sites (can be subset of invariant sites)
+
+SUBSTITUTION PROCESS
+--------------------
+
+Edge-linked-proportional partition model with separate substitution models and separate rates across sites
+
+  ID  Model           Speed  Parameters
+   1  HKY+F+G4       0.5911  HKY{3.40451}+F{0.265552,0.250256,0.309071,0.175121}+G4{0.260116}
+   2  HKY+F+G4       0.4350  HKY{4.24422}+F{0.303897,0.227624,0.191896,0.276582}+G4{0.144409}
+   3  HKY+F+G4       1.9739  HKY{6.52692}+F{0.173218,0.324085,0.292263,0.210434}+G4{1.26811}
+
+MAXIMUM LIKELIHOOD TREE
+-----------------------
+
+Log-likelihood of the tree: -1023540.8275 (s.e. 2213.1172)
+Unconstrained log-likelihood (without tree): -916030.2447
+Number of free parameters (#branches + #model parameters): 72
+Akaike information criterion (AIC) score: 2047225.6551
+Corrected Akaike information criterion (AICc) score: 2047225.7023
+Bayesian information criterion (BIC) score: 2047968.2607
+
+Marginal log-likelihood of the tree: -1047858.3032
+Marginal Akaike information criterion (mAIC) score: 2095860.6063
+
+Total tree length (sum of branch lengths): 0.7960
+Sum of internal branch lengths: 0.1570 (19.7196% of tree length)
+
+NOTE: Tree is UNROOTED although outgroup taxon 'Mus_musculus' is drawn at root
+Numbers in parentheses are  ultrafast bootstrap support (%)
+
+                         +--Aotus_nancymaae
+                   +-----| (100)
+                   |     |  +----Callithrix_jacchus
+                   |     +--| (52)
+                   |        |  +---Cebus_capucinus_imitator
+                   |        +--| (100)
+                   |           +---Saimiri_boliviensis
+         +---------| (100)
+         |         |                 +--Cercocebus_atys
+         |         |              +--| (100)
+         |         |              |  +--Mandrillus_leucophaeus
+         |         |           +--| (100)
+         |         |           |  |  +--Papio_anubis
+         |         |           |  +--| (100)
+         |         |           |     +--Theropithecus_gelada
+         |         |        +--| (100)
+         |         |        |  |     +--Macaca_fascicularis
+         |         |        |  |  +--| (100)
+         |         |        |  |  |  +--Macaca_mulatta
+         |         |        |  +--| (100)
+         |         |        |     +--Macaca_nemestrina
+         |         |     +--| (100)
+         |         |     |  +--Chlorocebus_sabaeus
+         |         |  +--| (100)
+         |         |  |  |     +--Colobus_angolensis_palliatus
+         |         |  |  |  +--| (100)
+         |         |  |  |  |  +--Piliocolobus_tephrosceles
+         |         |  |  +--| (100)
+         |         |  |     |  +--Rhinopithecus_bieti
+         |         |  |     +--| (100)
+         |         |  |        +--Rhinopithecus_roxellana
+         |         +--| (100)
+         |            |        +--Gorilla_gorilla
+         |            |     +--| (100)
+         |            |     |  |  +--Homo_sapiens
+         |            |     |  +--| (100)
+         |            |     |     |  +--Pan_paniscus
+         |            |     |     +--| (100)
+         |            |     |        +--Pan_troglodytes
+         |            |  +--| (100)
+         |            |  |  +--Pongo_abelii
+         |            +--| (100)
+         |               +---Nomascus_leucogenys
+      +--| (100)
+      |  +------------------------Carlito_syrichta
+   +--| (100)
+   |  |          +---------Microcebus_murinus
+   |  |    +-----| (100)
+   |  |    |     +-----Propithecus_coquereli
+   |  +----| (100)
+   |       +--------------------Otolemur_garnettii
++--| (100)
+|  +-------------------Galeopterus_variegatus
+|
++-----------------------------------------------------------Mus_musculus
+|
++-----------------------------Tupaia_chinensis
+
+Tree in newick format:
+
+((((((Aotus_nancymaae:0.0113862639,(Callithrix_jacchus:0.0168297010,(Cebus_capucinus_imitator:0.0122166352,Saimiri_boliviensis:0.0145628306)100:0.0019625753)52:0.0005012963)100:0.0191679405,((((((Cercocebus_atys:0.0047052207,Mandrillus_leucophaeus:0.0031093169)100:0.0005589196,(Papio_anubis:0.0025710050,Theropithecus_gelada:0.0019358432)100:0.0010024336)100:0.0006533014,((Macaca_fascicularis:0.0009612798,Macaca_mulatta:0.0013433583)100:0.0003790850,Macaca_nemestrina:0.0019282810)100:0.0019137564)100:0.0016918843,Chlorocebus_sabaeus:0.0055043675)100:0.0022882435,((Colobus_angolensis_palliatus:0.0046343968,Piliocolobus_tephrosceles:0.0049996784)100:0.0014037719,(Rhinopithecus_bieti:0.0018890652,Rhinopithecus_roxellana:0.0015104596)100:0.0040635345)100:0.0026477326)100:0.0097471615,(((Gorilla_gorilla:0.0043566540,(Homo_sapiens:0.0031340299,(Pan_paniscus:0.0012726707,Pan_troglodytes:0.0014204223)100:0.0017564003)100:0.0008930313)100:0.0042579810,Pongo_abelii:0.0083447865)100:0.0014856745,Nomascus_leucogenys:0.0125743458)100:0.0050295416)100:0.0094613530)100:0.0304067193,Carlito_syrichta:0.0767209488)100:0.0052627500,((Microcebus_murinus:0.0304557216,Propithecus_coquereli:0.0202228449)100:0.0190784050,Otolemur_garnettii:0.0636661952)100:0.0171207306)100:0.0068722812,Galeopterus_variegatus:0.0601387764)100:0.0073528881,Mus_musculus:0.1771116344,Tupaia_chinensis:0.0894907007);
+
+CONSENSUS TREE
+--------------
+
+Consensus tree is constructed from 1000 bootstrap trees
+Log-likelihood of consensus tree: -1023540.827739
+Robinson-Foulds distance between ML tree and consensus tree: 0
+
+Branches with support >0.000000% are kept (extended consensus)
+Branch lengths are optimized by maximum likelihood on original alignment
+Numbers in parentheses are bootstrap supports (%)
+
+                         +--Aotus_nancymaae
+                   +-----| (100)
+                   |     |  +----Callithrix_jacchus
+                   |     +--| (52)
+                   |        |  +---Cebus_capucinus_imitator
+                   |        +--| (100)
+                   |           +---Saimiri_boliviensis
+         +---------| (100)
+         |         |                 +--Cercocebus_atys
+         |         |              +--| (100)
+         |         |              |  +--Mandrillus_leucophaeus
+         |         |           +--| (100)
+         |         |           |  |  +--Papio_anubis
+         |         |           |  +--| (100)
+         |         |           |     +--Theropithecus_gelada
+         |         |        +--| (100)
+         |         |        |  |     +--Macaca_fascicularis
+         |         |        |  |  +--| (100)
+         |         |        |  |  |  +--Macaca_mulatta
+         |         |        |  +--| (100)
+         |         |        |     +--Macaca_nemestrina
+         |         |     +--| (100)
+         |         |     |  +--Chlorocebus_sabaeus
+         |         |  +--| (100)
+         |         |  |  |     +--Colobus_angolensis_palliatus
+         |         |  |  |  +--| (100)
+         |         |  |  |  |  +--Piliocolobus_tephrosceles
+         |         |  |  +--| (100)
+         |         |  |     |  +--Rhinopithecus_bieti
+         |         |  |     +--| (100)
+         |         |  |        +--Rhinopithecus_roxellana
+         |         +--| (100)
+         |            |        +--Gorilla_gorilla
+         |            |     +--| (100)
+         |            |     |  |  +--Homo_sapiens
+         |            |     |  +--| (100)
+         |            |     |     |  +--Pan_paniscus
+         |            |     |     +--| (100)
+         |            |     |        +--Pan_troglodytes
+         |            |  +--| (100)
+         |            |  |  +--Pongo_abelii
+         |            +--| (100)
+         |               +---Nomascus_leucogenys
+      +--| (100)
+      |  +------------------------Carlito_syrichta
+   +--| (100)
+   |  |          +---------Microcebus_murinus
+   |  |    +-----| (100)
+   |  |    |     +-----Propithecus_coquereli
+   |  +----| (100)
+   |       +--------------------Otolemur_garnettii
++--| (100)
+|  +-------------------Galeopterus_variegatus
+|
++-----------------------------------------------------------Mus_musculus
+|
++-----------------------------Tupaia_chinensis
+
+
+Consensus tree in newick format: 
+
+((((((Aotus_nancymaae:0.0113866528,(Callithrix_jacchus:0.0168306055,(Cebus_capucinus_imitator:0.0122175081,Saimiri_boliviensis:0.0145638952)100:0.0019624101)52:0.0005015493)100:0.0191687014,((((((Cercocebus_atys:0.0047057053,Mandrillus_leucophaeus:0.0031089671)100:0.0005593282,(Papio_anubis:0.0025706425,Theropithecus_gelada:0.0019357063)100:0.0010025267)100:0.0006539053,((Macaca_fascicularis:0.0009619791,Macaca_mulatta:0.0013438979)100:0.0003791930,Macaca_nemestrina:0.0019288372)100:0.0019142278)100:0.0016921202,Chlorocebus_sabaeus:0.0055049116)100:0.0022882635,((Colobus_angolensis_palliatus:0.0046339762,Piliocolobus_tephrosceles:0.0050002965)100:0.0014046688,(Rhinopithecus_bieti:0.0018898971,Rhinopithecus_roxellana:0.0015114023)100:0.0040639289)100:0.0026480993)100:0.0097474417,(((Gorilla_gorilla:0.0043568722,(Homo_sapiens:0.0031342311,(Pan_paniscus:0.0012735669,Pan_troglodytes:0.0014205828)100:0.0017570008)100:0.0008938549)100:0.0042591769,Pongo_abelii:0.0083458770)100:0.0014858352,Nomascus_leucogenys:0.0125747959)100:0.0050295061)100:0.0094603855)100:0.0304069209,Carlito_syrichta:0.0767233082)100:0.0052637782,((Microcebus_murinus:0.0304563074,Propithecus_coquereli:0.0202238586)100:0.0190790678,Otolemur_garnettii:0.0636683584)100:0.0171215983)100:0.0068715761,Galeopterus_variegatus:0.0601410126)100:0.0073524773,Mus_musculus:0.1771158200,Tupaia_chinensis:0.0894938934);
+
+ALISIM COMMAND
+--------------
+To simulate an alignment of the same length as the original alignment, using the tree and model parameters estimated from this analysis, you can use the following command:
+
+--alisim simulated_MSA -t iqtree/primates_400loci_codon_nogapN.treefile -p iqtree/primates_400loci_codon_nogapN.best_model.nex
+
+To mimic the alignment used to produce this analysis, i.e. simulate an alignment of the same length as the original alignment, using the tree and model parameters estimated from this analysis *and* copying the same gap positions as the original alignment, you can use the following command:
+
+iqtree -s ../../calibratedcpp-lphy/examples/data/primates_400loci_codon_nogapN.nex --alisim mimicked_MSA
+
+To simulate any number of alignments in either of the two commandlines above, use the --num-alignments options, for example mimic 100 alignments you would use the command line:
+
+iqtree -s ../../calibratedcpp-lphy/examples/data/primates_400loci_codon_nogapN.nex --alisim mimicked_MSA --num-alignments 100
+
+For more information on using AliSim, please visit: www.iqtree.org/doc/AliSim
+
+TIME STAMP
+----------
+
+Date and time: Mon Sep  7 11:51:44 2026
+Total CPU time used: 256.925764 seconds (0h:4m:16s)
+Total wall-clock time used: 119.6487441 seconds (0h:1m:59s)
+

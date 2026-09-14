@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
 Build a comparison table of estimated MRCA node ages (mean + 95% HPD interval) across every
-BEAST log file in data/, so different runs -- different
+BEAST log file in grid/data/, so different runs -- different
 calibration schemes, priors, alignments, starting trees -- can be compared side by side for
 the same node.
 
 Clade labels are resolved from each run's own XML (via primates_common): the TaxonSetN
-numbering is not shared between the nogapN and codon XML families, nor between models.
+numbering is not shared between alignments, nor between models.
 
 Usage:
-    python compare_mrca_ages.py [DIR ...]     # default: data/ and this folder
+    python compare_mrca_ages.py [DIR ...]     # default: grid/data
 
 Output:
-    mrca_age_comparison.csv          -- long format: one row per (run, node)
+    grid/mrca_age_comparison_grid.csv -- long format: one row per (run, node)
     printed to stdout                -- the same data, grouped by node for quick reading
 
 Any file without at least one "Sample" + "mrca.age(...)" column is skipped (so this can be
@@ -28,9 +28,9 @@ import numpy as np
 import primates_common as pc
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-SEARCH_DIRS = [os.path.join(BASE, "data")]
+SEARCH_DIRS = [os.path.join(BASE, "grid", "data")]
 BURNIN_FRACTION = 0.1
-OUT_CSV = os.path.join(BASE, "mrca_age_comparison.csv")
+OUT_CSV = os.path.join(BASE, "grid", "mrca_age_comparison_grid.csv")
 
 # Fossil-paper node numbers, keyed by clade name (stable, unlike the TaxonSetN ids).
 NODE_NUMBERS = {
@@ -117,7 +117,8 @@ def read_mrca_columns(path):
     n = len(next(iter(data.values()), []))
     if n == 0:
         return None
-    burnin = int(n * BURNIN_FRACTION)
+    # LogCombiner output already has its burn-in removed
+    burnin = 0 if path.endswith("-combined.log") else int(n * BURNIN_FRACTION)
 
     out = {}
     for c in mrca_cols:

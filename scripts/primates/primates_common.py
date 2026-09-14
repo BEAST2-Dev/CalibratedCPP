@@ -26,31 +26,29 @@ BLUE, ORANGE = "#1f77b4", "#ff7f0e"
 # One entry per alignment analysed. "suffix" is appended to the model name in every
 # file stem, "cond" gives the conditionOnCalibrations=false marker, and "prior" is the
 # folder of sample-from-prior runs (None when that dataset has none).
+# Stems are "{model}{suffix}{cond}" unless the dataset gives its own "pattern"; the
+# grid runs name the calibration scheme as an infix instead ("model" below), and their
+# posterior chains carry a "-combined" tag that the sample-from-prior ones do not.
+GRID_MODELS = {"calibrationPrior": "", "suggestedPrior": "_suggested",
+               "uniformPrior": "_uniform"}
+
+
+def _grid(alignment, xmls):
+    return {
+        "post": "grid/data", "prior": "grid/data", "xmls": xmls,
+        "suffix": alignment, "pattern": "primates{suffix}{model}{cond}",
+        "models": GRID_MODELS, "post_suffix": "-combined", "xml_suffix": "-rep1",
+        "cond": {"true": "", "false": "_condFalse"},
+    }
+
+
 DATASETS = {
-    "nogapN": {
-        "post": "data",
-        "prior": "data",
-        "xmls": "",
-        "suffix": "",
-        "cond": {"true": "", "false": "-condFalse"},
-    },
-    "codon": {
-        "post": "codons",
-        "prior": "codons",
-        "xmls": "codons",
-        "suffix": "_codon",
-        "cond": {"true": "", "false": "_condFalse"},
-    },
-    "codon-nogapN": {
-        "post": "codons",
-        "prior": "codons",
-        "xmls": "noGapNCodon",
-        "suffix": "_codon_nogapN",
-        "cond": {"true": "", "false": "_condFalse"},
-    },
+    "grid-unpartition": _grid("_unpartition", "primatesGrid"),
+    "grid-codon": _grid("_codon", "primatesGrid"),
+    "grid-codon-nogapN": _grid("_codon_noGapN", "primatesGrid"),
 }
 
-DATASET = os.environ.get("PRIMATES_DATASET", "nogapN")
+DATASET = os.environ.get("PRIMATES_DATASET", "grid-codon-nogapN")
 
 
 def use(name):
@@ -70,20 +68,30 @@ def has_prior_runs():
     return DATASETS[DATASET]["prior"] is not None
 
 
+def base_stem(model, cond):
+    """The run name without the tag that distinguishes prior/posterior/combined files."""
+    d = DATASETS[DATASET]
+    return d.get("pattern", "{model}{suffix}{cond}").format(
+        model=d.get("models", {}).get(model, model), suffix=d["suffix"], cond=COND[cond])
+
+
 def stem(model, cond, prior_only=False):
-    return (model + DATASETS[DATASET]["suffix"] + COND[cond]
-            + ("-fromPrior" if prior_only else ""))
+    return base_stem(model, cond) + (
+        "-fromPrior" if prior_only else DATASETS[DATASET].get("post_suffix", ""))
 
 
 def model_xml(model, cond="true"):
-    return os.path.join(XMLS, stem(model, cond) + ".xml")
+    return os.path.join(XMLS, base_stem(model, cond)
+                        + DATASETS[DATASET].get("xml_suffix", "") + ".xml")
 
 
 def log_path(model, cond, prior_only):
     if prior_only and not has_prior_runs():
         return ""
-    return os.path.join(PRIOR_DATA if prior_only else POST_DATA,
-                        stem(model, cond, prior_only) + ".txt")
+    base = os.path.join(PRIOR_DATA if prior_only else POST_DATA,
+                        stem(model, cond, prior_only))
+    # BEAST traces land as .txt or .log depending on the run
+    return base + ".txt" if os.path.exists(base + ".txt") else base + ".log"
 
 
 def trees_path(model, cond, prior_only=False):
@@ -99,7 +107,12 @@ def summary_tree_path(model, cond):
 
 def taxon_sets(model):
     """{TaxonSetN: frozenset(taxon names)} for one model XML."""
-    root = ET.parse(model_xml(model)).getroot()
+    return taxon_sets_of(model_xml(model))
+
+
+def taxon_sets_of(path):
+    """{TaxonSetN: frozenset(taxon names)} for an XML given by path."""
+    root = ET.parse(path).getroot()
     out = {}
     for el in root.iter():
         i = el.get("id", "")
@@ -117,7 +130,7 @@ def clade_names():
     """{frozenset(taxa): clade name} from the LPhy headers of the calibrationPrior XMLs.
 
     Names for uncalibrated clades (Primates, Colobinae, ...) only appear in the
-    nogapN XML, so both it and the current dataset's XML are read.
+    original calibrationPrior.xml, so both it and the current dataset's XML are read.
     """
     names = {}
     paths = [os.path.join(XML_ROOT, "calibrationPrior.xml"), model_xml("calibrationPrior")]

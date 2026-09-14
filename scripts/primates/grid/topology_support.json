@@ -1,0 +1,202 @@
+{
+ "conflicts": {
+  "euarchontoglires": [
+   [
+    "T1",
+    "Tupaia+GaleoPrimates",
+    "(Mus, (Tupaia, Galeopterus+Primates))"
+   ],
+   [
+    "T2",
+    "Mus+Tupaia",
+    "((Mus, Tupaia), Galeopterus+Primates)"
+   ],
+   [
+    "T3",
+    "Mus+GaleoPrimates",
+    "(Tupaia, (Mus, Galeopterus+Primates))"
+   ]
+  ],
+  "platyrrhini": [
+   [
+    "P1",
+    "Aotus+Callithrix",
+    "((Aotus, Callithrix), Cebus+Saimiri)"
+   ],
+   [
+    "P2",
+    "Callithrix+CebusSaimiri",
+    "(Aotus, (Callithrix, Cebus+Saimiri))"
+   ],
+   [
+    "P3",
+    "Aotus+CebusSaimiri",
+    "(Callithrix, (Aotus, Cebus+Saimiri))"
+   ]
+  ]
+ },
+ "support": {
+  "primates_codon": {
+   "Tupaia+GaleoPrimates": 0.6749,
+   "Mus+Tupaia": 0.2088,
+   "Mus+GaleoPrimates": 0.1163,
+   "Aotus+Callithrix": 1.0,
+   "Callithrix+CebusSaimiri": 0.0,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 3516
+  },
+  "primates_codon_condFalse": {
+   "Tupaia+GaleoPrimates": 0.8247,
+   "Mus+Tupaia": 0.09,
+   "Mus+GaleoPrimates": 0.0853,
+   "Aotus+Callithrix": 1.0,
+   "Callithrix+CebusSaimiri": 0.0,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 4256
+  },
+  "primates_codon_suggested": {
+   "Tupaia+GaleoPrimates": 0.9046,
+   "Mus+Tupaia": 0.0432,
+   "Mus+GaleoPrimates": 0.0522,
+   "Aotus+Callithrix": 1.0,
+   "Callithrix+CebusSaimiri": 0.0,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 4237
+  },
+  "primates_codon_suggested_condFalse": {
+   "Tupaia+GaleoPrimates": 0.828,
+   "Mus+Tupaia": 0.0725,
+   "Mus+GaleoPrimates": 0.0996,
+   "Aotus+Callithrix": 1.0,
+   "Callithrix+CebusSaimiri": 0.0,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5051
+  },
+  "primates_codon_uniform": {
+   "Tupaia+GaleoPrimates": 0.3579,
+   "Mus+Tupaia": 0.4507,
+   "Mus+GaleoPrimates": 0.1914,
+   "Aotus+Callithrix": 1.0,
+   "Callithrix+CebusSaimiri": 0.0,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_codon_uniform_condFalse": {
+   "Tupaia+GaleoPrimates": 0.4943,
+   "Mus+Tupaia": 0.32,
+   "Mus+GaleoPrimates": 0.1857,
+   "Aotus+Callithrix": 1.0,
+   "Callithrix+CebusSaimiri": 0.0,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 4910
+  },
+  "primates_codon_noGapN": {
+   "Tupaia+GaleoPrimates": 0.7115,
+   "Mus+Tupaia": 0.1679,
+   "Mus+GaleoPrimates": 0.1207,
+   "Aotus+Callithrix": 0.6757,
+   "Callithrix+CebusSaimiri": 0.3243,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_codon_noGapN_condFalse": {
+   "Tupaia+GaleoPrimates": 0.7822,
+   "Mus+Tupaia": 0.1012,
+   "Mus+GaleoPrimates": 0.1166,
+   "Aotus+Callithrix": 0.6757,
+   "Callithrix+CebusSaimiri": 0.3243,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_codon_noGapN_suggested": {
+   "Tupaia+GaleoPrimates": 0.861,
+   "Mus+Tupaia": 0.0775,
+   "Mus+GaleoPrimates": 0.0614,
+   "Aotus+Callithrix": 0.6883,
+   "Callithrix+CebusSaimiri": 0.3117,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_codon_noGapN_suggested_condFalse": {
+   "Tupaia+GaleoPrimates": 0.8358,
+   "Mus+Tupaia": 0.1003,
+   "Mus+GaleoPrimates": 0.0639,
+   "Aotus+Callithrix": 0.6855,
+   "Callithrix+CebusSaimiri": 0.3145,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_codon_noGapN_uniform": {
+   "Tupaia+GaleoPrimates": 0.2636,
+   "Mus+Tupaia": 0.6154,
+   "Mus+GaleoPrimates": 0.121,
+   "Aotus+Callithrix": 0.6652,
+   "Callithrix+CebusSaimiri": 0.3348,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_codon_noGapN_uniform_condFalse": {
+   "Tupaia+GaleoPrimates": 0.4051,
+   "Mus+Tupaia": 0.4083,
+   "Mus+GaleoPrimates": 0.1866,
+   "Aotus+Callithrix": 0.6733,
+   "Callithrix+CebusSaimiri": 0.3267,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_unpartition": {
+   "Tupaia+GaleoPrimates": 0.747,
+   "Mus+Tupaia": 0.1347,
+   "Mus+GaleoPrimates": 0.1183,
+   "Aotus+Callithrix": 0.9932,
+   "Callithrix+CebusSaimiri": 0.0068,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_unpartition_condFalse": {
+   "Tupaia+GaleoPrimates": 0.7743,
+   "Mus+Tupaia": 0.1189,
+   "Mus+GaleoPrimates": 0.1068,
+   "Aotus+Callithrix": 0.9911,
+   "Callithrix+CebusSaimiri": 0.0089,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 4045
+  },
+  "primates_unpartition_suggested": {
+   "Tupaia+GaleoPrimates": 0.8775,
+   "Mus+Tupaia": 0.0642,
+   "Mus+GaleoPrimates": 0.0583,
+   "Aotus+Callithrix": 0.9915,
+   "Callithrix+CebusSaimiri": 0.0085,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_unpartition_suggested_condFalse": {
+   "Tupaia+GaleoPrimates": 0.787,
+   "Mus+Tupaia": 0.0996,
+   "Mus+GaleoPrimates": 0.1135,
+   "Aotus+Callithrix": 0.992,
+   "Callithrix+CebusSaimiri": 0.008,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_unpartition_uniform": {
+   "Tupaia+GaleoPrimates": 0.375,
+   "Mus+Tupaia": 0.4627,
+   "Mus+GaleoPrimates": 0.1623,
+   "Aotus+Callithrix": 0.9917,
+   "Callithrix+CebusSaimiri": 0.0083,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  },
+  "primates_unpartition_uniform_condFalse": {
+   "Tupaia+GaleoPrimates": 0.4781,
+   "Mus+Tupaia": 0.3572,
+   "Mus+GaleoPrimates": 0.1647,
+   "Aotus+Callithrix": 0.9893,
+   "Callithrix+CebusSaimiri": 0.0107,
+   "Aotus+CebusSaimiri": 0.0,
+   "n": 5403
+  }
+ }
+}
