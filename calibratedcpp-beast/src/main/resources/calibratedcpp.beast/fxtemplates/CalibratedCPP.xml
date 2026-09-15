@@ -49,6 +49,7 @@
             <![CDATA[
             <distr spec="beast.base.spec.inference.distribution.MarkovChainDistribution">
                 <param spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="2" domain="PositiveReal">1.0</param>
+                <initialMean spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" value="1.0" estimate="false"/>
             </distr>
 ]]>
         </subtemplate>
