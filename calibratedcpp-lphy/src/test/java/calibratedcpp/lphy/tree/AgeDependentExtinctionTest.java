@@ -75,8 +75,8 @@ public class AgeDependentExtinctionTest {
     public void weibullMixtureHasExactMeanAndValidTrees() {
         double mean = 1.3;
         WeibullMixtureLifetime f = new WeibullMixtureLifetime(
-                new Value<>("", mean), new Value<>("", 0.6), new Value<>("", 2.4),
-                new Value<>("", new Double[]{0.3, 0.7}));
+                new Value<>("", mean), new Value<>("", 0.6), new Value<>("", 2.4), new Value<>("", 1.5),
+                new Value<>("", new Double[]{0.3, 0.5, 0.2}));
         LifetimeModel life = f.apply().value();
 
         assertEquals(mean, life.mean(), 1e-12, "mixture mean is exact by construction of the shared scale");

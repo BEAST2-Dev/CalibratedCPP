@@ -134,9 +134,10 @@ public class CalibratedAgeDependentExtinctionCPPToBEAST
             wm.setInputValue("mean",   context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.meanParamName)));
             wm.setInputValue("shape1", context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.shape1ParamName)));
             wm.setInputValue("shape2", context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.shape2ParamName)));
+            wm.setInputValue("shape3", context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.shape3ParamName)));
             Value<?> weights = gen.getParams().get(WeibullMixtureLifetime.weightsParamName);
             if (weights != null) {
-                // Constant weights become a fixed Simplex; equal weights (0.5, 0.5) are BEAST's default.
+                // Constant weights become a fixed Simplex; equal weights (1/3, 1/3, 1/3) are BEAST's default.
                 Double[] w = (Double[]) weights.value();
                 double sum = 0.0; for (Double wi : w) sum += wi;
                 double[] wd = new double[w.length];

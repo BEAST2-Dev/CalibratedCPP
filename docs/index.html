@@ -682,7 +682,7 @@
           <tr><td><code>expLifetime</code></td><td><code>mean</code> (= 1 / death rate; reduces to the constant-rate case)</td></tr>
           <tr><td><code>gammaLifetime</code></td><td><code>shape</code>, <code>scale</code></td></tr>
           <tr><td><code>weibullLifetime</code></td><td><code>shape</code>, <code>scale</code></td></tr>
-          <tr><td><code>weibullMixtureLifetime</code></td><td>two components&rsquo; shapes and scales, plus optional <code>weights</code> (default 0.5/0.5)</td></tr>
+          <tr><td><code>weibullMixtureLifetime</code></td><td>three components&rsquo; shapes and a shared scale, plus optional <code>weights</code> (default 1/3 each)</td></tr>
         </tbody>
       </table>
       <p>Their parameters can themselves be random variables, and are then estimated:</p>

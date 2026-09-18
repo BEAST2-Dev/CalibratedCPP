@@ -12,7 +12,7 @@ import org.apache.commons.math3.special.Gamma;
 
 import java.util.List;
 
-@Description("Two-component Weibull mixture with a specified mean; the common scale is "
+@Description("Three-component Weibull mixture with a specified mean; the common scale is "
         + "derived from the mean, the shapes and the weights.")
 public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>, Double> {
 
@@ -22,14 +22,17 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
             new Input<>("shape1", "Shape (k) of the first component.", Input.Validate.REQUIRED);
     public Input<RealScalar<PositiveReal>> shape2Input =
             new Input<>("shape2", "Shape (k) of the second component.", Input.Validate.REQUIRED);
+    public Input<RealScalar<PositiveReal>> shape3Input =
+            new Input<>("shape3", "Shape (k) of the third component.", Input.Validate.REQUIRED);
     public Input<Simplex> weightsInput =
-            new Input<>("weights", "Mixture weights; defaults to equal (0.5, 0.5).");
+            new Input<>("weights", "Mixture weights; defaults to equal (1/3, 1/3, 1/3).");
 
-    // One shared, derived scale instance drives both components.
+    // One shared, derived scale instance drives all three components.
     private final RealScalarParam<PositiveReal> scale =
             new RealScalarParam<>(1.0, PositiveReal.INSTANCE);
     private final Weibull weibull1 = new Weibull();
     private final Weibull weibull2 = new Weibull();
+    private final Weibull weibull3 = new Weibull();
     private final ScalarMixtureDistribution<RealScalar<PositiveReal>, Double> mixture =
             new ScalarMixtureDistribution<>();
 
@@ -38,19 +41,22 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
     // Last parameter values the derived scale/components were built for, so refresh() is idempotent:
     // it early-returns when nothing changed, making it cheap to call from every accessor (the VIDE
     // solver hits density()/cumulativeProbability() thousands of times per solve).
-    private double lastMean = Double.NaN, lastK1 = Double.NaN, lastK2 = Double.NaN, lastW0 = Double.NaN;
+    private double lastMean = Double.NaN, lastK1 = Double.NaN, lastK2 = Double.NaN, lastK3 = Double.NaN,
+            lastW0 = Double.NaN, lastW1 = Double.NaN;
 
     @Override
     public void initAndValidate() {
         weights = weightsInput.get() != null
                 ? weightsInput.get()
-                : new SimplexParam(new double[]{0.5, 0.5});
+                : new SimplexParam(new double[]{1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0});
 
         weibull1.initByName("shape", shape1Input.get(), "scale", scale);
         weibull2.initByName("shape", shape2Input.get(), "scale", scale);
+        weibull3.initByName("shape", shape3Input.get(), "scale", scale);
         mixture.initByName(
                 "distribution", weibull1,
                 "distribution", weibull2,
+                "distribution", weibull3,
                 "weights", weights);
 
         super.initAndValidate();
@@ -62,19 +68,23 @@ public class WeibullMixture extends ScalarDistribution<RealScalar<PositiveReal>,
         final double mean = meanInput.get().get();
         final double k1 = shape1Input.get().get();
         final double k2 = shape2Input.get().get();
+        final double k3 = shape3Input.get().get();
         final double w0 = weights.get(0);
+        final double w1 = weights.get(1);
 
         // Idempotent: the derived scale/components already match the current parameters, so nothing
         // to rebuild. This makes refresh() free to call from every accessor (below).
-        if (mean == lastMean && k1 == lastK1 && k2 == lastK2 && w0 == lastW0) return;
+        if (mean == lastMean && k1 == lastK1 && k2 == lastK2 && k3 == lastK3
+                && w0 == lastW0 && w1 == lastW1) return;
 
         // E[X] = theta * sum_i w_i * Gamma(1 + 1/k_i)  =>  theta = mean / that sum
         final double denom = w0 * Gamma.gamma(1.0 + 1.0 / k1)
-                + weights.get(1) * Gamma.gamma(1.0 + 1.0 / k2);
+                + w1 * Gamma.gamma(1.0 + 1.0 / k2)
+                + weights.get(2) * Gamma.gamma(1.0 + 1.0 / k3);
         scale.set(mean / denom);
 
-        mixture.refresh();   // cascades to weibull1.refresh() and weibull2.refresh()
-        lastMean = mean; lastK1 = k1; lastK2 = k2; lastW0 = w0;
+        mixture.refresh();   // cascades to weibull1/2/3.refresh()
+        lastMean = mean; lastK1 = k1; lastK2 = k2; lastK3 = k3; lastW0 = w0; lastW1 = w1;
     }
 
     // --- delegate the scalar surface to the internal mixture ---
