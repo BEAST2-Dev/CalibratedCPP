@@ -4,6 +4,7 @@
 const NAV_SECTIONS = [
   { id: "model", label: "Model" },
   { id: "constraint-tree", label: "Constraint Tree Format" },
+  {id : "calibration-gui", label: "CalibrationGUI"},
   { id: "beast-xml", label: "Specify in BEAST3 XML" },
   { id: "beauti", label: "Specify in BEAUti" },
   { id: "lphy", label: "Specify in an LPhy script" },
