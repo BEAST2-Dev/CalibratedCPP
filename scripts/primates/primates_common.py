@@ -10,6 +10,7 @@ import re
 import xml.etree.ElementTree as ET
 
 BASE = os.path.dirname(os.path.abspath(__file__))
+FIG_DIR = os.path.join(BASE, "figures")
 XML_ROOT = os.path.join(BASE, "..", "..", "calibratedcpp-beast", "src", "test",
                         "resources", "calibratedcpp", "examples", "primates", "xmls")
 
@@ -33,9 +34,9 @@ GRID_MODELS = {"calibrationPrior": "", "suggestedPrior": "_suggested",
                "uniformPrior": "_uniform"}
 
 
-def _grid(alignment, xmls):
+def _grid(alignment, xmls, post="grid/data", prior="grid/data"):
     return {
-        "post": "grid/data", "prior": "grid/data", "xmls": xmls,
+        "post": post, "prior": prior, "xmls": xmls,
         "suffix": alignment, "pattern": "primates{suffix}{model}{cond}",
         "models": GRID_MODELS, "post_suffix": "-combined", "xml_suffix": "-rep1",
         "cond": {"true": "", "false": "_condFalse"},
@@ -43,12 +44,11 @@ def _grid(alignment, xmls):
 
 
 DATASETS = {
-    "grid-unpartition": _grid("_unpartition", "primatesGrid"),
-    "grid-codon": _grid("_codon", "primatesGrid"),
-    "grid-codon-nogapN": _grid("_codon_noGapN", "primatesGrid"),
+    "grid-codon-deepcal": _grid("_codon_deepCal", "primatesGridNewCalibration",
+                                post="data/combined", prior="data"),
 }
 
-DATASET = os.environ.get("PRIMATES_DATASET", "grid-codon-nogapN")
+DATASET = os.environ.get("PRIMATES_DATASET", "grid-codon-deepcal")
 
 
 def use(name):
@@ -101,6 +101,11 @@ def trees_path(model, cond, prior_only=False):
                         stem(model, cond, prior_only) + ".trees")
 
 
+def fig_path(name):
+    os.makedirs(FIG_DIR, exist_ok=True)
+    return os.path.join(FIG_DIR, name)
+
+
 def summary_tree_path(model, cond):
     return os.path.join(POST_DATA, stem(model, cond) + "_summary.tree")
 
@@ -130,16 +135,16 @@ def clade_names():
     """{frozenset(taxa): clade name} from the LPhy headers of the calibrationPrior XMLs.
 
     Names for uncalibrated clades (Primates, Colobinae, ...) only appear in the
-    original calibrationPrior.xml, so both it and the current dataset's XML are read.
+    clade_names.lphy, so both it and the current dataset's XML are read.
     """
     names = {}
-    paths = [os.path.join(XML_ROOT, "calibrationPrior.xml"), model_xml("calibrationPrior")]
+    paths = [os.path.join(BASE, "clade_names.lphy"), model_xml("calibrationPrior")]
     for path in dict.fromkeys(paths):
         if not os.path.exists(path):
             continue
         with open(path) as fh:
             head = fh.read(20000)
-        comment = head[head.find("<!--"):head.find("-->")]
+        comment = head[head.find("<!--"):head.find("-->")] if "<!--" in head else head
         for name, body in _CLADE_RE.findall(comment):
             taxa = frozenset(re.findall(r'"([^"]+)"', body))
             if taxa:

@@ -71,14 +71,14 @@ def panel(ax, model, names):
 
 
 def main():
-    fmt = "png"
+    fmt = "pdf"
     for i, a in enumerate(sys.argv):
         if a.startswith("--format="):
             fmt = sys.argv.pop(i).split("=", 1)[1]
             break
     if len(sys.argv) > 1 and sys.argv[1].startswith("--dataset="):
         pc.use(sys.argv.pop(1).split("=", 1)[1])
-    out = os.path.join(pc.BASE, "%s_clade_ages.%s" % (pc.DATASET, fmt))
+    out = pc.fig_path("%s_clade_ages.%s" % (pc.DATASET, fmt))
     names = pc.clade_names()
     fig, axes = plt.subplots(1, len(pc.MODELS), figsize=(5 * len(pc.MODELS), 5.8))
     for ax, model in zip(axes, pc.MODELS):

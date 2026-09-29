@@ -1,0 +1,13 @@
+// Clade definitions from the original calibrationPrior.xml LPhy header (removed in fc79a77).
+// Used only to name clades in the figures, including uncalibrated ones such as Primates.
+Euarchonta = ["Tupaia_chinensis", "Galeopterus_variegatus", "Otolemur_garnettii", "Microcebus_murinus", "Propithecus_coquereli", "Carlito_syrichta", "Cebus_capucinus_imitator", "Saimiri_boliviensis", "Aotus_nancymaae", "Callithrix_jacchus", "Nomascus_leucogenys", "Pongo_abelii", "Gorilla_gorilla", "Homo_sapiens", "Pan_paniscus", "Pan_troglodytes", "Colobus_angolensis_palliatus", "Piliocolobus_tephrosceles", "Rhinopithecus_bieti", "Rhinopithecus_roxellana", "Chlorocebus_sabaeus", "Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis", "Theropithecus_gelada"];
+Callitrichidae_Cebidae = ["Cebus_capucinus_imitator", "Saimiri_boliviensis", "Aotus_nancymaae", "Callithrix_jacchus"];
+Cebidae = ["Cebus_capucinus_imitator", "Saimiri_boliviensis"];
+Primates = ["Otolemur_garnettii", "Microcebus_murinus", "Propithecus_coquereli", "Carlito_syrichta", "Cebus_capucinus_imitator", "Saimiri_boliviensis", "Aotus_nancymaae", "Callithrix_jacchus", "Nomascus_leucogenys", "Pongo_abelii", "Gorilla_gorilla", "Homo_sapiens", "Pan_paniscus", "Pan_troglodytes", "Colobus_angolensis_palliatus", "Piliocolobus_tephrosceles", "Rhinopithecus_bieti", "Rhinopithecus_roxellana", "Chlorocebus_sabaeus", "Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis", "Theropithecus_gelada"];
+Cercopithecidae = ["Colobus_angolensis_palliatus", "Piliocolobus_tephrosceles", "Rhinopithecus_bieti", "Rhinopithecus_roxellana", "Chlorocebus_sabaeus", "Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis", "Theropithecus_gelada"];
+Colobinae = ["Colobus_angolensis_palliatus", "Piliocolobus_tephrosceles", "Rhinopithecus_bieti", "Rhinopithecus_roxellana"];
+Cercopithecinae = ["Chlorocebus_sabaeus", "Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis", "Theropithecus_gelada"];
+Papionini = ["Macaca_nemestrina", "Macaca_fascicularis", "Macaca_mulatta", "Cercocebus_atys", "Mandrillus_leucophaeus", "Papio_anubis", "Theropithecus_gelada"];
+Hominoidea = ["Nomascus_leucogenys", "Pongo_abelii", "Gorilla_gorilla", "Homo_sapiens", "Pan_paniscus", "Pan_troglodytes"];
+Hominidae = ["Pongo_abelii", "Gorilla_gorilla", "Homo_sapiens", "Pan_paniscus", "Pan_troglodytes"];
+Homo_Pan = ["Homo_sapiens", "Pan_paniscus", "Pan_troglodytes"];

@@ -3,7 +3,7 @@
 # per analysis, using the BEAST 3 LogCombiner.
 #
 # Usage: ./run_logcombiner.sh [RUN_DIR] [BURNIN_PERCENT]
-#   RUN_DIR         directory holding <name>-rep<N>.log/.trees (default grid/out)
+#   RUN_DIR         directory holding <name>-rep<N>.log/.trees (default data)
 #   BURNIN_PERCENT  burnin discarded from each replicate (default 10)
 #
 # Output goes to $RUN_DIR/combined/<name>-combined.{log,trees}; runs that already
@@ -18,7 +18,7 @@ REPS="${REPS:-1 2 3}"
 TIMEOUT="${TIMEOUT:-1200}"
 
 cd "$(dirname "$0")"
-RUN_DIR="${1:-grid/out}"
+RUN_DIR="${1:-data}"
 BURNIN="${2:-10}"
 
 if [ ! -x "$LOGCOMBINER" ]; then

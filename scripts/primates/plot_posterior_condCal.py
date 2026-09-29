@@ -11,7 +11,7 @@ for calibrated clades, and crown Primates is not calibrated in these runs.
 Self-contained: everything it needs is in this file.
 
 Usage:
-    python3 plot_posterior_condCal.py                     # grid-codon-nogapN, Primates
+    python3 plot_posterior_condCal.py                     # grid-codon-deepcal, Primates
     python3 plot_posterior_condCal.py Colobinae
     python3 plot_posterior_condCal.py [--dataset=NAME] [--format=pdf] [CLADE]
 """
@@ -51,20 +51,19 @@ GRID_MODELS = {"calibrationPrior": "", "suggestedPrior": "_suggested",
                "uniformPrior": "_uniform"}
 
 
-def _grid(alignment):
-    return {"post": "grid/data", "prior": "grid/data",
-            "xmls": "primatesGrid", "suffix": alignment,
+def _grid(alignment, xmls="", post="grid/data", prior="grid/data"):
+    return {"post": post, "prior": prior,
+            "xmls": xmls, "suffix": alignment,
             "pattern": "primates{suffix}{model}{cond}", "models": GRID_MODELS,
             "post_suffix": "-combined", "xml_suffix": "-rep1",
             "cond": {"true": "", "false": "_condFalse"}}
 
 
 DATASETS = {
-    "grid-unpartition": _grid("_unpartition"),
-    "grid-codon": _grid("_codon"),
-    "grid-codon-nogapN": _grid("_codon_noGapN"),
+    "grid-codon-deepcal": _grid("_codon_deepCal", "primatesGridNewCalibration",
+                                post="data/combined", prior="data"),
 }
-DATASET = os.environ.get("PRIMATES_DATASET", "grid-codon-nogapN")
+DATASET = os.environ.get("PRIMATES_DATASET", "grid-codon-deepcal")
 
 
 def use(name):
@@ -111,17 +110,17 @@ def clade_names():
     """{frozenset(taxa): clade name} from the LPhy headers of the calibrationPrior XMLs.
 
     Names for uncalibrated clades (Primates, Colobinae, ...) only appear in the
-    original calibrationPrior.xml, so both it and the current dataset's XML are read.
+    clade_names.lphy, so both it and the current dataset's XML are read.
     """
     names = {}
     own = os.path.join(XMLS, base_stem("calibrationPrior", "true")
                        + D.get("xml_suffix", "") + ".xml")
-    for path in dict.fromkeys([os.path.join(XML_ROOT, "calibrationPrior.xml"), own]):
+    for path in dict.fromkeys([os.path.join(BASE, "clade_names.lphy"), own]):
         if not os.path.exists(path):
             continue
         with open(path) as fh:
             head = fh.read(20000)
-        comment = head[head.find("<!--"):head.find("-->")]
+        comment = head[head.find("<!--"):head.find("-->")] if "<!--" in head else head
         for name, body in _CLADE_RE.findall(comment):
             taxa = frozenset(re.findall(r'"([^"]+)"', body))
             if taxa:
@@ -269,7 +268,7 @@ def panel(ax, model, prior_only, taxa, clade):
 
 
 def main():
-    fmt = "png"
+    fmt = "pdf"
     for i, a in enumerate(sys.argv):
         if a.startswith("--format="):
             fmt = sys.argv.pop(i).split("=", 1)[1]
@@ -296,7 +295,8 @@ def main():
 
     set_shared_xlim(axes, drawn)
 
-    out = os.path.join(BASE, "%s_%s_age.%s" % (DATASET, clade, fmt))
+    os.makedirs(os.path.join(BASE, "figures"), exist_ok=True)
+    out = os.path.join(BASE, "figures", "%s_%s_age.%s" % (DATASET, clade, fmt))
     fig.tight_layout()
     fig.savefig(out, dpi=180)
     print("wrote", out)
