@@ -15,7 +15,6 @@
         <provider classname="calibratedcpp.distribution.Erlang"/>
         <provider classname="calibratedcpp.distribution.Weibull"/>
         <provider classname="calibratedcpp.distribution.ScalarMixtureDistribution"/>
-        <provider classname="calibratedcpp.distribution.WeibullMixture"/>
         <provider classname="calibrationprior.CalibrationPrior"/>
         <provider classname="calibrationprior.CalibrationDistribution"/>
         <provider classname="calibrationprior.CalibrationCladePrior"/>

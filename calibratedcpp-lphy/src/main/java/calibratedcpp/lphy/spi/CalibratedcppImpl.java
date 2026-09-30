@@ -12,7 +12,6 @@ import calibratedcpp.lphy.tree.CalibratedCPPTree;
 import calibratedcpp.lphy.tree.ExpLifetime;
 import calibratedcpp.lphy.tree.GammaLifetime;
 import calibratedcpp.lphy.tree.WeibullLifetime;
-import calibratedcpp.lphy.tree.WeibullMixtureLifetime;
 import calibratedcpp.lphy.util.TruncatedLogNormal;
 import lphy.base.spi.LPhyBaseImpl;
 import lphy.core.model.BasicFunction;
@@ -38,8 +37,7 @@ public class CalibratedcppImpl extends LPhyBaseImpl {
     public List<Class<? extends BasicFunction>> declareFunctions() {
         return Arrays.asList(
                 toCalibrationArray.class, CalibrationFunction.class,
-                WeibullLifetime.class, GammaLifetime.class, ExpLifetime.class,
-                WeibullMixtureLifetime.class
+                WeibullLifetime.class, GammaLifetime.class, ExpLifetime.class
         );
     }
 

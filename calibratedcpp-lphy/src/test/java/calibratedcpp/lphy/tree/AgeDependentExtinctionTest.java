@@ -72,28 +72,6 @@ public class AgeDependentExtinctionTest {
     }
 
     @Test
-    public void weibullMixtureHasExactMeanAndValidTrees() {
-        double mean = 1.3;
-        WeibullMixtureLifetime f = new WeibullMixtureLifetime(
-                new Value<>("", mean), new Value<>("", 0.6), new Value<>("", 2.4), new Value<>("", 1.5),
-                new Value<>("", new Double[]{0.3, 0.5, 0.2}));
-        LifetimeModel life = f.apply().value();
-
-        assertEquals(mean, life.mean(), 1e-12, "mixture mean is exact by construction of the shared scale");
-        assertEquals(1.0, life.survival(0.0), 1e-9, "survival(0) = 1");
-        double integral = 0; double dt = 5e-4;
-        for (double t = dt / 2; t < 80; t += dt) integral += life.density(t) * dt;
-        assertEquals(1.0, integral, 1e-3, "mixture density integrates to 1");
-
-        // shape1 = 0.6 < 1 exercises the t=0 singularity path inside the VIDE solver
-        CalibratedAgeDependentExtinctionTree ad = new CalibratedAgeDependentExtinctionTree(
-                new Value<>("", 1.5), f.apply(), new Value<>("", 1.0), new Value<>("", 6),
-                null, null, null, new Value<>("", 6.0), null);
-        for (int i = 0; i < 5; i++)
-            assertEquals(6, countLeaves(ad.sample().value().getRoot()), "tip count");
-    }
-
-    @Test
     public void weibullShapeBelowOneStaysFinite() {
         // Weibull shape < 1 has an infinite lifetime density at t=0; the VIDE solver must stay finite
         // (previously produced NaN, misreported as "process does not saturate"). A fixed origin isolates

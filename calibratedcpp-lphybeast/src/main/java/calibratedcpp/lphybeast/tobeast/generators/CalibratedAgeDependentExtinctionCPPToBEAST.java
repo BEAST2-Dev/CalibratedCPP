@@ -8,10 +8,8 @@ import beast.base.spec.inference.distribution.Exponential;
 import beast.base.spec.inference.distribution.Gamma;
 import beast.base.spec.inference.distribution.ScalarDistribution;
 import beast.base.spec.inference.parameter.RealScalarParam;
-import beast.base.spec.inference.parameter.SimplexParam;
 import calibratedcpp.CalibratedAgeDependentExtinctionModel;
 import calibratedcpp.distribution.Weibull;
-import calibratedcpp.distribution.WeibullMixture;
 import calibratedcpp.lphy.prior.Calibration;
 import calibratedcpp.lphy.prior.CalibrationArray;
 import calibratedcpp.lphy.prior.ConditionedMRCAPrior;
@@ -19,7 +17,6 @@ import calibratedcpp.lphy.tree.CalibratedAgeDependentExtinctionTree;
 import calibratedcpp.lphy.tree.ExpLifetime;
 import calibratedcpp.lphy.tree.GammaLifetime;
 import calibratedcpp.lphy.tree.WeibullLifetime;
-import calibratedcpp.lphy.tree.WeibullMixtureLifetime;
 import lphy.core.model.Generator;
 import lphy.core.model.Value;
 import lphybeast.BEASTContext;
@@ -129,26 +126,9 @@ public class CalibratedAgeDependentExtinctionCPPToBEAST
             e.setInputValue("mean", context.getAsRealScalar(gen.getParams().get(ExpLifetime.meanParamName)));
             e.initAndValidate();
             return e;
-        } else if (gen instanceof WeibullMixtureLifetime) {
-            WeibullMixture wm = new WeibullMixture();
-            wm.setInputValue("mean",   context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.meanParamName)));
-            wm.setInputValue("shape1", context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.shape1ParamName)));
-            wm.setInputValue("shape2", context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.shape2ParamName)));
-            wm.setInputValue("shape3", context.getAsRealScalar(gen.getParams().get(WeibullMixtureLifetime.shape3ParamName)));
-            Value<?> weights = gen.getParams().get(WeibullMixtureLifetime.weightsParamName);
-            if (weights != null) {
-                // Constant weights become a fixed Simplex; equal weights (1/3, 1/3, 1/3) are BEAST's default.
-                Double[] w = (Double[]) weights.value();
-                double sum = 0.0; for (Double wi : w) sum += wi;
-                double[] wd = new double[w.length];
-                for (int i = 0; i < w.length; i++) wd[i] = w[i] / sum;
-                wm.setInputValue("weights", new SimplexParam(wd));
-            }
-            wm.initAndValidate();
-            return wm;
         }
         throw new IllegalArgumentException("Unsupported lifetime function: " + gen.getClass().getSimpleName()
-                + ". Supported: weibullLifetime, gammaLifetime, expLifetime, weibullMixtureLifetime.");
+                + ". Supported: weibullLifetime, gammaLifetime, expLifetime.");
     }
 
     @Override
