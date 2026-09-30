@@ -34,7 +34,6 @@ open module calibratedcpp.beast {
         calibratedcpp.SkylineParameter,
         calibratedcpp.distribution.Weibull,
         calibratedcpp.distribution.Erlang,
-        calibratedcpp.distribution.ScalarMixtureDistribution,
         calibratedcpp.operators.ChangeTimeOperator,
         calibrationprior.CalibrationPrior,
         calibrationprior.CalibrationDistribution,

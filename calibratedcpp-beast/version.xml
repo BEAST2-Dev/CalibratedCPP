@@ -14,7 +14,6 @@
         <provider classname="calibratedcpp.operators.ChangeTimeOperator"/>
         <provider classname="calibratedcpp.distribution.Erlang"/>
         <provider classname="calibratedcpp.distribution.Weibull"/>
-        <provider classname="calibratedcpp.distribution.ScalarMixtureDistribution"/>
         <provider classname="calibrationprior.CalibrationPrior"/>
         <provider classname="calibrationprior.CalibrationDistribution"/>
         <provider classname="calibrationprior.CalibrationCladePrior"/>
