@@ -17,6 +17,44 @@ $$Q(t) = \frac{\rho\lambda(1-e^{-(\lambda-\mu)t})}{\rho\lambda+(\lambda(1-\rho)-
 
 The Calibrated CPP is a calibrated tree prior using the CPP. Calibrated tree priors are used for molecular clock dating by conditioning on the existence and ages of the most recent common ancestors of monophyletic clades.
 
+## Using CalibratedCPP with BEAST3
+
+### Requirements
+
+- [BEAST3](https://github.com/CompEvol/beast3) (BEAST v2.8.0 or later), which includes BEAUti.
+- The [ORC](https://github.com/jordandouglas/ORC) package (v1.3.1 or later).
+
+### Installation
+
+CalibratedCPP is not yet listed in the BEAUti Package Manager, so it is installed from the release ZIP.
+
+1. Install ORC: open BEAUti, choose `File > Manage Packages`, select **ORC** and click **Install/Upgrade**.
+   Or from a terminal:
+   ```bash
+   packagemanager -add ORC
+   ```
+2. Download `calibratedcpp-beast-<version>.zip` from the [releases page](https://github.com/BEAST2-Dev/CalibratedCPP/releases).
+3. Unzip it into a folder called `CalibratedCPP` inside the BEAST 2.8 package directory:
+
+   | OS      | Package directory                               |
+   |---------|-------------------------------------------------|
+   | macOS   | `~/Library/Application Support/BEAST/2.8/`      |
+   | Linux   | `~/.beast/2.8/`                                 |
+   | Windows | `%USERPROFILE%\BEAST\2.8\`                      |
+
+   For example, on macOS:
+   ```bash
+   mkdir -p ~/Library/Application\ Support/BEAST/2.8/CalibratedCPP
+   cd ~/Library/Application\ Support/BEAST/2.8/CalibratedCPP
+   cp calibratedcpp-beast-<version>.zip .
+   unzip calibratedcpp-beast-<version>.zip
+   ```
+4. Restart BEAUti.
+
+To check the installation, run `beast -version`. The output should contain
+`Loading package calibratedcpp v<version>` and no line saying
+`Skipping modules with unsatisfied dependencies in .../CalibratedCPP`.
+
 ## For developer
 
 Build the package:

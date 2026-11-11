@@ -36,8 +36,9 @@
                 <include>io.github.beast2-dev:calibratedcpp-beast</include>
                 <include>org.hipparchus:hipparchus-core</include>
                 <include>com.github.wendykierp:JTransforms</include>
-                <!-- JTransforms needs this; its other dep, commons-math3, comes from BEAST. -->
+                <!-- JTransforms runtime deps; BEAST 2.8 ships commons-math4, not math3. -->
                 <include>pl.edu.icm:JLargeArrays</include>
+                <include>org.apache.commons:commons-math3</include>
             </includes>
         </dependencySet>
     </dependencySets>
@@ -48,10 +49,10 @@
         <fileSet>
             <directory>${project.basedir}/src/test/resources/calibratedcpp/examples</directory>
             <outputDirectory>/examples</outputDirectory>
-            <excludes>
-                <exclude>legacy/**</exclude>
-                <exclude>**/reports/**</exclude>
-            </excludes>
+            <!-- top-level files only; subfolders are not packaged -->
+            <includes>
+                <include>*.*</include>
+            </includes>
         </fileSet>
     </fileSets>
 </assembly>

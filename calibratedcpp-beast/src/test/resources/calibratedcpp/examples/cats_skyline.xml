@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+data {
+  D = readNexus(file="./data/cats_100Sites.nex");
+  L = D.nchar();
+  taxa = D.taxa();
+  n = ntaxa(taxa=taxa);
+}
+model {
+  π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
+  kappa ~ LogNormal(meanlog=1.0, sdlog=1.25);
+  Q = hky(kappa=kappa, freq=π);
+  mRate ~ LogNormal(meanlog=-5, sdlog=1);
+  gamma ~ LogNormal(meanlog=0, sdlog=2);
+  siteRates ~ DiscretizeGamma(shape=gamma, ncat=4, replicates=L);
+  taxaAll = ["IberianLynx_Lynx_pardinus", "FishingCat_Prionailurus_viverrinus", "LeopardCat_Prionailurus_bengalensis", "JungleCat_Felis_chaus", "BlackfootedCat_Felis_nigripes", "DomesticCat_Felis_catus", "SandCat_Felis_margarita", "CloudedLeopard_Neofelis_nebulosa", "SnowLeopard_Panthera_uncia", "AmurTiger_Panthera_tigris_altaica", "BengalTiger_Panthera_tigris_tigris", "Jaguar_Panthera_onca", "Leopard_Panthera_pardus", "Lion_Panthera_leo", "StripedHyena_Hyaena_hyaena", "ScimitarToothedCat_Homotherium_latidens", "SpottedHyena_Crocuta_crocuta", "Caracal_Caracal_caracal", "Cheetah_Acinonyx_jubatus"];
+  cAll = calibration(taxa=taxaAll, upper=35.0, lower=29.0);
+  taxa1 = ["IberianLynx_Lynx_pardinus", "FishingCat_Prionailurus_viverrinus", "LeopardCat_Prionailurus_bengalensis", "JungleCat_Felis_chaus", "BlackfootedCat_Felis_nigripes", "DomesticCat_Felis_catus", "SandCat_Felis_margarita"];
+  c1 = calibration(taxa=taxa1, upper=10.3, lower=5.3);
+  taxa2 = ["CloudedLeopard_Neofelis_nebulosa", "SnowLeopard_Panthera_uncia", "AmurTiger_Panthera_tigris_altaica", "BengalTiger_Panthera_tigris_tigris", "Jaguar_Panthera_onca", "Leopard_Panthera_pardus", "Lion_Panthera_leo"];
+  c2 = calibration(taxa=taxa2, upper=8.2, lower=3.8);
+  taxa3 = ["SnowLeopard_Panthera_uncia", "AmurTiger_Panthera_tigris_altaica", "BengalTiger_Panthera_tigris_tigris"];
+  c3 = calibration(taxa=taxa3, upper=3.7, lower=1.5);
+  calibrations ~ ConditionedMRCAPrior(calibrations=[cAll, c1, c2, c3]);
+  changeTimes = [10.0, 20.0];
+  lambda ~ ExpMarkovChain(initialMean=0.3, n=3);
+  mu ~ ExpMarkovChain(initialMean=0.1, n=3);
+  rho ~ Uniform(lower=0.0, upper=1.0);
+  tree ~ CalibratedBirthDeathSkylineTree(calibrations=calibrations, changeTimes=changeTimes, lambda=lambda, mu=mu, n=n, rho=rho);
+  D ~ PhyloCTMC(L=L, Q=Q, mu=mRate, siteRates=siteRates, tree=tree);
+}
+
+-->
+<beast namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.base.evolution.alignment:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.tree.coalescent:beast.pkgmgmt:beast.base.core:beast.base.inference.util:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" required="" version="2.8">
+
+    <data
+id="D"
+spec="Alignment">
+        <sequence id="Sequence" spec="Sequence" taxon="Cheetah_Acinonyx_jubatus" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence1" spec="Sequence" taxon="Caracal_Caracal_caracal" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence2" spec="Sequence" taxon="SpottedHyena_Crocuta_crocuta" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence3" spec="Sequence" taxon="DomesticCat_Felis_catus" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence4" spec="Sequence" taxon="JungleCat_Felis_chaus" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence5" spec="Sequence" taxon="SandCat_Felis_margarita" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence6" spec="Sequence" taxon="BlackfootedCat_Felis_nigripes" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence7" spec="Sequence" taxon="ScimitarToothedCat_Homotherium_latidens" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence8" spec="Sequence" taxon="StripedHyena_Hyaena_hyaena" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence9" spec="Sequence" taxon="IberianLynx_Lynx_pardinus" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence10" spec="Sequence" taxon="CloudedLeopard_Neofelis_nebulosa" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence11" spec="Sequence" taxon="Lion_Panthera_leo" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence12" spec="Sequence" taxon="Jaguar_Panthera_onca" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence13" spec="Sequence" taxon="Leopard_Panthera_pardus" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence14" spec="Sequence" taxon="AmurTiger_Panthera_tigris_altaica" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence15" spec="Sequence" taxon="BengalTiger_Panthera_tigris_tigris" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence16" spec="Sequence" taxon="SnowLeopard_Panthera_uncia" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence17" spec="Sequence" taxon="LeopardCat_Prionailurus_bengalensis" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+        <sequence id="Sequence18" spec="Sequence" taxon="FishingCat_Prionailurus_viverrinus" totalcount="4" value="ATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAAATGGTGAAGTNNATGGTGAA"/>
+    </data>
+
+    <run id="MCMC" spec="MCMC" chainLength="1000000" preBurnin="180">
+        <state id="State" spec="State">
+            <stateNode id="pi" spec="beast.base.spec.inference.parameter.SimplexParam" dimension="4" domain="UnitInterval">0.26762376552124395 0.11286599125223175 0.2916050657038113 0.3279051775227131</stateNode>
+            <stateNode id="kappa" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" value="2.6773554961811197"/>
+            <stateNode id="mRate" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" value="0.0029317391041459757"/>
+            <stateNode id="gamma" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" value="0.8734713845056471"/>
+            <stateNode id="lambda" spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="3" domain="PositiveReal">0.5199000375700661 0.3282642253064096 0.32350096184597915</stateNode>
+            <stateNode id="mu" spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="3" domain="PositiveReal">0.05671427186678005 0.09131801604267446 0.2182877325890948</stateNode>
+            <stateNode id="rho" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.5692045904725245"/>
+            <stateNode id="tree" spec="beast.base.evolution.tree.TreeParser" IsLabelledNewick="true" newick="(((Caracal_Caracal_caracal:2.92845791984197,SpottedHyena_Crocuta_crocuta:2.92845791984197):0.9438733108991602,((Cheetah_Acinonyx_jubatus:1.6717879959711606,StripedHyena_Hyaena_hyaena:1.6717879959711606):1.2396759590401387,ScimitarToothedCat_Homotherium_latidens:2.9114639550112993):0.9608672757298309):27.51899977321299,((LeopardCat_Prionailurus_bengalensis:5.839216545570178,(((DomesticCat_Felis_catus:1.8359395445759086,JungleCat_Felis_chaus:1.8359395445759086):0.3599843863457499,((BlackfootedCat_Felis_nigripes:0.46575245660506887,SandCat_Felis_margarita:0.46575245660506887):0.4195764739702798,IberianLynx_Lynx_pardinus:0.8853289305753487):1.3105950003463098):0.7154466269099844,FishingCat_Prionailurus_viverrinus:2.911370557831643):2.927845987738535):0.2823678291902141,((CloudedLeopard_Neofelis_nebulosa:0.468787694571457,Leopard_Panthera_pardus:0.468787694571457):3.8293822349643047,((SnowLeopard_Panthera_uncia:2.9575662516959635,(AmurTiger_Panthera_tigris_altaica:0.43836545398921795,BengalTiger_Panthera_tigris_tigris:0.43836545398921795):2.5192007977067457):0.20561815695463448,(Jaguar_Panthera_onca:3.114712604855136,Lion_Panthera_leo:3.114712604855136):0.0484718037954619):1.1349855208851638):1.8234144452246301):25.26974662919373):0.0;">
+                <taxonset id="TaxonSet" spec="TaxonSet">
+                    <taxon id="Caracal_Caracal_caracal" spec="Taxon"/>
+                    <taxon id="SpottedHyena_Crocuta_crocuta" spec="Taxon"/>
+                    <taxon id="Cheetah_Acinonyx_jubatus" spec="Taxon"/>
+                    <taxon id="StripedHyena_Hyaena_hyaena" spec="Taxon"/>
+                    <taxon id="ScimitarToothedCat_Homotherium_latidens" spec="Taxon"/>
+                    <taxon id="LeopardCat_Prionailurus_bengalensis" spec="Taxon"/>
+                    <taxon id="DomesticCat_Felis_catus" spec="Taxon"/>
+                    <taxon id="JungleCat_Felis_chaus" spec="Taxon"/>
+                    <taxon id="BlackfootedCat_Felis_nigripes" spec="Taxon"/>
+                    <taxon id="SandCat_Felis_margarita" spec="Taxon"/>
+                    <taxon id="IberianLynx_Lynx_pardinus" spec="Taxon"/>
+                    <taxon id="FishingCat_Prionailurus_viverrinus" spec="Taxon"/>
+                    <taxon id="CloudedLeopard_Neofelis_nebulosa" spec="Taxon"/>
+                    <taxon id="Leopard_Panthera_pardus" spec="Taxon"/>
+                    <taxon id="SnowLeopard_Panthera_uncia" spec="Taxon"/>
+                    <taxon id="AmurTiger_Panthera_tigris_altaica" spec="Taxon"/>
+                    <taxon id="BengalTiger_Panthera_tigris_tigris" spec="Taxon"/>
+                    <taxon id="Jaguar_Panthera_onca" spec="Taxon"/>
+                    <taxon id="Lion_Panthera_leo" spec="Taxon"/>
+                </taxonset>
+            </stateNode>
+        </state>
+        <distribution id="posterior" spec="CompoundDistribution">
+            <distribution id="prior" spec="CompoundDistribution">
+                <distribution id="rho.prior" spec="beast.base.spec.inference.distribution.Uniform" param="@rho">
+                    <lower id="RealScalarParam" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
+                    <upper id="RealScalarParam1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
+                </distribution>
+                <distribution id="mu.prior" spec="beast.base.spec.inference.distribution.MarkovChainDistribution" param="@mu">
+                    <initialMean id="RealScalarParam2" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.1"/>
+                </distribution>
+                <distribution id="kappa.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@kappa">
+                    <M id="RealScalarParam3" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
+                    <S id="RealScalarParam4" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.25"/>
+                </distribution>
+                <distribution id="CalibratedBirthDeathSkylineModel" spec="calibratedcpp.CalibratedBirthDeathSkylineModel" conditionOnRoot="true" rho="@rho" tree="@tree">
+                    <birthRate id="SkylineParameter" spec="calibratedcpp.SkylineParameter" timesAreAges="true" values="@lambda">
+                        <changeTimes id="changeTimes" spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="2" domain="Real" estimate="false">10.0 20.0</changeTimes>
+                    </birthRate>
+                    <deathRate id="SkylineParameter1" spec="calibratedcpp.SkylineParameter" changeTimes="@changeTimes" timesAreAges="true" values="@mu"/>
+                    <calibrations id="TaxonSet1" spec="TaxonSet">
+                        <taxon idref="IberianLynx_Lynx_pardinus"/>
+                        <taxon idref="FishingCat_Prionailurus_viverrinus"/>
+                        <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
+                        <taxon idref="JungleCat_Felis_chaus"/>
+                        <taxon idref="BlackfootedCat_Felis_nigripes"/>
+                        <taxon idref="DomesticCat_Felis_catus"/>
+                        <taxon idref="SandCat_Felis_margarita"/>
+                        <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
+                        <taxon idref="Jaguar_Panthera_onca"/>
+                        <taxon idref="Leopard_Panthera_pardus"/>
+                        <taxon idref="Lion_Panthera_leo"/>
+                        <taxon idref="StripedHyena_Hyaena_hyaena"/>
+                        <taxon idref="ScimitarToothedCat_Homotherium_latidens"/>
+                        <taxon idref="SpottedHyena_Crocuta_crocuta"/>
+                        <taxon idref="Caracal_Caracal_caracal"/>
+                        <taxon idref="Cheetah_Acinonyx_jubatus"/>
+                    </calibrations>
+                    <calibrations id="TaxonSet2" spec="TaxonSet">
+                        <taxon idref="IberianLynx_Lynx_pardinus"/>
+                        <taxon idref="FishingCat_Prionailurus_viverrinus"/>
+                        <taxon idref="LeopardCat_Prionailurus_bengalensis"/>
+                        <taxon idref="JungleCat_Felis_chaus"/>
+                        <taxon idref="BlackfootedCat_Felis_nigripes"/>
+                        <taxon idref="DomesticCat_Felis_catus"/>
+                        <taxon idref="SandCat_Felis_margarita"/>
+                    </calibrations>
+                    <calibrations id="TaxonSet3" spec="TaxonSet">
+                        <taxon idref="CloudedLeopard_Neofelis_nebulosa"/>
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
+                        <taxon idref="Jaguar_Panthera_onca"/>
+                        <taxon idref="Leopard_Panthera_pardus"/>
+                        <taxon idref="Lion_Panthera_leo"/>
+                    </calibrations>
+                    <calibrations id="TaxonSet4" spec="TaxonSet">
+                        <taxon idref="SnowLeopard_Panthera_uncia"/>
+                        <taxon idref="AmurTiger_Panthera_tigris_altaica"/>
+                        <taxon idref="BengalTiger_Panthera_tigris_tigris"/>
+                    </calibrations>
+                </distribution>
+                <distribution id="lambda.prior" spec="beast.base.spec.inference.distribution.MarkovChainDistribution" param="@lambda">
+                    <initialMean id="RealScalarParam5" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="0.3"/>
+                </distribution>
+                <distribution id="gamma.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@gamma">
+                    <M id="RealScalarParam6" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
+                    <S id="RealScalarParam7" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="2.0"/>
+                </distribution>
+                <distribution id="pi.prior" spec="beast.base.spec.inference.distribution.Dirichlet" param="@pi">
+                    <alpha id="RealVectorParam" spec="beast.base.spec.inference.parameter.RealVectorParam" dimension="4" domain="Real" estimate="false">3.0 3.0 3.0 3.0</alpha>
+                </distribution>
+                <distribution id="mRate.prior" spec="beast.base.spec.inference.distribution.LogNormal" param="@mRate">
+                    <M id="RealScalarParam8" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="-5.0"/>
+                    <S id="RealScalarParam9" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" value="1.0"/>
+                </distribution>
+                <distribution id="CalibrationPrior" spec="calibrationprior.CalibrationPrior" tree="@tree">
+                    <calibration id="CalibrationCladePrior" spec="calibrationprior.CalibrationCladePrior" taxa="@TaxonSet1">
+                        <upperAge id="RealScalarParam10" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="35.0"/>
+                        <lowerAge id="RealScalarParam11" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="29.0"/>
+                        <confidenceLevel id="RealScalarParam12" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" value="0.9"/>
+                    </calibration>
+                    <calibration id="CalibrationCladePrior1" spec="calibrationprior.CalibrationCladePrior" taxa="@TaxonSet2">
+                        <upperAge id="RealScalarParam13" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="10.3"/>
+                        <lowerAge id="RealScalarParam14" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="5.3"/>
+                        <confidenceLevel id="RealScalarParam15" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" value="0.9"/>
+                    </calibration>
+                    <calibration id="CalibrationCladePrior2" spec="calibrationprior.CalibrationCladePrior" taxa="@TaxonSet3">
+                        <upperAge id="RealScalarParam16" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="8.2"/>
+                        <lowerAge id="RealScalarParam17" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="3.8"/>
+                        <confidenceLevel id="RealScalarParam18" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" value="0.9"/>
+                    </calibration>
+                    <calibration id="CalibrationCladePrior3" spec="calibrationprior.CalibrationCladePrior" taxa="@TaxonSet4">
+                        <upperAge id="RealScalarParam19" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="3.7"/>
+                        <lowerAge id="RealScalarParam20" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="NonNegativeReal" value="1.5"/>
+                        <confidenceLevel id="RealScalarParam21" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" value="0.9"/>
+                    </calibration>
+                </distribution>
+            </distribution>
+            <distribution id="likelihood" spec="CompoundDistribution">
+                <distribution id="D.treeLikelihood" spec="beast.base.spec.evolution.likelihood.ThreadedTreeLikelihood" tree="@tree" useAmbiguities="true">
+                    <data idref="D"/>
+                    <siteModel id="SiteModel" spec="beast.base.spec.evolution.sitemodel.SiteModel" gammaCategoryCount="4" shape="@gamma">
+                        <substModel id="HKY" spec="beast.base.spec.evolution.substitutionmodel.HKY" kappa="@kappa">
+                            <frequencies id="Frequencies" spec="beast.base.spec.evolution.substitutionmodel.Frequencies" frequencies="@pi"/>
+                        </substModel>
+                    </siteModel>
+                    <branchRateModel id="StrictClockModel" spec="beast.base.spec.evolution.branchratemodel.StrictClockModel" clock.rate="@mRate"/>
+                </distribution>
+            </distribution>
+        </distribution>
+        <operator id="gamma.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@gamma" weight="1.0"/>
+        <operator id="kappa.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@kappa" weight="1.0"/>
+        <operator id="lambda.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@lambda" weight="2.157669279974593"/>
+        <operator id="mRate.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@mRate" weight="1.0"/>
+        <operator id="mRateUptreeDownOperator" spec="beast.base.spec.evolution.operator.UpDownOperator" scaleFactor="0.9" weight="7.85466234994081">
+            <up idref="mRate"/>
+            <down idref="tree"/>
+        </operator>
+        <operator id="mu.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@mu" weight="2.157669279974593"/>
+        <operator id="pi.deltaExchange" spec="beast.base.spec.inference.operator.DeltaExchangeOperator" delta="0.25" rvparameter="@pi" weight="2.157669279974593"/>
+        <operator id="rho.scale" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@rho" weight="1.0"/>
+        <operator id="tree.intervalScale" spec="beast.base.spec.evolution.operator.IntervalScaleOperator" scaleFactor="0.1" tree="@tree" weight="7.56294171712541"/>
+        <operator id="tree.narrowExchange" spec="Exchange" tree="@tree" weight="7.56294171712541"/>
+        <operator id="tree.rootAgeScale" spec="beast.base.spec.evolution.operator.ScaleTreeOperator" rootOnly="true" tree="@tree" upper="0.975" weight="1.0"/>
+        <operator id="tree.subtreeSlide" spec="kernel.BactrianSubtreeSlide" size="3.1391331003954126" tree="@tree" weight="7.56294171712541"/>
+        <operator id="tree.uniform" spec="kernel.BactrianNodeOperator" tree="@tree" weight="7.56294171712541"/>
+        <operator id="tree.wideExchange" spec="Exchange" isNarrow="false" tree="@tree" weight="1.7826024579660034"/>
+        <operator id="tree.wilsonBalding" spec="WilsonBalding" tree="@tree" weight="1.7826024579660034"/>
+        <logger id="ScreenLogger" spec="Logger" logEvery="50000">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+            <log idref="pi"/>
+            <log idref="kappa"/>
+            <log idref="mRate"/>
+            <log idref="gamma"/>
+            <log idref="lambda"/>
+            <log idref="mu"/>
+            <log idref="rho"/>
+        </logger>
+        <logger id="Logger" spec="Logger" fileName="cats_skyline.log" logEvery="500">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+            <log idref="pi"/>
+            <log idref="kappa"/>
+            <log idref="mRate"/>
+            <log idref="gamma"/>
+            <log idref="lambda"/>
+            <log idref="mu"/>
+            <log idref="rho"/>
+            <log id="TreeStatLogger" spec="beast.base.evolution.tree.TreeStatLogger" tree="@tree"/>
+            <log idref="CalibrationPrior"/>
+            <log idref="D.treeLikelihood"/>
+        </logger>
+        <logger id="tree.treeLogger" spec="Logger" fileName="cats_skyline.trees" logEvery="500" mode="tree">
+            <log idref="tree"/>
+        </logger>
+    </run>
+
+</beast>
+

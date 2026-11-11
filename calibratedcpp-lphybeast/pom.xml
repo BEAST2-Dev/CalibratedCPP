@@ -21,6 +21,12 @@
             <artifactId>lphybeast</artifactId>
             <version>${lphybeast.vision}</version>
         </dependency>
+        <!-- lphybeast mappings for SSM models (e.g. GTR) -->
+        <dependency>
+            <groupId>io.github.linguaphylo</groupId>
+            <artifactId>lphybeast-ssm</artifactId>
+            <version>${lphybeast.vision}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>

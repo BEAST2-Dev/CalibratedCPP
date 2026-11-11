@@ -1,0 +1,42 @@
+// Calibrated birth-death (constant rates) with a conditioned joint calibration prior
+data {
+    D = readNexus(file="./data/cats_100Sites.nex");
+    L = D.nchar();
+    taxa = D.taxa();
+    n = ntaxa(taxa=taxa);
+}
+model {
+    // calibrated clades, ages in Mya
+    taxaAll = ["IberianLynx_Lynx_pardinus","FishingCat_Prionailurus_viverrinus","LeopardCat_Prionailurus_bengalensis","JungleCat_Felis_chaus",
+               "BlackfootedCat_Felis_nigripes","DomesticCat_Felis_catus","SandCat_Felis_margarita","CloudedLeopard_Neofelis_nebulosa","SnowLeopard_Panthera_uncia",
+               "AmurTiger_Panthera_tigris_altaica","BengalTiger_Panthera_tigris_tigris","Jaguar_Panthera_onca","Leopard_Panthera_pardus","Lion_Panthera_leo",
+               "StripedHyena_Hyaena_hyaena","ScimitarToothedCat_Homotherium_latidens","SpottedHyena_Crocuta_crocuta","Caracal_Caracal_caracal","Cheetah_Acinonyx_jubatus"];
+    // Iberian lynx and its sister group
+    taxa1 = ["IberianLynx_Lynx_pardinus","FishingCat_Prionailurus_viverrinus","LeopardCat_Prionailurus_bengalensis","JungleCat_Felis_chaus",
+             "BlackfootedCat_Felis_nigripes","DomesticCat_Felis_catus","SandCat_Felis_margarita"];
+    // clouded leopard and its sister group
+    taxa2 = ["CloudedLeopard_Neofelis_nebulosa","SnowLeopard_Panthera_uncia","AmurTiger_Panthera_tigris_altaica","BengalTiger_Panthera_tigris_tigris",
+             "Jaguar_Panthera_onca","Leopard_Panthera_pardus","Lion_Panthera_leo"];
+    // snow leopard and tigers
+    taxa3 = ["SnowLeopard_Panthera_uncia","AmurTiger_Panthera_tigris_altaica","BengalTiger_Panthera_tigris_tigris"];
+
+    diversification ~ LogNormal(meanlog=-1, sdlog=0.5);
+    turnover ~ Beta(alpha=1, beta=4);
+    rho ~ Uniform(lower=0.0, upper=1.0);
+
+    cAll = calibration(taxa=taxaAll, upper=35.0, lower=29.0);
+    c1 = calibration(taxa=taxa1, upper=10.3, lower=5.3);
+    c2 = calibration(taxa=taxa2, upper=8.2, lower=3.8);
+    c3 = calibration(taxa=taxa3, upper=3.7, lower=1.5);
+    calibrations ~ ConditionedMRCAPrior(calibrations=[cAll, c1, c2, c3]);
+    tree ~ CalibratedCPP(calibrations=calibrations, diversification=diversification, turnover=turnover, rho=rho, n=n);
+
+    // HKY + Gamma site model, strict clock
+    π ~ Dirichlet(conc=[3.0, 3.0, 3.0, 3.0]);
+    kappa ~ LogNormal(meanlog=1.0, sdlog=1.25);
+    Q = hky(kappa=kappa, freq=π);
+    gamma ~ LogNormal(meanlog=0, sdlog=2);
+    siteRates ~ DiscretizeGamma(shape=gamma, ncat=4, replicates=L);
+    mRate ~ LogNormal(meanlog=-5, sdlog=1);
+    D ~ PhyloCTMC(L=L, Q=Q, mu=mRate, tree=tree, siteRates=siteRates);
+}

@@ -1,6 +1,0 @@
-clade1=["leaf_1", "leaf_2"];
-
-cladeCalibration ~ UniformMRCA(taxa=clade1, upper=0.1, lower=0.1);
-calibrations = toArray(calibrations = [cladeCalibration]);
-
-tree ~ CalibratedCPP(lambda=2, mu=0, rho=1, n=4, calibrations=calibrations, stemAge=1);

@@ -1,8 +1,0 @@
-clade1=["1", "2"];
-taxaNames=["1", "2", "3","4"];
-
-rootCalibration ~ UniformMRCA(taxa=taxaNames, upper=1.01, lower=0.99);
-cladeCalibration ~ UniformMRCA(taxa=clade1, upper=0.11, lower=0.09);
-calibrations = toArray(calibrations = [rootCalibration, cladeCalibration]);
-
-tree ~ CalibratedCPP(lambda=2, mu=0, rho=1, n=4, calibrations=calibrations);
